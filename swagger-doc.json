@@ -1,0 +1,209 @@
+{
+  "openapi": "3.0.0",
+  "info": {
+    "title": "API Service",
+    "version": "1.0.0",
+    "description": "API Service endpoints",
+    "contact": {
+      "email": "kothiyasamip@gmail.com",
+      "name": "samip-dev"
+    }
+  },
+  "servers": [
+    {
+      "url": "http://localhost:3000/api/"
+    }
+  ],
+  "tags": [
+    {
+      "name": "Auth Controller",
+      "description": "Auth APIs"
+    },
+    {
+      "name": "User Controller",
+      "description": "User APIs"
+    }
+  ],
+  "paths": {
+    "/login": {
+      "post": {
+        "tags": ["Auth Controller"],
+        "summary": "To get the JWT Token",
+        "operationId": "login",
+        "requestBody": {
+          "description": "Login Details",
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/DraftLoginSchema"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Login Successful",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DraftTokenSchema"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Server error"
+          }
+        }
+      }
+    },
+    "/register": {
+      "post": {
+        "tags": ["Auth Controller"],
+        "summary": "Register user",
+        "operationId": "user-add",
+        "requestBody": {
+          "description": "New user",
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/DraftUserSchema"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "User added",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/UserSchema"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Server error"
+          }
+        }
+      }
+    },
+    "/user/all": {
+      "get": {
+        "tags": ["User Controller"],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "summary": "Get all users in database",
+        "operationId": "user-get-all",
+        "responses": {
+          "200": {
+            "description": "Search results",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "properties": {
+                    "books": {
+                      "type": "array",
+                      "items": {
+                        "$ref": "#/components/schemas/UserSchema"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Server error"
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "securitySchemes": {
+      "bearerAuth": {
+        "type": "http",
+        "scheme": "bearer",
+        "bearerFormat": "JWT"
+      }
+    },
+    "schemas": {
+      "DraftLoginSchema": {
+        "type": "object",
+        "properties": {
+          "email": {
+            "type": "string",
+            "example": "dev@gmail.com"
+          },
+          "password": {
+            "type": "string",
+            "example": "*****"
+          }
+        }
+      },
+      "DraftTokenSchema": {
+        "type": "object",
+        "properties": {
+          "token": {
+            "type": "string",
+            "example": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IksgViBWaWduZXNoIiwiaWF0IjoxNTE2MjM5MDIyfQ.jojFHaz65uekOjgkmVbcOIazOoWQSubROkxJmJwIWBE"
+          },
+          "_id": {
+            "type": "string",
+            "example": "5d7224d3b40b1a1a046697dd"
+          }
+        }
+      },
+      "DraftUserSchema": {
+        "type": "object",
+        "properties": {
+          "email": {
+            "type": "string",
+            "example": "dev@gmail.com"
+          },
+          "password": {
+            "type": "string",
+            "example": "*****"
+          },
+          "firstName": {
+            "type": "string",
+            "example": "J"
+          },
+          "lastName": {
+            "type": "string",
+            "example": "Samip"
+          }
+        }
+      },
+      "UserSchema": {
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/DraftUserSchema"
+          }
+        ],
+        "type": "object",
+        "properties": {
+          "_id": {
+            "type": "string",
+            "example": "5d7224d3b40b1a1a046697dd"
+          },
+          "createdOn": {
+            "type": "string",
+            "example": "2020-07-05T13:39:56.665+00:00"
+          },
+          "updatedOn": {
+            "type": "string",
+            "example": "2020-07-05T13:39:56.665+00:00"
+          }
+        }
+      }
+    }
+  }
+}

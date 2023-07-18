@@ -1,0 +1,22 @@
+{
+  "compilerOptions": {
+    "module": "commonjs",
+    "esModuleInterop": true,
+    "target": "es6",
+    "noImplicitAny": true,
+    "moduleResolution": "node",
+    "sourceMap": true,
+    "strict": true,
+    "outDir": "dist",
+    "baseUrl": ".",
+    "rootDir": "./",
+    "paths": {
+      "*": ["node_modules/*"],
+      "@/*": ["./src/*"]
+    },
+    "resolveJsonModule": true,
+    "types": ["node", "./src/types/declaration.d.ts"],
+    "lib": ["es2021", "dom"]
+  },
+  "include": ["src/**/*", "commitlint.config.ts"]
+}
