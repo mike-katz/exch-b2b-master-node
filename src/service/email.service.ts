@@ -9,9 +9,6 @@ import emailTemplate from "@/utils/emailTemplate";
 
 const transport = nodemailer.createTransport(config.email.smtp);
 
-const getEmailRedirectPath = (role: string): string =>
-  role === "admin" ? "admin" : "auth";
-
 /* istanbul ignore next */
 const ignoreNext = async (): Promise<void> => {
   if (config.env !== "test") {
@@ -74,12 +71,10 @@ const sendEmail = async (
 const sendResetPasswordEmail = async (
   user: User,
   token: string,
-  userRole: string
 ): Promise<void> => {
-  const path = getEmailRedirectPath(userRole);
   const SUBJECT = "Forgot Password";
   const string = token;
-  const verificationEmailUrl = `${config.frontURLEndpoint}/${path}/reset-password?token=${string}`;
+  const verificationEmailUrl = `${config.frontURLEndpoint}/auth/reset-password?token=${string}`;
   const fullName = `${user.firstName} ${user.lastName}`;
   await sendEmail(
     user.email,
@@ -113,14 +108,12 @@ const sendVerificationEmail = async (
   email: string,
   token: string,
   fullName: string,
-  id: mongoose.Types.ObjectId,
-  userRole: string
+  id: mongoose.Types.ObjectId,  
 ): Promise<void> => {
-  const path = getEmailRedirectPath(userRole);
   const SUBJECT = "Email Verification";
   const string = `${token.toString()}||${id.toString()}`;
   const encryptedString = encryptData(string);
-  const verificationEmailUrl = `${config.frontURLEndpoint}/${path}/verify-email?token=${encryptedString}`;
+  const verificationEmailUrl = `${config.frontURLEndpoint}/auth/verify-email?token=${encryptedString}`;
   await sendEmail(email, SUBJECT, fullName, verificationEmailUrl, "verify");
 };
 /**

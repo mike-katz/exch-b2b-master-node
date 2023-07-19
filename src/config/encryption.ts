@@ -13,7 +13,7 @@ const Securitykey = config.encryption.secretKey;
 
 if (algorithm === "" || initVector === "" || Securitykey === "") {
   throw new ApiError(httpStatus.INTERNAL_SERVER_ERROR, {
-    code: "encryption credential missing",
+    msg: "encryption credential missing",
   });
 }
 // Encrypt data

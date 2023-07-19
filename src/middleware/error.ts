@@ -23,7 +23,7 @@ const errorConverter = (
     const message = error.message || httpStatus[statusCode];
     error = new ApiError(
       statusCode,
-      { code: message, message },
+      { msg: message, message },
       false,
       err.stack
     );
@@ -50,13 +50,13 @@ const errorHandler = (
   res.locals.errorMessage = errorData?.message;
   const ENV_DEVELOPMENT_LOCAL = "development.local;";
   let response: {
-    code: string;
+    msg: string;
     message: string;
     error: boolean;
     data: unknown;
     stack?: string;
   } = {
-    code: errorData.code || "",
+    msg: errorData.msg || "",
     message: errorData?.message || "",
     error: true,
     data: errorData.data || null,
@@ -66,7 +66,7 @@ const errorHandler = (
 
   if (statusCode === 500) {
     response = {
-      code: errorData.code || messages.SOMETHING_WENT_WRONG,
+      msg: errorData.msg || messages.SOMETHING_WENT_WRONG,
       message: errorData?.message || message,
       error: true,
       data: errorData?.data || null,

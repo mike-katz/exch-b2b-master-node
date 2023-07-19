@@ -25,28 +25,6 @@ export interface Header {
   };
 }
 
-const clientFunction = (header: IncomingHttpHeaders): ClientObject => {
-  if (!header[XYP]) {
-    throw new ApiError(httpStatus.BAD_REQUEST, {
-      code: '"x-yp-client" not found in header',
-    });
-  }
-  const xForwardedFor = header["x-forwarded-for"];
-  const ip = Array.isArray(xForwardedFor)
-    ? xForwardedFor.at(-1)
-    : (xForwardedFor || "").split(",").pop();
-
-  const client: ClientObject = stringToObject(header["x-yp-client"].toString());
-
-  if (!client.platform) {
-    throw new ApiError(httpStatus.BAD_REQUEST, {
-      code: messages.INVALID_REQUEST,
-    });
-  }
-  client.ip = ip === undefined ? "" : ip.trim();
-  return client;
-};
-
 const countryCodes = [
   {
     name: "Afghanistan",
@@ -1264,9 +1242,9 @@ const verifyCountryCode = (code: string): void => {
   const findCode = find(countryCodes, { dial_code: `+${code}` });
   if (!findCode) {
     throw new ApiError(httpStatus.BAD_REQUEST, {
-      code: messages.auth.INVALID_COUNTRY_CODE,
+      msg: messages.auth.INVALID_COUNTRY_CODE,
     });
   }
 };
 
-export { clientFunction, countryCodes, stringToObject, verifyCountryCode };
+export { countryCodes, stringToObject, verifyCountryCode };

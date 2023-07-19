@@ -19,7 +19,7 @@ const isSocialAuthTypeValid = async (req: Request): Promise<void> => {
 
     if (!socialLoginType) {
       throw new ApiError(401, {
-        code: messages.auth.INVALID_SOCAIL_LOGIN_TYPE,
+        msg: messages.auth.INVALID_SOCAIL_LOGIN_TYPE,
       });
     }
   }
@@ -32,9 +32,9 @@ const verifyCallback =
       const userDetail = cloneDeep(user);
       if (err || info || !user) {
         // TODO this throw error in console not response
-        throw new ApiError(401, { code: messages.USER_UNAUTHORIZED });
+        throw new ApiError(401, { msg: messages.USER_UNAUTHORIZED });
       } else if (type !== "" && userDetail.authType !== type) {
-        throw new ApiError(401, { code: messages.USER_UNAUTHORIZED });
+        throw new ApiError(401, { msg: messages.USER_UNAUTHORIZED });
       } else {
         req.user = user;
         next();
@@ -54,9 +54,9 @@ const socialCallback =
     try {
       if (err || info || !userData) {
         if (err === messages.auth.EMAIL_NOT_FOUND) {
-          throw new ApiError(401, { code: err });
+          throw new ApiError(401, { msg: err });
         }
-        throw new ApiError(401, { code: messages.USER_UNAUTHORIZED });
+        throw new ApiError(401, { msg: messages.USER_UNAUTHORIZED });
       }
       const user = await User.findOne({
         $and: [{ email: userData.email }, { isDeleted: false }],
@@ -80,7 +80,7 @@ const socialCallback =
         req.user = user;
         next();
       } else {
-        throw new ApiError(401, { code: messages.USER_UNAUTHORIZED });
+        throw new ApiError(401, { msg: messages.USER_UNAUTHORIZED });
       }
     } catch (error) {
       next(error);
@@ -117,7 +117,7 @@ const handleAuth = async (
       else if (authtype === "google")
         await socialAuth("google-token", req, res, next);
       else {
-        throw new ApiError(401, { code: messages.INVALID_REQUEST });
+        throw new ApiError(401, { msg: messages.INVALID_REQUEST });
       }
     } else {
       const passportAuthenticationCallback = passport.authenticate(

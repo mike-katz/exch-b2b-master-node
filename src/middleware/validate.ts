@@ -24,7 +24,7 @@ const validate = (
       .join(", ");
     return next(
       new ApiError(httpStatus.BAD_REQUEST, {
-        code: errorMessage,
+        msg: errorMessage,
         message: errorMessage,
       })
     );

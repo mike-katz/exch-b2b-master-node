@@ -14,13 +14,13 @@ export interface CustomRequest extends Request {
 }
 
 export interface IResponseFormat {
-  code: string;
+  msg: string;
   message: string | undefined;
   data: unknown | null;
   error: boolean;
 }
 
-export type ErrorData = { code: string } & Partial<
+export type ErrorData = { msg: string } & Partial<
   Pick<IResponseFormat, "message" | "data" | "error">
 >;
 

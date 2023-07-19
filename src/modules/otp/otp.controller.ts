@@ -24,7 +24,7 @@ const sendOtp = catchAsync(
         ? await OTPService.sendOtpByMobile(countryCode, mobileNo, otpToken)
         : await OTPService.sendOtpByEmail(email);
     const response = prepareResponse({
-      code: messages.otp.OTP_SENT_SUCCESSFULLY,
+      msg: messages.otp.OTP_SENT_SUCCESSFULLY,
       data,
     });
     res.status(httpStatus.OK).send(response);
@@ -40,7 +40,7 @@ const verifyOtp = catchAsync(
         ? await OTPService.verifyOtpByMobile(countryCode, mobileNo, otp)
         : await OTPService.verifyOtpByEmail(email, otp);
     const response = prepareResponse({
-      code: messages.auth.VERIFY_SUCCESSFULLY,
+      msg: messages.auth.VERIFY_SUCCESSFULLY,
       data: verifyData,
     });
     res.status(httpStatus.OK).send(response);

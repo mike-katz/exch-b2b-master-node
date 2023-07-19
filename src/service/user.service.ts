@@ -21,7 +21,7 @@ const getUserByEmail = async (email: string): Promise<UserProfile> => {
   });
   if (!user) {
     throw new ApiError(httpStatus.BAD_REQUEST, {
-      code: messages.USER_NOT_FOUND,
+      msg: messages.USER_NOT_FOUND,
     });
   }
   return user;
@@ -43,7 +43,7 @@ const getUserByMobileNo = async (
 
   if (!user) {
     throw new ApiError(httpStatus.BAD_REQUEST, {
-      code: messages.USER_NOT_FOUND,
+      msg: messages.USER_NOT_FOUND,
     });
   }
   return user;
@@ -59,19 +59,19 @@ const createUser = async (
 ): Promise<UserProfile> => {
   if (userBody.email && (await User.isEmailTaken(userBody.email))) {
     throw new ApiError(httpStatus.BAD_REQUEST, {
-      code: messages.auth.AUTH_EMAIL_ALREADY_EXIST,
+      msg: messages.auth.AUTH_EMAIL_ALREADY_EXIST,
     });
   }
 
   if (userBody.mobileNo && (await User.isMobileNoTaken(userBody.mobileNo))) {
     throw new ApiError(httpStatus.BAD_REQUEST, {
-      code: messages.auth.AUTH_MOBILE_ALREADY_EXIST,
+      msg: messages.auth.AUTH_MOBILE_ALREADY_EXIST,
     });
   }
   const user = await User.create(userBody);
   if (!user) {
     throw new ApiError(httpStatus.INTERNAL_SERVER_ERROR, {
-      code: messages.SOMETHING_WENT_WRONG,
+      msg: messages.SOMETHING_WENT_WRONG,
     });
   }
   return user;
@@ -99,12 +99,12 @@ const updateUserById = async (
   const user = await getUserById(userId);
   if (!user) {
     throw new ApiError(httpStatus.BAD_REQUEST, {
-      code: messages.USER_NOT_FOUND,
+      msg: messages.USER_NOT_FOUND,
     });
   }
   if (updateBody.email && (await User.isEmailTaken(updateBody.email, userId))) {
     throw new ApiError(httpStatus.BAD_REQUEST, {
-      code: messages.auth.AUTH_EMAIL_ALREADY_EXIST,
+      msg: messages.auth.AUTH_EMAIL_ALREADY_EXIST,
     });
   }
   Object.assign(user, updateBody);

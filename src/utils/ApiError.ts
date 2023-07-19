@@ -13,7 +13,7 @@ class ApiError extends Error {
     isOperational = true,
     stack = ""
   ) {
-    super(errorData.code);
+    super(errorData.msg);
     this.statusCode = statusCode;
     this.isOperational = isOperational;
     this.errorData = errorData;

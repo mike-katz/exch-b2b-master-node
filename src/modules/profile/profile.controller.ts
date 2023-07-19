@@ -17,7 +17,7 @@ const fetchUserProfile = catchAsync(
       countryCode,
       userRole,
     };
-    res.send(prepareResponse({ code: "SUCCESS", data: { user: userData } }));
+    res.send(prepareResponse({ msg: "SUCCESS", data: { user: userData } }));
   }
 );
 

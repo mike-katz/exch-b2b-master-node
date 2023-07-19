@@ -62,7 +62,7 @@ const requestValidation = async (body: IOtpReqestData): Promise<void> => {
     (!config.loginTypes.phone && body.source === userOtpVarification.PHONE)
   ) {
     throw new ApiError(httpStatus.BAD_REQUEST, {
-      code: messages.INVALID_REQUEST,
+      msg: messages.INVALID_REQUEST,
     });
   }
 };
@@ -100,7 +100,7 @@ const generateOtpData = async (
       new Date(curretDate) < new Date(nextResendOtpDate)
     ) {
       throw new ApiError(httpStatus.BAD_REQUEST, {
-        code: messages.otp.WAIT_OTP_ONE_MIN,
+        msg: messages.otp.WAIT_OTP_ONE_MIN,
       });
     }
     if (
@@ -108,7 +108,7 @@ const generateOtpData = async (
       new Date(curretDate) < new Date(nextMaxResendOtpDate)
     ) {
       throw new ApiError(httpStatus.BAD_REQUEST, {
-        code: messages.otp.WAIT_OTP_ONE_HOUR,
+        msg: messages.otp.WAIT_OTP_ONE_HOUR,
       });
     }
     sentOtpCount =
@@ -154,7 +154,7 @@ const verifyOtpToken = async (
       tokenService.decodeEncryptedOtpToken(encryptedOtpToken);
     if (userNextOtpTime && userNextOtpTime !== decryptedOtpTime) {
       throw new ApiError(httpStatus.BAD_REQUEST, {
-        code: messages.otp.INVALID_OTP_TOKEN,
+        msg: messages.otp.INVALID_OTP_TOKEN,
       });
     }
   }
@@ -162,7 +162,7 @@ const verifyOtpToken = async (
   //   const curretDate = moment().utc().unix().toString();
   //   if (curretDate < userNextOtpTime) {
   //     throw new ApiError(httpStatus.BAD_REQUEST, {
-  //       code: messages.INVALID_REQUEST,
+  //       msg: messages.INVALID_REQUEST,
   //     });
   //   }
   // }
@@ -183,7 +183,7 @@ const sendOtpByMobile = async (
   );
   // if (user.otp && !encryptedOtpToken) {
   //   throw new ApiError(httpStatus.BAD_REQUEST, {
-  //     code: messages.otp.OTP_TOKEN_REQUIRED,
+  //     msg: messages.otp.OTP_TOKEN_REQUIRED,
   //   });
   // }
   const otpData = await verifyOtpToken(user, encryptedOtpToken);
@@ -244,7 +244,7 @@ const verifyOtpByMobile = async (
     };
   }
   throw new ApiError(httpStatus.BAD_REQUEST, {
-    code: messages.otp.INCORRECT_OTP,
+    msg: messages.otp.INCORRECT_OTP,
   });
 };
 
@@ -274,7 +274,7 @@ const verifyOtpByEmail = async (
     };
   }
   throw new ApiError(httpStatus.BAD_REQUEST, {
-    code: messages.otp.INCORRECT_OTP,
+    msg: messages.otp.INCORRECT_OTP,
   });
 };
 

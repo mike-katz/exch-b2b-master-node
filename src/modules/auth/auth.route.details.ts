@@ -26,24 +26,7 @@ const routeDetails: IAuthRouteDetails[] = [
     validationMethodName: "login",
     controllerMethodName: "login",
   },
-  {
-    key: "googleLoginAPI",
-    method: "post",
-    url: "/login/google",
-    controllerMethodName: "socialLogin",
-  },
-  {
-    key: "facebookLoginAPI",
-    method: "post",
-    url: "/login/facebook",
-    controllerMethodName: "socialLogin",
-  },
-  {
-    key: "appleLoginAPI",
-    method: "post",
-    url: "/login/apple",
-    controllerMethodName: "socialLogin",
-  },
+  
   {
     key: "registerAPI",
     method: "post",
@@ -51,41 +34,7 @@ const routeDetails: IAuthRouteDetails[] = [
     validationMethodName: "register",
     controllerMethodName: "register",
   },
-  {
-    key: "verifyEmailAPI",
-    method: "post",
-    url: "/verify-email",
-    validationMethodName: "verifyEmail",
-    controllerMethodName: "verifyEmail",
-  },
-  {
-    key: "sendVerificationAPI",
-    method: "post",
-    url: "/send-verification-email",
-    validationMethodName: "sendVerificationEmail",
-    controllerMethodName: "sendVerificationEmail",
-  },
-  {
-    key: "resetPasswordAPI",
-    method: "post",
-    url: "/reset-password",
-    validationMethodName: "resetPassword",
-    controllerMethodName: "resetPassword",
-  },
-  {
-    key: "forgotPasswordAPI",
-    method: "post",
-    url: "/forgot-password",
-    validationMethodName: "forgotPassword",
-    controllerMethodName: "forgotPassword",
-  },
-  {
-    key: "getVerificationCodeAPI",
-    method: "post",
-    url: "/get-verification-code",
-    validationMethodName: "getVerificationCode",
-    controllerMethodName: "getVerificationCode",
-  },
+  
   {
     key: "logoutAPI",
     method: "post",
@@ -105,14 +54,7 @@ const routeDetails: IAuthRouteDetails[] = [
     url: "/refresh-token",
     validationMethodName: "refreshToken",
     controllerMethodName: "handleRefreshToken",
-  },
-  {
-    key: "updateDeviceTokenAPI",
-    method: "put",
-    url: "/update-device-token",
-    validationMethodName: "updateDeviceToken",
-    controllerMethodName: "updateDeviceToken",
-  },
+  },  
 ];
 
 export default routeDetails;

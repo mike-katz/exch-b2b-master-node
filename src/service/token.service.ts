@@ -56,7 +56,6 @@ const saveToken = async (
   userId: mongoose.Types.ObjectId,
   expires: Moment,
   type: string,
-  client?: ClientObject,
   blacklisted = false
 ): Promise<ITokenDoc> =>
   Token.create({
@@ -64,8 +63,7 @@ const saveToken = async (
     user: userId,
     expires: expires.toDate(),
     type,
-    blacklisted,
-    client,
+    blacklisted,    
   });
 
 /**
@@ -84,7 +82,7 @@ const verifyToken = async (token: string, type: string): Promise<ITokenDoc> => {
   });
   if (!tokenDoc) {
     throw new ApiError(httpStatus.UNAUTHORIZED, {
-      code: messages.UNAUTHORIZED_ACCESS,
+      msg: messages.UNAUTHORIZED_ACCESS,
     });
   }
   return tokenDoc;
@@ -97,7 +95,6 @@ const verifyToken = async (token: string, type: string): Promise<ITokenDoc> => {
  */
 const generateAuthTokens = async (
   user: UserProfile,
-  client?: ClientObject
 ): Promise<AccessAndRefreshTokens> => {
   const accessTokenExpires = moment().add(
     config.jwt.accessExpirationMinutes,
@@ -122,8 +119,7 @@ const generateAuthTokens = async (
     refreshToken,
     user.id,
     refreshTokenExpires,
-    tokenTypes.REFRESH,
-    client
+    tokenTypes.REFRESH,    
   );
 
   // TODO channge response object remove expire
@@ -192,11 +188,11 @@ const decodeEncryptedOtpToken = (otpToken: string): string => {
       return nextOtpTime;
     }
     throw new ApiError(httpStatus.BAD_REQUEST, {
-      code: messages.otp.INVALID_OTP_TOKEN,
+      msg: messages.otp.INVALID_OTP_TOKEN,
     });
   } catch (error) {
     throw new ApiError(httpStatus.BAD_REQUEST, {
-      code: messages.otp.INVALID_OTP_TOKEN,
+      msg: messages.otp.INVALID_OTP_TOKEN,
     });
   }
 };
@@ -221,13 +217,13 @@ const refreshTokenService = async (
   const verifiedToken = await verifyToken(refreshToken, tokenTypes.REFRESH);
   if (!verifiedToken) {
     throw new ApiError(httpStatus.UNAUTHORIZED, {
-      code: messages.auth.INVALID_REFRESH_TOKEN,
+      msg: messages.auth.INVALID_REFRESH_TOKEN,
     });
   }
   const user: UserProfile | null = await User.findById(verifiedToken.user);
   if (!user) {
     throw new ApiError(httpStatus.UNAUTHORIZED, {
-      code: messages.USER_NOT_FOUND,
+      msg: messages.USER_NOT_FOUND,
     });
   }
   const accessTokenExpires: Moment = moment().add(
@@ -265,7 +261,7 @@ const checkEmailTokenExpired = async (
 
   if (!token) {
     throw new ApiError(httpStatus.INTERNAL_SERVER_ERROR, {
-      code: messages.auth.AUTH_EMAIL_VERIFICATION_ISSUE,
+      msg: messages.auth.AUTH_EMAIL_VERIFICATION_ISSUE,
     });
   }
   return token.expires < new Date();

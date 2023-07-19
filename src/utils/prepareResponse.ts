@@ -1,18 +1,18 @@
 import { IResponseFormat } from "@/types";
 
 interface Iparams {
-  code: string;
+  msg: string;
   message?: string;
   data?: unknown;
   error?: boolean;
 }
 const prepareResponse = ({
-  code,
+  msg,
   message = "",
   data = null,
   error = false,
 }: Iparams): IResponseFormat => ({
-  code,
+  msg,
   message,
   data,
   error,
