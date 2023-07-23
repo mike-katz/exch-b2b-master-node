@@ -1,9 +1,9 @@
-import profileController from "./profile.controller";
-import profileValidation from "./profile.validation";
+import profileController from "./user.controller";
+import profileValidation from "./user.validation";
 
 export interface IAuthRouteDetails {
   key: string;
-  method: "get";
+  method: "get" | "post";
   url: string;
   auth?: string;
   validationMethodName?: keyof typeof profileValidation;
@@ -14,9 +14,18 @@ const routeDetails: IAuthRouteDetails[] = [
   {
     key: "fetchUserProfileAPI",
     method: "get",
-    url: "/user",
+    url: "/detail",
     validationMethodName: "fetchUserProfile",
     controllerMethodName: "fetchUserProfile",
+    auth: "",
+  },
+
+  {
+    key: "fetchDownlineDataAPI",
+    method: "post",
+    url: "/downline",
+    validationMethodName: "fetchUserDownline",
+    controllerMethodName: "fetchUserDownline",
     auth: "",
   },
 ];

@@ -4,7 +4,7 @@ import { IRoute } from "@/types";
 
 import authRoute from "./auth/auth.route";
 import docsRoute from "./docs.route";
-import profileRoute from "./profile/profile.route";
+import userRoute from "./user/user.route";
 import activityRoute from "./activity/activity.route";
 
 const router = express.Router();
@@ -14,8 +14,8 @@ const defaultRoutes = [
     route: authRoute,
   },
   {
-    path: "/profile",
-    route: profileRoute,
+    path: "/user",
+    route: userRoute,
   },
   {
     path: "/activity",

@@ -11,9 +11,9 @@ import validate from "@/middleware/validate";
 import { CustomResponse } from "@/types";
 import route from "@/utils/routeRegister";
 
-import profileController from "./profile.controller";
-import routeDetails, { IAuthRouteDetails } from "./profile.route.details";
-import profileValidation from "./profile.validation";
+import profileController from "./user.controller";
+import routeDetails, { IAuthRouteDetails } from "./user.route.details";
+import profileValidation from "./user.validation";
 
 const profileRoute: Router = express.Router();
 
