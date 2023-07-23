@@ -255,8 +255,10 @@ const checkEmailTokenExpired = async (
 };
 
 const getPayloadFromToken = (token: string): JwtPayload | null => {
+  const newToken = token.split(' ')[1];
+  
   try {
-    return jwt.verify(token, config.jwt.secret) as JwtPayload;
+    return jwt.verify(newToken, config.jwt.secret) as JwtPayload;
   } catch (error) {
     return null;
   }

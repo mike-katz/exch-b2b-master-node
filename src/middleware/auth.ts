@@ -14,6 +14,8 @@ const auth = async (
   res: Response,
   next: NextFunction
 ): Promise<void> => {
+  console.log("req.headers",req.headers.access_token);
+  
   let accessToken: string | undefined = req.headers.access_token as string;
   if (!accessToken) {
     return sendUnauthorizedError(res);
