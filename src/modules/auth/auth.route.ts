@@ -6,7 +6,7 @@ import express, {
 } from "express";
 import { forEach, has, isEmpty, toLower } from "lodash";
 
-import { auth, optionalAuth } from "@/middleware/auth";
+import auth from "@/middleware/auth";
 import validate from "@/middleware/validate";
 import { CustomResponse } from "@/types";
 import route from "@/utils/routeRegister";
@@ -20,24 +20,12 @@ const authRoute: Router = express.Router();
 if (!isEmpty(routeDetails)) {
   forEach(routeDetails, (value: IAuthRouteDetails) => {
     const method = toLower(value.method);
-    const middlewareAuth = has(value, "auth")
-      ? async (
-          req: Request,
-          res: CustomResponse,
-          next: NextFunction
-        ): Promise<void> => {
-          await auth(req, res, next, value?.auth);
-        }
-      : async (
-          req: Request,
-          res: CustomResponse,
-          next: NextFunction
-        ): Promise<void> => {
-          await optionalAuth(req, res, next);
-        };
+    let args: RequestHandler[] = [];
 
-    const args: RequestHandler[] = [middlewareAuth]; // add middlewareAuth as the first argument
-
+    if (Object.prototype.hasOwnProperty.call(value, "auth")) {
+      args = [auth];
+    }
+    
     const validateMiddleware: RequestHandler = (
       req: Request,
       res: CustomResponse,
@@ -46,7 +34,7 @@ if (!isEmpty(routeDetails)) {
       if (value.validationMethodName)
         validate(req, res, next, authValidation[value.validationMethodName]);
     };
-    if (has(value, "validationMethodName")) {
+    if (Object.prototype.hasOwnProperty.call(value, "validationMethodName")) {
       // check validation
       args.push(validateMiddleware);
     }
@@ -81,7 +69,7 @@ export default authRoute;
  *             required:
  *               - password
  *             properties:
- *               mobileNo:
+ *               mobile:
  *                 type: string
  *                 format: string
  *               countryCode:
@@ -156,7 +144,7 @@ export default authRoute;
  *                 type: string
  *               lastName:
  *                 type: string
- *               mobileNo:
+ *               mobile:
  *                 type: string
  *               countryCode:
  *                 type: string
@@ -168,7 +156,7 @@ export default authRoute;
  *               captchaToken: captchaToken
  *               firstName: firstName
  *               lastName: lastName
- *               mobileNo: ""
+ *               mobile: ""
  *               countryCode: "91"
  *               authType: authType
  *     responses:
@@ -300,12 +288,12 @@ export default authRoute;
  *           schema:
  *             type: object
  *             required:
- *               - mobileNo
+ *               - mobile
  *             properties:
- *               mobileNo:
+ *               mobile:
  *                 type: string
  *             example:
- *               mobileNo: ""
+ *               mobile: ""
  *     responses:
  *       "204":
  *         description: No content
@@ -362,7 +350,7 @@ export default authRoute;
  *               token:
  *                 type: string
  *                 format: string
- *               mobileNo:
+ *               mobile:
  *                 type: string
  *                 format: string
  *               countryCode:
@@ -408,7 +396,7 @@ export default authRoute;
  *               email:
  *                 type: string
  *                 format: email
- *               mobileNo:
+ *               mobile:
  *                 type: string
  *                 format: string
  *               countryCode:

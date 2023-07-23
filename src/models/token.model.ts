@@ -18,25 +18,7 @@ const tokenSchema = new mongoose.Schema<ITokenDoc, ITokenModel>(
       ref: "User",
       required: true,
     },
-    client: {
-      type: {
-        bundleId: String,
-        platform: {
-          type: String,
-          enum: userPlatform,
-          default: userPlatform.WEB,
-        },
-        hardware: String,
-        product: String,
-        softwareName: String,
-        softwareVersion: String,
-        version: String,
-        buildNumber: String,
-        ip: String,
-        route: String,
-      },
-      required: false,
-    },
+    
     type: {
       type: String,
       enum: [

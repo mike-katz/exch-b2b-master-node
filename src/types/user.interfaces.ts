@@ -1,42 +1,21 @@
-import mongoose, { Document, Model } from "mongoose";
+import mongoose, { Document, Model, Schema } from "mongoose";
 
 import { Options, QueryResult } from "@/models/plugins/paginate.plugin";
-
-interface ClientObject {
-  bundleId: string;
-  platform: string;
-  hardware: string;
-  product: string;
-  softwareName: string;
-  softwareVersion: string;
-  version: string;
-  buildNumber: string;
-  ip: string;
-  route: string;
-}
 interface User {
   firstName: string;
   lastName: string;
-  email: string;
+  username: string;
   password: string;
-  userRole: string;
-  isPhoneVerified: boolean;
-  isEmailVerified: boolean;
-  lastLoginDateTime: Date;
-  isDeleted: boolean;
-  captchaToken: string;
-  mobileNo: string;
-  countryCode: string;
-  client: ClientObject;
-  authType: string;
-  otp: number;
-  otpTime: Date;
-  otpStatus: string;
-  nextOtpTime: string;
-  sentOtpCount: number;
-  googleId: string;
-  facebookId: string;
-  appleId: string;
+  roles: string;
+  balance: Schema.Types.Decimal128;
+  exposureLimit: Number;
+  parentId: any;
+  level: Number;
+  commision: Number;
+  mobile: string;
+  origin: string;
+  ip: string;
+  refreshToken: string;  
 }
 
 interface UserProfile extends User, Document {
@@ -45,9 +24,9 @@ interface UserProfile extends User, Document {
 }
 
 interface UserModel extends Model<UserProfile> {
-  isMobileNoTaken(mobileNo: string): Promise<boolean>;
-  isEmailTaken(
-    email: string,
+  isMobileNoTaken(mobile: string): Promise<boolean>;
+  isUsernameTaken(
+    username: string,
     excludeUserId?: mongoose.Types.ObjectId
   ): Promise<boolean>;
   paginate(
@@ -71,14 +50,13 @@ enum UserVarificationMode {
 interface IResetData {
   source: string;
   countryCode?: string;
-  mobileNo?: string;
+  mobile?: string;
   email?: string;
   otp?: number;
   password?: string;
 }
 
 export {
-  ClientObject,
   IResetData,
   NewRegisteredUser,
   UpdateUserBody,

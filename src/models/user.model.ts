@@ -1,45 +1,22 @@
 // const mongoose = require("mongoose");
 // import { isEmail } from "validator";
 import bcrypt from "bcryptjs";
-import mongoose, { Document } from "mongoose";
+import mongoose, { Document, Schema } from "mongoose";
 import validator from "validator";
 
-import config from "@/config/config";
 import { roles } from "@/config/roles";
 import { userPlatform } from "@/config/users";
 import { UserModel, UserProfile } from "@/types/user.interfaces";
 
 import * as plugin from "./plugins";
 
-const { loginTypes } = config;
-
-const isPhoneRequred = (): boolean =>
-  (loginTypes.phone || loginTypes.emailAndPhone) &&
-  !loginTypes.apple &&
-  !loginTypes.facebook &&
-  !loginTypes.google;
-
-const isEmailRequired = (): boolean =>
-  loginTypes.email || loginTypes.emailAndPhone;
-
 const userSchema = new mongoose.Schema<UserProfile, UserModel>(
   {
-    firstName: { type: String, required: true, trim: true },
+    firstName: { type: String },
 
-    lastName: { type: String, required: true, trim: true },
+    lastName: { type: String },
 
-    email: {
-      type: String,
-      required: isEmailRequired,
-      unique: true,
-      trim: true,
-      lowercase: true,
-      validate(value: string): void {
-        if (!validator.isEmail(value)) {
-          throw new Error("Invalid email");
-        }
-      },
-    },
+    username: { type: String, required: true },
 
     password: {
       type: String,
@@ -56,90 +33,44 @@ const userSchema = new mongoose.Schema<UserProfile, UserModel>(
       private: true, // used by the toJSON plugins
     },
 
-    mobileNo: {
+    mobile: {
       type: String,
-      required: isPhoneRequred,
-      trim: true,
-    },
-    countryCode: {
-      type: String,
-      required: isPhoneRequred,
       trim: true,
     },
 
-    isPhoneVerified: {
-      type: Boolean,
-      required: isPhoneRequred,
-      default: false,
+    balance: {
+      type: Schema.Types.Decimal128,
+      default: 0,
     },
 
-    isEmailVerified: {
-      type: Boolean,
-      required: isEmailRequired,
-      default: false,
-    },
-
-    userRole: {
+    roles: {
       type: String,
       enum: roles,
       default: "user",
     },
 
-    otp: {
-      type: Number,
-      required: false,
-    },
-
-    otpTime: {
-      type: Date,
-    },
-
-    nextOtpTime: { type: String },
-
-    sentOtpCount: {
+    exposureLimit: {
       type: Number,
       default: 0,
     },
 
-    client: {
-      type: {
-        bundleId: String,
-        platform: {
-          type: String,
-          enum: userPlatform,
-          default: userPlatform.WEB,
-        },
-        hardware: String,
-        product: String,
-        softwareName: String,
-        softwareVersion: String,
-        version: String,
-        buildNumber: String,
-        ip: String,
-        route: String,
-      },
-      required: false,
+    parentId: [{
+      type: Number,
+    }],
+    level: {
+      type: Number,
     },
-
-    googleId: {
+    commision: {
+      type: Number,
+    },
+    origin: {
       type: String,
-      required: false,
     },
-
-    facebookId: {
+    ip: {
       type: String,
-      required: false,
     },
-
-    appleId: {
+    refreshToken: {
       type: String,
-      required: false,
-    },
-
-    isDeleted: {
-      type: Boolean,
-      required: false,
-      default: false,
     },
   },
   { timestamps: true }
@@ -154,7 +85,7 @@ userSchema.plugin(plugin.paginate);
  * @param {ObjectId} [excludeUserId] - The id of the user to be excluded
  * @returns {Promise<boolean>}
  */
-userSchema.statics.isEmailTaken = async function isEmailTaken(
+userSchema.statics.isUsernameTaken = async function isUsernameTaken(
   this: UserModel,
   email: string,
   excludeUserId: string
@@ -165,16 +96,16 @@ userSchema.statics.isEmailTaken = async function isEmailTaken(
 
 /**
  * Check if mobileNo is taken
- * @param {string} mobileNo - The user's email
+ * @param {string} mobile - The user's email
  * @param {ObjectId} [excludeUserId] - The id of the user to be excluded
  * @returns {Promise<boolean>}
  */
 userSchema.statics.isMobileNoTaken = async function isMobileNoTaken(
   this: UserModel,
-  mobileNo: string,
+  mobile: string,
   excludeUserId: string
 ): Promise<boolean> {
-  const user = await this.findOne({ mobileNo, _id: { $ne: excludeUserId } });
+  const user = await this.findOne({ mobile, _id: { $ne: excludeUserId } });
   return !!user;
 };
 /**

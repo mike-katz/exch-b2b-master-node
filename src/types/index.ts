@@ -14,7 +14,6 @@ export interface CustomRequest extends Request {
 }
 
 export interface IResponseFormat {
-  msg: string;
   message: string | undefined;
   data: unknown | null;
   error: boolean;

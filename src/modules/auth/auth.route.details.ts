@@ -25,15 +25,7 @@ const routeDetails: IAuthRouteDetails[] = [
     url: "/admin/login",
     validationMethodName: "login",
     controllerMethodName: "login",
-  },
-  
-  {
-    key: "registerAPI",
-    method: "post",
-    url: "/register",
-    validationMethodName: "register",
-    controllerMethodName: "register",
-  },
+  },  
   
   {
     key: "logoutAPI",
@@ -42,12 +34,7 @@ const routeDetails: IAuthRouteDetails[] = [
     validationMethodName: "logout",
     controllerMethodName: "logout",
   },
-  {
-    key: "fileUploadDemoAPI",
-    method: "post",
-    url: "/fileUploadDemo",
-    controllerMethodName: "fileUploadDemo",
-  },
+  
   {
     key: "refreshTokenAPI",
     method: "post",

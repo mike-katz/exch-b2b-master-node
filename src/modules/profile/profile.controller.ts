@@ -7,17 +7,14 @@ import prepareResponse from "@/utils/prepareResponse";
 
 const fetchUserProfile = catchAsync(
   async (req: Request, res: CustomResponse) => {
-    const { firstName, lastName, email, mobileNo, countryCode, userRole } =
+    const { firstName, lastName, mobile} =
       req.user as UserProfile;
     const userData = {
       firstName,
       lastName,
-      email,
-      mobileNo,
-      countryCode,
-      userRole,
+      mobile
     };
-    res.send(prepareResponse({ msg: "SUCCESS", data: { user: userData } }));
+    res.send(prepareResponse({ message: "SUCCESS", data: { user: userData } }));
   }
 );
 

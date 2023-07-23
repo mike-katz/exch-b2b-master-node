@@ -4,21 +4,21 @@ import express, {
   RequestHandler,
   Router,
 } from "express";
-import { forEach, isEmpty, toLower } from "lodash";
+import { forEach, has, isEmpty, toLower } from "lodash";
 
 import auth from "@/middleware/auth";
 import validate from "@/middleware/validate";
 import { CustomResponse } from "@/types";
 import route from "@/utils/routeRegister";
 
-import profileController from "./profile.controller";
-import routeDetails, { IAuthRouteDetails } from "./profile.route.details";
-import profileValidation from "./profile.validation";
+import activityController from "./activity.controller";
+import routeDetails, { IActivityRouteDetails } from "./activity.route.details";
+import activityValidation from "./activity.validation";
 
-const profileRoute: Router = express.Router();
+const activityRoute: Router = express.Router();
 
 if (!isEmpty(routeDetails)) {
-  forEach(routeDetails, (value: IAuthRouteDetails) => {
+  forEach(routeDetails, (value: IActivityRouteDetails) => {
     const method = toLower(value.method);
     let args: RequestHandler[] = [];
 
@@ -32,17 +32,17 @@ if (!isEmpty(routeDetails)) {
       next: NextFunction
     ): void => {
       if (value.validationMethodName)
-        validate(req, res, next, profileValidation[value.validationMethodName]);
+        validate(req, res, next, activityValidation[value.validationMethodName]);
     };
     if (Object.prototype.hasOwnProperty.call(value, "validationMethodName")) {
       // check validation
       args.push(validateMiddleware);
     }
 
-    route(profileRoute, method, value.url, [
+    route(activityRoute, method, value.url, [
       ...args,
-      profileController[value.controllerMethodName],
+      activityController[value.controllerMethodName],
     ]); // pass value.url as the first argument
   });
 }
-export default profileRoute;
+export default activityRoute;

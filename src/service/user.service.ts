@@ -30,15 +30,15 @@ const getUserByEmail = async (email: string): Promise<UserProfile> => {
 /**
  * Get user by email
  * @param {string} countryCode
- * @param {string} mobileNo
+ * @param {string} mobile
  * @returns {Promise<User>}
  */
 const getUserByMobileNo = async (
   countryCode: string,
-  mobileNo: string
+  mobile: string
 ): Promise<UserProfile> => {
   const user = await User.findOne({
-    $and: [{ countryCode }, { mobileNo }, { isDeleted: false }],
+    $and: [{ countryCode }, { mobile }, { isDeleted: false }],
   });
 
   if (!user) {
@@ -57,13 +57,7 @@ const getUserByMobileNo = async (
 const createUser = async (
   userBody: NewRegisteredUser
 ): Promise<UserProfile> => {
-  if (userBody.email && (await User.isEmailTaken(userBody.email))) {
-    throw new ApiError(httpStatus.BAD_REQUEST, {
-      msg: messages.auth.AUTH_EMAIL_ALREADY_EXIST,
-    });
-  }
-
-  if (userBody.mobileNo && (await User.isMobileNoTaken(userBody.mobileNo))) {
+  if (userBody.mobile && (await User.isMobileNoTaken(userBody.mobile))) {
     throw new ApiError(httpStatus.BAD_REQUEST, {
       msg: messages.auth.AUTH_MOBILE_ALREADY_EXIST,
     });
@@ -102,7 +96,7 @@ const updateUserById = async (
       msg: messages.USER_NOT_FOUND,
     });
   }
-  if (updateBody.email && (await User.isEmailTaken(updateBody.email, userId))) {
+  if (updateBody.username && (await User.isUsernameTaken(updateBody.username, userId))) {
     throw new ApiError(httpStatus.BAD_REQUEST, {
       msg: messages.auth.AUTH_EMAIL_ALREADY_EXIST,
     });

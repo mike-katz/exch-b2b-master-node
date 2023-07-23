@@ -1,8 +1,5 @@
 import { JwtPayload } from "jsonwebtoken";
 import mongoose, { Document, Model } from "mongoose";
-
-import { ClientObject, UserProfile } from "./user.interfaces";
-
 export interface IToken {
   token: string;
   user: string;
@@ -11,7 +8,6 @@ export interface IToken {
   blacklisted: boolean;
   provider: string;
   createdAt: Date;
-  client: ClientObject;
 }
 
 export interface IDeviceToken {
@@ -19,7 +15,6 @@ export interface IDeviceToken {
   user?: mongoose.Types.ObjectId;
   blacklisted: boolean;
   createdAt: Date;
-  client: ClientObject;
 }
 export interface IDeviceTokenDoc extends IDeviceToken, Document {}
 export type IDeviceTokenModel = Model<IDeviceTokenDoc>;
@@ -37,16 +32,9 @@ export interface IPayload extends JwtPayload {
   type: string;
 }
 
-export interface TokenPayload {
-  token: string;
-  expires: Date;
-}
+
 
 export interface AccessAndRefreshTokens {
-  access: TokenPayload;
-  refresh: TokenPayload;
-}
-export interface IUserWithTokens {
-  user: UserProfile;
-  tokens: AccessAndRefreshTokens;
+  accessToken: string;
+  refreshToken: string;
 }

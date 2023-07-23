@@ -30,11 +30,11 @@ const register = {
         "string.pattern.base": `${authValidation.LASTNAME_NUMBER_NOT_ALLOW}`,
       })
       .required(),
-    mobileNo: Joi.string()
+    mobile: Joi.string()
       .trim()
       .messages({ "string.empty": `${messages.INVALID_REQUEST}` })
       .optional(),
-    countryCode: Joi.alternatives().conditional("mobileNo", {
+    countryCode: Joi.alternatives().conditional("mobile", {
       is: Joi.exist().not(null),
       then: Joi.string()
         .trim()
@@ -48,29 +48,9 @@ const register = {
 };
 
 const login = {
-  body: Joi.object().keys({
-    email: Joi.string()
-      .email()
-      .max(62)
-      .messages({
-        "string.max": `${authValidation.EMAIL_MAX_62_NOT_ALLOW}`,
-      })
-      .optional(),
-    mobileNo: Joi.alternatives().conditional("email", {
-      is: Joi.exist().not(null),
-      then: Joi.string().optional(),
-      otherwise: Joi.string()
-        .trim()
-        .messages({ "string.empty": `${messages.INVALID_REQUEST}` })
-        .required(),
-    }),
-    countryCode: Joi.alternatives().conditional("email", {
-      is: Joi.exist().not(null),
-      then: Joi.optional(),
-      otherwise: Joi.string().required(),
-    }),
+  body: Joi.object().keys({    
     password: Joi.string().required(),
-    captchaToken: Joi.string().required(),
+    username: Joi.string().required(),
   }),
 };
 
@@ -109,23 +89,12 @@ const forgotPassword = {
         .messages({ "string.empty": `${messages.INVALID_REQUEST}` }),
       otherwise: Joi.forbidden(),
     }),
-    mobileNo: Joi.alternatives().conditional("source", {
+    mobile: Joi.alternatives().conditional("source", {
       is: userOtpVarification.PHONE,
       then: Joi.string()
         .trim()
         .required()
         .messages({ "string.empty": `${messages.INVALID_REQUEST}` }),
-      otherwise: Joi.forbidden(),
-    }),
-    email: Joi.alternatives().conditional("source", {
-      is: userOtpVarification.EMAIL,
-      then: Joi.string()
-        .trim()
-        .messages({ "string.empty": `${messages.INVALID_REQUEST}` })
-        .email()
-        .min(3)
-        .max(62)
-        .required(),
       otherwise: Joi.forbidden(),
     }),
   }),
@@ -146,7 +115,7 @@ const resetPassword = {
         .messages({ "string.empty": `${messages.INVALID_REQUEST}` }),
       otherwise: Joi.forbidden(),
     }),
-    mobileNo: Joi.alternatives().conditional("source", {
+    mobile: Joi.alternatives().conditional("source", {
       is: userOtpVarification.PHONE,
       then: Joi.string()
         .trim()
@@ -178,7 +147,7 @@ const resetPassword = {
 
 const getVerificationCode = {
   body: Joi.object().keys({
-    mobileNo: Joi.string().required(),
+    mobile: Joi.string().required(),
   }),
 };
 

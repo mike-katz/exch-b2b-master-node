@@ -7,7 +7,7 @@ components:
           type: string
         lastName:
           type: string
-        mobileNo:
+        mobile:
           type: string
         countryCode:
           type: string

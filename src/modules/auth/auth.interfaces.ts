@@ -8,9 +8,7 @@ export interface IRegisterBody {
 }
 
 export interface ILoginBody {
-  email?: string;
-  mobileNo?: string;
-  countryCode?: string;
+  username: string; 
   password: string;
-  captchaToken: string;
+ 
 }

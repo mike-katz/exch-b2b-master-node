@@ -5,9 +5,9 @@ import mongoose from "mongoose";
 
 import config from "@/config/config";
 import tokenTypes from "@/config/tokens";
-import { DeviceToken, Token, User } from "@/models";
+import { Token, User } from "@/models";
 import { AccessAndRefreshTokens, ITokenDoc } from "@/types/token.interfaces";
-import { ClientObject, UserProfile } from "@/types/user.interfaces";
+import { UserProfile } from "@/types/user.interfaces";
 import ApiError from "@/utils/ApiError";
 import messages from "@/utils/messages";
 
@@ -115,23 +115,10 @@ const generateAuthTokens = async (
     refreshTokenExpires,
     tokenTypes.REFRESH
   );
-  await saveToken(
-    refreshToken,
-    user.id,
-    refreshTokenExpires,
-    tokenTypes.REFRESH,    
-  );
-
-  // TODO channge response object remove expire
+ 
   return {
-    access: {
-      token: accessToken,
-      expires: accessTokenExpires.toDate(),
-    },
-    refresh: {
-      token: refreshToken,
-      expires: refreshTokenExpires.toDate(),
-    },
+    accessToken:accessToken,
+    refreshToken: refreshToken,         
   };
 };
 
@@ -267,28 +254,14 @@ const checkEmailTokenExpired = async (
   return token.expires < new Date();
 };
 
-const addUpdateDeviceToken = async (
-  deviceToken: string,
-  user: UserProfile | false
-): Promise<void> => {
-  const finddeviceToken = await DeviceToken.findOne({ deviceToken });
-  if (user) {
-    if (finddeviceToken) {
-      finddeviceToken.user = user.id;
-      await finddeviceToken.save();
-    } else {
-      await DeviceToken.create({ user: user.id, deviceToken });
-    }
-  } else if (finddeviceToken) {
-    finddeviceToken.user = undefined;
-    await finddeviceToken.save();
-  } else {
-    await DeviceToken.create({ deviceToken });
+const getPayloadFromToken = (token: string): JwtPayload | null => {
+  try {
+    return jwt.verify(token, config.jwt.secret) as JwtPayload;
+  } catch (error) {
+    return null;
   }
 };
-
 export {
-  addUpdateDeviceToken,
   checkEmailTokenExpired,
   decodeEncryptedOtpToken,
   generateAuthTokens,
@@ -299,4 +272,5 @@ export {
   refreshTokenService,
   saveToken,
   verifyToken,
+  getPayloadFromToken
 };
