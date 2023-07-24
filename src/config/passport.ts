@@ -23,18 +23,6 @@ const jwtOptions = {
   jwtFromRequest: ExtractJwt.fromHeader("access_token"),
 };
 
-const googleOptions = {
-  clientID: pConfig.google.id,
-  clientSecret: pConfig.google.secret,
-};
-
-const facebookOptions = {
-  clientID: pConfig.facebook.id,
-  clientSecret: pConfig.facebook.secret,
-  profileFields: ["id", "emails", "name"],
-  fbGraphVersion: "v17.0",
-};
-
 interface GoogleProfileJson {
   given_name: string;
   family_name: string;
@@ -130,10 +118,6 @@ const jwtVerify = (payload: IPayload, done: VerifiedCallback): void => {
 };
 const jwtStrategy = new JwtStrategy(jwtOptions, jwtVerify);
 // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-call
-const googleStrategy = new GoogleStrategy(googleOptions, googleCallBack);
-const facebookTokenStrategy = new FacebookTokenStrategy(
-  facebookOptions,
-  facebookCallBack
-);
 
-export { facebookTokenStrategy, googleStrategy, jwtStrategy };
+
+export { jwtStrategy };

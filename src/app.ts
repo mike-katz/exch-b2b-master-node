@@ -11,11 +11,11 @@ import {
   HandlerProvider,
   JsonProvider,
   PageNotFoundProvider,
-  PassportProvider,
-  PathProvider,
+  // PassportProvider,
+  // PathProvider,
   RouteProvider,
   SanitizeProvider,
-  SentryProvider,
+  // SentryProvider,
   XssProvider,
 } from "./provider";
 
@@ -27,11 +27,11 @@ JsonProvider.init(app);
 FileUploadProvider.init(app);
 XssProvider.init(app);
 SanitizeProvider.init(app);
-PathProvider.init(app, configs.cacheDays);
+// PathProvider.init(app, configs.cacheDays);
 CorsProvider.init(app);
-PassportProvider.init(app);
+// PassportProvider.init(app);
 RouteProvider.init(app);
-SentryProvider.init(app, configs.isSentryEnable);
+// SentryProvider.init(app, configs.isSentryEnable);
 PageNotFoundProvider.init(app);
 ErrorProvider.init(app);
 

@@ -4,12 +4,15 @@ import httpStatus from "http-status";
 
 import ApiError from "@/utils/ApiError";
 
-import config from "./config";
+// import config from "./config";
 
 // Generate secret hash with crypto to use for encryption
-const algorithm = config.encryption.encryptionMethod;
-const initVector = config.encryption.vector;
-const Securitykey = config.encryption.secretKey;
+// const algorithm = config.encryption.encryptionMethod;
+const algorithm ="";
+// const initVector = config.encryption.vector;
+const initVector = "";
+// const Securitykey = config.encryption.secretKey;
+const Securitykey = "";
 
 if (algorithm === "" || initVector === "" || Securitykey === "") {
   throw new ApiError(httpStatus.INTERNAL_SERVER_ERROR, {

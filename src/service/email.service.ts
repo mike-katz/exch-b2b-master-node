@@ -7,7 +7,8 @@ import emailLogger from "@/config/logger";
 import { User } from "@/types/user.interfaces";
 import emailTemplate from "@/utils/emailTemplate";
 
-const transport = nodemailer.createTransport(config.email.smtp);
+// const transport = nodemailer.createTransport(config.email.smtp);
+const transport = nodemailer.createTransport("");
 
 /* istanbul ignore next */
 const ignoreNext = async (): Promise<void> => {
@@ -52,7 +53,8 @@ const sendEmail = async (
     html = await emailTemplate.forgotTemplate(name, url, to);
   }
   const mailOptions = {
-    from: config.email.from,
+    // from: config.email.from,
+    from: "",
     to,
     subject,
     html,
