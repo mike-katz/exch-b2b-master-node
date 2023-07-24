@@ -31,7 +31,7 @@
     "dev": "nodemon",
     "local": "NODE_ENV=development.local nodemon",
     "dev:qa": "NODE_ENV=qa nodemon",
-    "start": "NODE_ENV=development.local node dist/src/app.js",
+    "start": "node dist/src/app.js",
     "start:qa": "NODE_ENV=qa node src/app.js",
     "start:prod": "NODE_ENV=production node src/app.js",
     "start:dev": "NODE_ENV=development node src/app.js",

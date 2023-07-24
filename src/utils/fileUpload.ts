@@ -22,12 +22,12 @@ async function uploadFileInBucket(
   const MAX_SIZE = 25_000_000;
   if (!allowedFileTypes.includes(file.mimetype)) {
     throw new ApiError(httpStatus.BAD_REQUEST, {
-      code: messages.INVALID_FILE_TYPE,
+      msg: messages.INVALID_FILE_TYPE,
     });
   }
   if (file.size > MAX_SIZE) {
     throw new ApiError(httpStatus.BAD_REQUEST, {
-      code: messages.INVALID_FILE_SIZE,
+      msg: messages.INVALID_FILE_SIZE,
     });
   }
 

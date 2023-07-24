@@ -34,7 +34,7 @@ const fetchUserDownline = catchAsync(
 
 const Register = catchAsync(
   async (req: Request, res: CustomResponse) => {
-    UserService.Register(req.body);    
+    UserService.Register(req.body,req?.user);    
     const response = prepareResponse({
       message: "User created successful",
       data:null,

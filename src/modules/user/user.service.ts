@@ -65,8 +65,8 @@ const findDownline = async (data: any, id: string): Promise<void> => {
     return users;
 }
   
-const Register = async (body: any): Promise<void> => {
-  const{username,password,mobile,ip,roles}=body
+const Register = async (body: any,user:any): Promise<void> => {
+  const{username,password,mobile,ip,exposure,commission}=body
   const duplicate = await User.findOne({ username: username });
   if(duplicate){
     throw new ApiError(httpStatus.BAD_REQUEST, {
@@ -80,7 +80,10 @@ const Register = async (body: any): Promise<void> => {
       password: hashedPwd,
       mobile,
       ip,      
-      roles:['User']
+      roles: ['User'],
+      exposureLimit: exposure,
+      commission: commission,
+      parentId: user.id
     });
   return;
 }

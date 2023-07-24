@@ -47,9 +47,8 @@ const sendEmail = async (
 
   if (type === "verify") {
     html = await emailTemplate.verifyTemplate(name, url);
-  } else if (type === "sendOtp" && data) {
-    html = await emailTemplate.sendOtpTemplate(name, data.otp);
-  } else {
+  }
+  else {
     html = await emailTemplate.forgotTemplate(name, url, to);
   }
   const mailOptions = {
@@ -60,40 +59,6 @@ const sendEmail = async (
   };
   await transport.sendMail(mailOptions);
   transport.close();
-};
-
-/**
- * Send reset password email
- * @param {User} user
- * @param {string} token
- * @returns {Promise}
- */
-const sendResetPasswordEmail = async (
-  user: User,
-  token: string,
-): Promise<void> => {
-  const SUBJECT = "Forgot Password";
-  const string = token;
-  const verificationEmailUrl = `${config.frontURLEndpoint}/auth/reset-password?token=${string}`;
-  const fullName = `${user.firstName} ${user.lastName}`;
-  await sendEmail(
-    user.email,
-    SUBJECT,
-    fullName,
-    verificationEmailUrl,
-    "forgot"
-  );
-};
-
-/**
- * Send OTP email
- * @param {User} user
- * @returns {Promise}
- */
-const sendOtpEmail = async (user: User): Promise<void> => {
-  const SUBJECT = "Verification Code";
-  const fullName = `${user.firstName} ${user.lastName}`;
-  await sendEmail(user.email, SUBJECT, fullName, "", "sendOtp", user);
 };
 
 // /**
@@ -126,8 +91,6 @@ const sendVerificationEmail = async (
 
 export {
   sendEmail,
-  sendOtpEmail,
-  sendResetPasswordEmail,
   sendVerificationEmail,
   transport,
 };

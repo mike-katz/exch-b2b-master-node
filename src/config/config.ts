@@ -3,11 +3,8 @@ import path from "node:path";
 import * as dotenvSafe from "dotenv-safe";
 import Joi from "joi";
 
-const processEnv = process.env;
-const environment = processEnv.NODE_ENV || "development.local";
-
 dotenvSafe.config({
-  path: path.join(path.dirname(process.argv[1]), "..", `.env.${environment}`),
+  path: path.join(path.dirname(process.argv[1]), "..", `.env`),
   allowEmptyValues: false,
   example: ".env.example",
 });

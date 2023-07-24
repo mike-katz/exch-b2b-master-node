@@ -71,7 +71,7 @@ const S3BucketService = {
       )
       .catch((error: Error) => {
         throw new ApiError(httpStatus.INTERNAL_SERVER_ERROR, {
-          code: messages.SOMETHING_WENT_WRONG,
+          msg: messages.SOMETHING_WENT_WRONG,
           message: error.message,
         });
       });

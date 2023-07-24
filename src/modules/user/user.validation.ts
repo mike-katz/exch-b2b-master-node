@@ -15,7 +15,9 @@ const Register = {
     username: Joi.string().required(),
     password: Joi.string().required(),
     mobile: Joi.optional(),
-    ip: Joi.optional(),    
+    ip: Joi.optional(), 
+    exposure:Joi.number().required(),
+    commission:Joi.number().required()
   }),
 };
 
