@@ -72,6 +72,9 @@ const userSchema = new mongoose.Schema<UserProfile, UserModel>(
     refreshToken: {
       type: String,
     },
+    commission: {
+      type: String,      
+    }
   },
   { timestamps: true }
 );
