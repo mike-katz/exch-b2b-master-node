@@ -24,7 +24,7 @@
   "author": "samip",
   "scripts": {
     "build:ci": "tsc && tsc-alias",
-    "build:dev": "rimraf dist && npm run build:ci",
+    "build": "rimraf dist && npm run build:ci",
     "build:prod": "npm run build:dev",
     "build:qa": "npm run build:dev",
     "build:local": "npm run build:dev",
