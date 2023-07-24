@@ -88,7 +88,13 @@ const Register = async (body: any,user:any): Promise<void> => {
   return;
 }
 
+const myDownline = async (user: any): Promise<void> => {
+  const users: any = await User.find({parentId:user.id});
+  return users;  
+}
+
 export {
   findDownline,
-  Register
+  Register,
+  myDownline
 }

@@ -45,8 +45,7 @@ const userSchema = new mongoose.Schema<UserProfile, UserModel>(
 
     roles: {
       type: String,
-      enum: roles,
-      default: "User",
+      enum: roles,      
     },
 
     exposureLimit: {

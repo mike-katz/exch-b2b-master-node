@@ -21,4 +21,8 @@ const Register = {
   }),
 };
 
-export default { fetchUserProfile,fetchUserDownline,Register };
+const myDownline = {
+  body: Joi.object().keys({}),
+};
+
+export default { fetchUserProfile, fetchUserDownline, Register, myDownline };

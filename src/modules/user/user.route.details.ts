@@ -36,7 +36,16 @@ const routeDetails: IAuthRouteDetails[] = [
     validationMethodName: "Register",
     controllerMethodName: "Register",
     auth: "",
-  },
+  }, 
+  
+  {
+    key: "MyDownlineAPI",
+    method: "post",
+    url: "/my-team",
+    validationMethodName: "myDownline",
+    controllerMethodName: "myDownline",
+    auth: "",
+  }, 
 ];
 
 export default routeDetails;
