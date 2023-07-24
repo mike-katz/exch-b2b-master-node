@@ -28,6 +28,15 @@ const routeDetails: IAuthRouteDetails[] = [
     controllerMethodName: "fetchUserDownline",
     auth: "",
   },
+  
+  {
+    key: "RegisterAPI",
+    method: "post",
+    url: "/register",
+    validationMethodName: "Register",
+    controllerMethodName: "Register",
+    auth: "",
+  },
 ];
 
 export default routeDetails;

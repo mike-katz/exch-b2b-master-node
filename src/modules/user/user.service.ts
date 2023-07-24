@@ -1,6 +1,7 @@
 import { User } from "@/models"
 import ApiError from "@/utils/ApiError";
 import httpStatus from "http-status";
+import bcrypt from 'bcryptjs';
 
 const findMaxRole = async(rolesArray: any): Promise<string> => {
   const rolesOrder = ['Admin', 'White Label', 'Super', 'Master', 'Agent', 'User'];
@@ -62,8 +63,29 @@ const findDownline = async (data: any, id: string): Promise<void> => {
     // Fetch users based on the role-specific query
     const users: any = await User.find(query);
     return users;
+}
+  
+const Register = async (body: any): Promise<void> => {
+  const{username,password,mobile,ip,roles}=body
+  const duplicate = await User.findOne({ username: username });
+  if(duplicate){
+    throw new ApiError(httpStatus.BAD_REQUEST, {
+          msg: "Username already exist",
+    });
   }
+  
+   const hashedPwd = await bcrypt.hash(password, 10);
+    await User.create({
+      username,
+      password: hashedPwd,
+      mobile,
+      ip,      
+      roles:['User']
+    });
+  return;
+}
 
 export {
   findDownline,
+  Register
 }

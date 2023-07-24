@@ -32,4 +32,15 @@ const fetchUserDownline = catchAsync(
   }
 );
 
-export default { fetchUserProfile ,fetchUserDownline};
+const Register = catchAsync(
+  async (req: Request, res: CustomResponse) => {
+    UserService.Register(req.body);    
+    const response = prepareResponse({
+      message: "User created successful",
+      data:null,
+    });
+    res.status(httpStatus.CREATED).json(response);
+  }
+);
+
+export default { fetchUserProfile ,fetchUserDownline, Register};
