@@ -34,11 +34,11 @@ const loginUser = async (
     });
   }
 
-  // if (!(await user.isPasswordMatch(password))) {
-  //   throw new ApiError(httpStatus.BAD_REQUEST, {
-  //     msg: "wrong password",
-  //   });
-  // }
+  if (!(await user.isPasswordMatch(password))) {
+    throw new ApiError(httpStatus.BAD_REQUEST, {
+      msg: "wrong password",
+    });
+  }
   const { roles, mobile } = user;
   const tokens = await tokenService.generateAuthTokens(user);
 

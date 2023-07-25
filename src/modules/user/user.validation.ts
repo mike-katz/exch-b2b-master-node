@@ -17,7 +17,7 @@ const Register = {
     mobile: Joi.optional(),
     ip: Joi.optional(), 
     exposure:Joi.number().required(),
-    commission:Joi.number().required()
+    commision:Joi.number().required()
   }),
 };
 
@@ -25,4 +25,16 @@ const myDownline = {
   body: Joi.object().keys({}),
 };
 
-export default { fetchUserProfile, fetchUserDownline, Register, myDownline };
+
+const addCreditLog = {
+  body: Joi.object().keys({
+    password: Joi.string().required(),
+    rate:Joi.number().required(),
+  }),
+};
+
+const getCreditLog = {
+  body: Joi.object().keys({}),
+};
+
+export default { fetchUserProfile, fetchUserDownline, Register, myDownline,addCreditLog, getCreditLog };

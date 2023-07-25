@@ -46,6 +46,24 @@ const routeDetails: IAuthRouteDetails[] = [
     controllerMethodName: "myDownline",
     auth: "",
   }, 
+
+  {
+    key: "AddCreditLogAPI",
+    method: "post",
+    url: "/add-creditlog",
+    validationMethodName: "addCreditLog",
+    controllerMethodName: "addCreditLog",
+    auth: "",
+  }, 
+
+  {
+    key: "GetCreditLogAPI",
+    method: "post",
+    url: "/creditlogs",
+    validationMethodName: "getCreditLog",
+    controllerMethodName: "getCreditLog",
+    auth: "",
+  }, 
 ];
 
 export default routeDetails;

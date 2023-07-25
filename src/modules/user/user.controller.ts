@@ -43,7 +43,6 @@ const Register = catchAsync(
   }
 );
 
-
 const myDownline = catchAsync(
   async (req: Request, res: CustomResponse) => {
     const data = UserService.myDownline(req?.user);    
@@ -51,9 +50,33 @@ const myDownline = catchAsync(
       message: "successful",
       data,
     });
+    res.status(httpStatus.OK).json(response);
+  }
+);
+
+const addCreditLog = catchAsync(
+  async (req: Request, res: CustomResponse) => {
+    const { password, rate } = req.body;
+    const data = UserService.addCreditLog(req?.user,password, rate);    
+    const response = prepareResponse({
+      message: "balance added successfully.",
+      data:null,
+    });
     res.status(httpStatus.CREATED).json(response);
   }
 );
 
 
-export default { fetchUserProfile ,fetchUserDownline, Register, myDownline};
+const getCreditLog = catchAsync(
+  async (req: Request, res: CustomResponse) => {
+    const data = UserService.getCreditLog(req?.user);    
+    const response = prepareResponse({
+      message: "credit log fetched successfully.",
+      data,
+    });
+    res.status(httpStatus.OK).json(response);
+  }
+);
+
+
+export default { fetchUserProfile ,fetchUserDownline, Register, myDownline, addCreditLog, getCreditLog};

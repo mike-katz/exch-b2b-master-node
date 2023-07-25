@@ -1,0 +1,21 @@
+const mongoose = require('mongoose');
+
+const { Schema } = mongoose;
+
+const creditLogSchema = new Schema({
+  username: {
+    type: String,
+    required: true,
+  },
+  old: {
+    type: String,
+    required: true,
+  },
+  new: {
+    type: String,
+    required: true,
+ }
+}, { timestamps: true });
+
+const CreditLog = mongoose.model("CreditLog", creditLogSchema);
+export default CreditLog;

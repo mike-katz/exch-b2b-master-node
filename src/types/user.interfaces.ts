@@ -6,7 +6,7 @@ interface User {
   lastName: string;
   username: string;
   password: string;
-  roles: string;
+  roles: [string];
   balance: Schema.Types.Decimal128;
   exposureLimit: Number;
   parentId: any;

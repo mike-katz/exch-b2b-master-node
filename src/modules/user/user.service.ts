@@ -1,4 +1,4 @@
-import { User } from "@/models"
+import { CreditLog, User } from "@/models"
 import ApiError from "@/utils/ApiError";
 import httpStatus from "http-status";
 import bcrypt from 'bcryptjs';
@@ -15,6 +15,7 @@ const findMaxRole = async(rolesArray: any): Promise<string> => {
 
   return maxRole;
 }
+
 const findDownline = async (data: any, id: string): Promise<void> => {
 
   if (!data.roles) {
@@ -66,7 +67,7 @@ const findDownline = async (data: any, id: string): Promise<void> => {
 }
   
 const Register = async (body: any,user:any): Promise<void> => {
-  const{username,password,mobile,ip,exposure,commission}=body
+  const{username,password,mobile,ip,exposure,commision}=body
   const duplicate = await User.findOne({ username: username });
   if(duplicate){
     throw new ApiError(httpStatus.BAD_REQUEST, {
@@ -74,7 +75,7 @@ const Register = async (body: any,user:any): Promise<void> => {
     });
   }
   
-   const hashedPwd = await bcrypt.hash(password, 10);
+  const hashedPwd = await bcrypt.hash(password, 10);
     await User.create({
       username,
       password: hashedPwd,
@@ -82,7 +83,7 @@ const Register = async (body: any,user:any): Promise<void> => {
       ip,      
       roles: ['User'],
       exposureLimit: exposure,
-      commission: commission,
+      commision: commision,
       parentId: user.id
     });
   return;
@@ -93,8 +94,35 @@ const myDownline = async (user: any): Promise<void> => {
   return users;  
 }
 
+const addCreditLog = async (userData: any,password:string, rate:number): Promise<void> => {   
+  let user:any = await User.findOne({username:userData.username})
+  if (!(await user.isPasswordMatch(password))) {
+    throw new ApiError(httpStatus.BAD_REQUEST, {
+      msg: "wrong password",
+    });
+  }
+
+  await CreditLog.create({
+    username:user.username,
+    old: user?.balance,
+    new: rate
+  });
+  user.balance = rate;
+  await user.save();  
+  return user;
+}
+
+const getCreditLog = async (user: any): Promise<void> => {
+  
+  const data = await CreditLog.find({ username: user.username })
+  return data;
+}
+
+
 export {
   findDownline,
   Register,
-  myDownline
+  myDownline,
+  addCreditLog,
+  getCreditLog
 }

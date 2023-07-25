@@ -44,7 +44,7 @@ const userSchema = new mongoose.Schema<UserProfile, UserModel>(
     },
 
     roles: {
-      type: String,
+      type: [String],
       enum: roles,      
     },
 
@@ -71,9 +71,6 @@ const userSchema = new mongoose.Schema<UserProfile, UserModel>(
     refreshToken: {
       type: String,
     },
-    commission: {
-      type: String,      
-    }
   },
   { timestamps: true }
 );
