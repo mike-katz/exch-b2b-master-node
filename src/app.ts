@@ -18,7 +18,12 @@ import {
   // SentryProvider,
   XssProvider,
 } from "./provider";
+import dotenv from "dotenv";
 
+const result = dotenv.config();
+if (result.error) {
+  dotenv.config({ path: ".env" });
+}
 const app = express();
 DatabaseProvider.init(configs.mongoose.url, app);
 HandlerProvider.init(app);

@@ -1,13 +1,8 @@
+import dotenv from "dotenv";
 import path from "node:path";
-
-import * as dotenvSafe from "dotenv-safe";
 import Joi from "joi";
 
-dotenvSafe.config({
-  path: path.join(path.dirname(process.argv[1]), "..", `.env`),
-  allowEmptyValues: false,
-  example: ".env.example",
-});
+dotenv.config({ path: path.join(__dirname, "../../.env") });
 
 interface configType {
   env: string;
@@ -24,12 +19,12 @@ interface configType {
   };
   swaggerURLEndpoint: string;
   mailExpiration: number;
- accessKey: string,
-  secretKey: string,
-  bucketName: string,
-  proposalBucket: string,
-  region: string,
-  frontURLEndpoint:string
+  accessKey: string;
+  secretKey: string;
+  bucketName: string;
+  proposalBucket: string;
+  region: string;
+  frontURLEndpoint: string;
 }
 
 interface EnvVars {
@@ -41,7 +36,6 @@ interface EnvVars {
   JWT_REFRESH_EXPIRATION_DAYS: number;
   JWT_RESET_PASSWORD_EXPIRATION_MINUTES: number;
   JWT_VERIFY_EMAIL_EXPIRATION_MINUTES: number;
- 
 }
 
 const envVarsSchema = Joi.object()
@@ -96,7 +90,7 @@ const {
   JWT_ACCESS_EXPIRATION_MINUTES,
   JWT_REFRESH_EXPIRATION_DAYS,
   JWT_RESET_PASSWORD_EXPIRATION_MINUTES,
-  JWT_VERIFY_EMAIL_EXPIRATION_MINUTES,  
+  JWT_VERIFY_EMAIL_EXPIRATION_MINUTES,
 } = envVars;
 
 const config: configType = {
@@ -121,7 +115,7 @@ const config: configType = {
   bucketName: "",
   proposalBucket: "",
   region: "",
-  frontURLEndpoint:""
+  frontURLEndpoint: "",
 };
 
 export default config;

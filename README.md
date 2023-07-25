@@ -72,3 +72,8 @@ Licensed under the [MIT](LICENSE) License.
 ## swagger url
 
 http://localhost:8000/api/docs/#/
+
+
+pm2 start ecosystem.config.js
+pm2 start ecosystem.config.js --env production
+pm2 start ecosystem.config.js --env development
