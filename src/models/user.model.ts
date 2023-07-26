@@ -1,14 +1,10 @@
-// const mongoose = require("mongoose");
-// import { isEmail } from "validator";
+
 import bcrypt from "bcryptjs";
 import mongoose, { Document, Schema } from "mongoose";
-import validator from "validator";
-
 import { roles } from "@/config/roles";
-import { userPlatform } from "@/config/users";
 import { UserModel, UserProfile } from "@/types/user.interfaces";
-
 import * as plugin from "./plugins";
+import { userStatus } from "@/config/users";
 
 const userSchema = new mongoose.Schema<UserProfile, UserModel>(
   {
@@ -45,7 +41,7 @@ const userSchema = new mongoose.Schema<UserProfile, UserModel>(
 
     roles: {
       type: [String],
-      enum: roles,      
+      enum: roles,
     },
 
     exposureLimit: {
@@ -71,6 +67,11 @@ const userSchema = new mongoose.Schema<UserProfile, UserModel>(
     refreshToken: {
       type: String,
     },
+    status: {
+      type: String,
+      enum: userStatus,
+      default: userStatus.active,
+    }
   },
   { timestamps: true }
 );

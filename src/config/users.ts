@@ -17,4 +17,11 @@ const socialLoginTypes = {
   apple: "apple",
 };
 
-export { socialLoginTypes, userEmailVarification, userPlatform };
+const userStatus= {
+  active: "active",
+  suspend: "suspend",
+  locked: "locked",
+};
+
+
+export { socialLoginTypes, userEmailVarification, userPlatform,userStatus };

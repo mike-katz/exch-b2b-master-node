@@ -30,6 +30,7 @@ const addCreditLog = {
   body: Joi.object().keys({
     password: Joi.string().required(),
     rate:Joi.number().required(),
+    userId:Joi.string().required(),
   }),
 };
 
@@ -37,4 +38,19 @@ const getCreditLog = {
   body: Joi.object().keys({}),
 };
 
-export default { fetchUserProfile, fetchUserDownline, Register, myDownline,addCreditLog, getCreditLog };
+const updateStatus = {
+  body: Joi.object().keys({
+    password: Joi.string().required(),
+    status:Joi.string().required(),
+    userId:Joi.string().required(),
+  }),
+};
+
+const search = {
+  body: Joi.object().keys({
+    username: Joi.string().optional(),
+    status:Joi.string().optional(),    
+  }),
+};
+
+export default { fetchUserProfile, fetchUserDownline, Register, myDownline, addCreditLog, getCreditLog, updateStatus, search };

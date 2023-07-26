@@ -56,8 +56,8 @@ const myDownline = catchAsync(
 
 const addCreditLog = catchAsync(
   async (req: Request, res: CustomResponse) => {
-    const { password, rate } = req.body;
-    const data = UserService.addCreditLog(req?.user,password, rate);    
+    const { password, rate ,userId} = req.body;
+    const data = UserService.addCreditLog(req?.user,password, rate,userId);    
     const response = prepareResponse({
       message: "balance added successfully.",
       data:null,
@@ -65,7 +65,6 @@ const addCreditLog = catchAsync(
     res.status(httpStatus.CREATED).json(response);
   }
 );
-
 
 const getCreditLog = catchAsync(
   async (req: Request, res: CustomResponse) => {
@@ -78,5 +77,28 @@ const getCreditLog = catchAsync(
   }
 );
 
+const updateStatus = catchAsync(
+  async (req: Request, res: CustomResponse) => {
+    const { password, status ,userId} = req.body;
+    const data = UserService.updateStatus(req?.user, password, status ,userId);    
+    const response = prepareResponse({
+      message: "Status update successfully.",
+      data,
+    });
+    res.status(httpStatus.OK).json(response);
+  }
+);
 
-export default { fetchUserProfile ,fetchUserDownline, Register, myDownline, addCreditLog, getCreditLog};
+const search = catchAsync(
+  async (req: Request, res: CustomResponse) => {
+    const { username, status } = req.body;
+    const data = UserService.search(req?.user, username, status );    
+    const response = prepareResponse({
+      message: "fetch data successfully.",
+      data,
+    });
+    res.status(httpStatus.OK).json(response);
+  }
+);
+
+export default { fetchUserProfile ,fetchUserDownline, Register, myDownline, addCreditLog, getCreditLog, updateStatus, search};

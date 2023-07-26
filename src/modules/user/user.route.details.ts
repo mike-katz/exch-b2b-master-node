@@ -64,6 +64,24 @@ const routeDetails: IAuthRouteDetails[] = [
     controllerMethodName: "getCreditLog",
     auth: "",
   }, 
+
+  {
+    key: "UpdateStatusAPI",
+    method: "post",
+    url: "/update-status",
+    validationMethodName: "updateStatus",
+    controllerMethodName: "updateStatus",
+    auth: "",
+  },
+
+  {
+    key: "searchAPI",
+    method: "post",
+    url: "/search",
+    validationMethodName: "search",
+    controllerMethodName: "search",
+    auth: "",
+  },
 ];
 
 export default routeDetails;

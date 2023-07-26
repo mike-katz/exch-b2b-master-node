@@ -16,7 +16,8 @@ interface User {
   origin: string;
   ip: string;
   refreshToken: string;  
-  commission:String
+  commission: String
+  status:string
 }
 
 interface UserProfile extends User, Document {
