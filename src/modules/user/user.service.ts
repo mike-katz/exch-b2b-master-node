@@ -16,7 +16,7 @@ const findMaxRole = async (rolesArray: any): Promise<string> => {
   return maxRole;
 }
 
-const findDownline = async (data: any, id: string): Promise<void> => {
+const findDownline = async (data: any, userId: string): Promise<void> => {
 
   if (!data.roles) {
     throw new ApiError(httpStatus.BAD_REQUEST, {
@@ -24,64 +24,58 @@ const findDownline = async (data: any, id: string): Promise<void> => {
     });
   }
 
-  if (id) {
-    const users: any = await User.find({ parentId: id });
-    return users;
+  let maxRole = await findMaxRole(data.roles);
+  if (userId) {
+    const user: any = await User.findOne({ _id: userId });
+    maxRole = await findMaxRole(user.roles);
   }
-  const maxRole = await findMaxRole(data.roles);
+    
   let query = {};
 
-  // Apply conditions based on the highest role
   switch (maxRole) {
     case 'Admin':
-      // Admin can see all users, so no additional conditions needed
       break;
     case 'White Label':
-      // White Label role can see only users with role 'Supper', 'Master', 'Agent', and 'User'
-      query = { roles: 'Supper' };
-      break;
+      query = { roles: { $in: ['Super'] } };
+    break;
     case 'Super':
-      // Super roles can see only users with roles 'Master', 'Agent', and 'User'
-      query = { roles: 'Master' };
+      query = { roles:{ $in: ['Master']} };
       break;
     case 'Master':
-      // Master roles can see only users with roles 'Agent' and 'User'
-      query = { roles: 'Agent' };
+      query = { roles:{ $in: ['Agent']} };
       break;
     case 'Agent':
-      // Agent role can see only users with role 'User'
-      query = { roles: 'User' };
+      query = { roles:{ $in: ['User']} };
       break;
     case 'User':
-      // Users can see only themselves (assuming there's a field 'userId' in the document)
       query = { roles: [] };
       break;
     default:
-      // For unknown roles, don't fetch any data
       query = { _id: null };
   }
 
-  // Fetch users based on the role-specific query
-  const users: any = await User.find(query);
-  return users;
+  if (userId) {
+    query = { ...query, parentId: userId };
+    const users: any = await User.find(query);
+    return users;
+  }
 }
 
 const Register = async (body: any, user: any): Promise<void> => {
-  const { username, password, mobile, ip, exposure, commision } = body
+  const { username, password, mobile, ip, exposure, commision, roles } = body
   const duplicate = await User.findOne({ username: username });
   if (duplicate) {
     throw new ApiError(httpStatus.BAD_REQUEST, {
       msg: "Username already exist",
     });
   }
-
   const hashedPwd = await bcrypt.hash(password, 10);
   await User.create({
     username,
     password: hashedPwd,
     mobile,
     ip,
-    roles: ['User'],
+    roles: roles!=""? [roles]:["User"],
     exposureLimit: exposure,
     commision: commision,
     parentId: user.id
@@ -142,14 +136,16 @@ const updateStatus = async (userData: any, password: string, status: string, use
   return found;
 }
 
-const search = async (userData: any, status: string, username: string): Promise<void> => {
-  let found: any = await User.find({
+const search = async (status: string, username: string, userId: string): Promise<void> => {
+  
+  const data: any = await User.find({
     $or: [
       { "username": username },
       { "status": status }
-    ]
+    ],
+    $and: [{ "parentId": userId }]
   })
-  return found;
+  return data;
 }
 
 export {

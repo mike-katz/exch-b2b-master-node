@@ -91,8 +91,8 @@ const updateStatus = catchAsync(
 
 const search = catchAsync(
   async (req: Request, res: CustomResponse) => {
-    const { username, status } = req.body;
-    const data = UserService.search(req?.user, username, status );    
+    const { username, status, userId } = req.body;
+    const data = UserService.search(username, status, userId );    
     const response = prepareResponse({
       message: "fetch data successfully.",
       data,
