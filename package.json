@@ -25,7 +25,8 @@
   "scripts": {
     "build": "rimraf dist && tsc && tsc-alias",
     "dev": "nodemon",
-    "start": "cp .env ./dist/.env && node dist/src/app.js",
+    "start:dev": "cp .env ./dist/.env && node dist/src/app.js",
+    "start": "nodemon",
     "test": "jest",
     "lint": "eslint .",
     "lint:fix": "eslint . --fix",
