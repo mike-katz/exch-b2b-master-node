@@ -7,9 +7,9 @@ module.exports = {
         automation: false,
         args: "run start",
         max_memory_restart: "1G",
-        watch: true,
+        watch: false,
         log_date_format: "DD-MM HH:mm:ss.SSS",
-        autorestart: true,
+        autorestart: false,
         env: {
           PORT: 5000,
           NODE_ENV: "development",
