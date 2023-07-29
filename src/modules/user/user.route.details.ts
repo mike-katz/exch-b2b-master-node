@@ -82,6 +82,24 @@ const routeDetails: IAuthRouteDetails[] = [
     controllerMethodName: "search",
     auth: "",
   },
+
+  {
+    key: "exposureAPI",
+    method: "post",
+    url: "/change-exposure",
+    validationMethodName: "updateStatus",
+    controllerMethodName: "updateExposure",
+    auth: "",
+  },
+
+    {
+    key: "myBalanceAPI",
+    method: "post",
+    url: "/my-balance",
+    validationMethodName: "myBalance",
+    controllerMethodName: "myBalance",
+    auth: "",
+  },
 ];
 
 export default routeDetails;

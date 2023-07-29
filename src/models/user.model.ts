@@ -50,8 +50,9 @@ const userSchema = new mongoose.Schema<UserProfile, UserModel>(
     },
 
     parentId: [{
-      type: Number,
+      type: String,
     }],
+    
     level: {
       type: Number,
     },

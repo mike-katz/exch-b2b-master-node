@@ -115,7 +115,7 @@ const getCreditLog = async (user: any): Promise<void> => {
   return data;
 }
 
-const updateStatus = async (userData: any, password: string, status: string, userId: string): Promise<void> => {
+const updateStatus = async (userData: any, password: string, status: string, userId: string, type:string): Promise<void> => {
   let user: any = await User.findOne({ username: userData.username })
   if (!(await user.isPasswordMatch(password))) {
     throw new ApiError(httpStatus.BAD_REQUEST, {
@@ -130,7 +130,8 @@ const updateStatus = async (userData: any, password: string, status: string, use
     });
   }
   if (found) {
-    found.status = status;
+    type=="status"?
+    found.status = status: found.exposureLimit = status
     await found.save();
   }
   return found;
@@ -148,6 +149,23 @@ const search = async (status: string, username: string, userId: string): Promise
   return data;
 }
 
+const myBalance = async (userData: any): Promise<void> => {  
+  
+  const users = await User.find({ parentId: userData._id });
+  const balanceSum = users.reduce((total, currentUser) => total + parseFloat(currentUser.balance.toString()), 0);
+
+  const exposureLimitSum = users.reduce((total, currentUser) => total + parseFloat(currentUser.exposureLimit.toString()), 0);  
+
+  const res :any= {    
+    balance:parseFloat(userData.balance.toString()),
+    exposureLimit: userData.exposureLimit,
+    totalUser: users.length,
+    totalBalance: balanceSum,
+    totalExposure: exposureLimitSum   
+  }
+
+  return res;
+}
 export {
   findDownline,
   Register,
@@ -155,5 +173,6 @@ export {
   addCreditLog,
   getCreditLog,
   updateStatus,
-  search
+  search,
+  myBalance
 }

@@ -41,7 +41,8 @@ const getCreditLog = {
 const updateStatus = {
   body: Joi.object().keys({
     password: Joi.string().required(),
-    status:Joi.string().required(),
+    status: Joi.string(),
+    exposure: Joi.number(),
     userId:Joi.string().required(),
   }),
 };
@@ -53,4 +54,8 @@ const search = {
   }),
 };
 
-export default { fetchUserProfile, fetchUserDownline, Register, myDownline, addCreditLog, getCreditLog, updateStatus, search };
+const myBalance = {
+  body: Joi.object().keys({}),
+};
+
+export default { fetchUserProfile, fetchUserDownline, Register, myDownline, addCreditLog, getCreditLog, updateStatus, search, myBalance };

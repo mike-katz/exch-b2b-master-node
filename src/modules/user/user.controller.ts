@@ -23,7 +23,7 @@ const fetchUserProfile = catchAsync(
 const fetchUserDownline = catchAsync(
   async (req: Request, res: CustomResponse) => {
     const{id}=req.body
-    const data = UserService.findDownline(req.user,id);    
+    const data = await UserService.findDownline(req.user,id);    
     const response = prepareResponse({
       message: "User fetched success",
       data,
@@ -34,7 +34,7 @@ const fetchUserDownline = catchAsync(
 
 const Register = catchAsync(
   async (req: Request, res: CustomResponse) => {
-    UserService.Register(req.body,req?.user);    
+   await UserService.Register(req.body,req?.user);    
     const response = prepareResponse({
       message: "User created successful",
       data:null,
@@ -45,7 +45,7 @@ const Register = catchAsync(
 
 const myDownline = catchAsync(
   async (req: Request, res: CustomResponse) => {
-    const data = UserService.myDownline(req?.user);    
+    const data = await UserService.myDownline(req?.user);    
     const response = prepareResponse({
       message: "successful",
       data,
@@ -57,7 +57,7 @@ const myDownline = catchAsync(
 const addCreditLog = catchAsync(
   async (req: Request, res: CustomResponse) => {
     const { password, rate ,userId} = req.body;
-    const data = UserService.addCreditLog(req?.user,password, rate,userId);    
+    const data = await UserService.addCreditLog(req?.user,password, rate,userId);    
     const response = prepareResponse({
       message: "balance added successfully.",
       data:null,
@@ -68,7 +68,7 @@ const addCreditLog = catchAsync(
 
 const getCreditLog = catchAsync(
   async (req: Request, res: CustomResponse) => {
-    const data = UserService.getCreditLog(req?.user);    
+    const data = await UserService.getCreditLog(req?.user);    
     const response = prepareResponse({
       message: "credit log fetched successfully.",
       data,
@@ -80,7 +80,7 @@ const getCreditLog = catchAsync(
 const updateStatus = catchAsync(
   async (req: Request, res: CustomResponse) => {
     const { password, status ,userId} = req.body;
-    const data = UserService.updateStatus(req?.user, password, status ,userId);    
+    const data = await UserService.updateStatus(req?.user, password, status ,userId, "status");    
     const response = prepareResponse({
       message: "Status update successfully.",
       data,
@@ -92,7 +92,7 @@ const updateStatus = catchAsync(
 const search = catchAsync(
   async (req: Request, res: CustomResponse) => {
     const { username, status, userId } = req.body;
-    const data = UserService.search(username, status, userId );    
+    const data = await UserService.search(username, status, userId );    
     const response = prepareResponse({
       message: "fetch data successfully.",
       data,
@@ -101,4 +101,30 @@ const search = catchAsync(
   }
 );
 
-export default { fetchUserProfile ,fetchUserDownline, Register, myDownline, addCreditLog, getCreditLog, updateStatus, search};
+
+const updateExposure = catchAsync(
+  async (req: Request, res: CustomResponse) => {
+    const { password, exposure ,userId} = req.body;
+    const data = await UserService.updateStatus(req?.user, password, exposure ,userId, "exposure");    
+    const response = prepareResponse({
+      message: "Exposure update successfully.",
+      data,
+    });
+    res.status(httpStatus.OK).json(response);
+  }
+);
+
+const myBalance = catchAsync(
+  async (req: Request, res: CustomResponse) => {
+    // console.log("req?.user",req?.user);
+    
+    const data = await UserService.myBalance(req?.user);    
+    const response = prepareResponse({
+      message: "Balance get successfully.",
+      data,
+    });
+    res.status(httpStatus.OK).json(response);
+  }
+);
+
+export default { fetchUserProfile, fetchUserDownline, Register, myDownline, addCreditLog, getCreditLog, updateStatus, search, updateExposure,myBalance };
