@@ -94,7 +94,7 @@ const {
 } = envVars;
 
 const config: configType = {
-  env: NODE_ENV,
+  env: "production",
   port: PORT,
   mongoose: {
     url: `${MONGODB_URL}${NODE_ENV === "test" ? "-test" : ""}`,
