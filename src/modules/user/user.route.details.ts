@@ -92,12 +92,21 @@ const routeDetails: IAuthRouteDetails[] = [
     auth: "",
   },
 
-    {
+  {
     key: "myBalanceAPI",
     method: "post",
     url: "/my-balance",
     validationMethodName: "myBalance",
     controllerMethodName: "myBalance",
+    auth: "",
+  },
+    
+  {
+    key: "exportAPI",
+    method: "post",
+    url: "/export",
+    validationMethodName: "exportCsv",
+    controllerMethodName: "exportCsv",
     auth: "",
   },
 ];

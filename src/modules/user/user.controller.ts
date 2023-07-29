@@ -116,8 +116,6 @@ const updateExposure = catchAsync(
 
 const myBalance = catchAsync(
   async (req: Request, res: CustomResponse) => {
-    // console.log("req?.user",req?.user);
-    
     const data = await UserService.myBalance(req?.user);    
     const response = prepareResponse({
       message: "Balance get successfully.",
@@ -127,4 +125,17 @@ const myBalance = catchAsync(
   }
 );
 
-export default { fetchUserProfile, fetchUserDownline, Register, myDownline, addCreditLog, getCreditLog, updateStatus, search, updateExposure,myBalance };
+const exportCsv = catchAsync(
+  async (req: Request, res: CustomResponse) => {
+    const data = await UserService.exportCsv(req?.user);    
+    console.log("data",data);
+    
+    const response = prepareResponse({
+      message: "CSV generate successfully.",
+      data,
+    });
+    res.status(httpStatus.OK).json(response);
+  }
+);
+
+export default { fetchUserProfile, fetchUserDownline, Register, myDownline, addCreditLog, getCreditLog, updateStatus, search, updateExposure, myBalance, exportCsv };

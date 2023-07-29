@@ -58,4 +58,8 @@ const myBalance = {
   body: Joi.object().keys({}),
 };
 
-export default { fetchUserProfile, fetchUserDownline, Register, myDownline, addCreditLog, getCreditLog, updateStatus, search, myBalance };
+const exportCsv = {
+  body: Joi.object().keys({}),
+};
+
+export default { fetchUserProfile, fetchUserDownline, Register, myDownline, addCreditLog, getCreditLog, updateStatus, search, myBalance, exportCsv };
