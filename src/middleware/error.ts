@@ -50,14 +50,14 @@ const errorHandler = (
   res.locals.errorMessage = errorData?.message;
   const ENV_DEVELOPMENT_LOCAL = "development.local;";
   let response: {
-    msg: string;
+    // msg: string;
     message: string;
     error: boolean;
     data: unknown;
     stack?: string;
   } = {
-    msg: errorData.msg || "",
-    message: errorData?.message || "",
+    // msg: errorData.msg || "",
+    message: errorData?.msg || "",
     error: true,
     data: errorData.data || null,
     ...((config.env === "development" ||
@@ -66,8 +66,8 @@ const errorHandler = (
 
   if (statusCode === 500) {
     response = {
-      msg: errorData.msg || messages.SOMETHING_WENT_WRONG,
-      message: errorData?.message || message,
+      // msg: errorData.msg || messages.SOMETHING_WENT_WRONG,
+      message: errorData?.msg || message,
       error: true,
       data: errorData?.data || null,
       ...((config.env === "development" ||

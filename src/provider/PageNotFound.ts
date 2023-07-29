@@ -8,8 +8,7 @@ export class PageNotFoundProvider {
     app.use((_req, _res, next) => {
       next(
         new ApiError(httpStatus.NOT_FOUND, {
-          msg: "NOT_FOUND",
-          message: "Route not found",
+          msg: "Route not found",
         })
       );
     });
