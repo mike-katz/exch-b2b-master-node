@@ -76,7 +76,6 @@ const { value: envVars, error } = envVarsSchema
   value: EnvVars;
   error?: Joi.ValidationError;
 };
-// console.log("🚀 ~ file: config.ts:42 ~ envVars:", envVars);
 
 if (error) {
   throw new Error(`Config validation error: ${error.message}`);
@@ -94,7 +93,7 @@ const {
 } = envVars;
 
 const config: configType = {
-  env: "production",
+  env: NODE_ENV,
   port: PORT,
   mongoose: {
     url: `${MONGODB_URL}${NODE_ENV === "test" ? "-test" : ""}`,

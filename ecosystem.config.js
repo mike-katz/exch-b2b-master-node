@@ -12,11 +12,11 @@ module.exports = {
         autorestart: true,
         env: {
           PORT: 5000,
-          NODE_ENV: "development",
+          NODE_ENV: "production",
         },
         env_production: {
           PORT: 4000,
-          NODE_ENV: "production",
+          NODE_ENV: "development",
         },
       },
     ],
