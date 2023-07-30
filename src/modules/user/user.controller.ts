@@ -127,7 +127,8 @@ const myBalance = catchAsync(
 
 const exportCsv = catchAsync(
   async (req: Request, res: CustomResponse) => {
-    const data = await UserService.exportCsv(req?.user);    
+    const { username, status, userId } = req.body;
+    const data = await UserService.exportCsv(username, status, userId);    
     console.log("data",data);
     
     const response = prepareResponse({

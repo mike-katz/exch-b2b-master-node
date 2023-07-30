@@ -24,8 +24,7 @@ const errorConverter = (
     error = new ApiError(
       statusCode,
       { msg: message, message },
-      false,
-      err.stack
+      false,      
     );
   }
 
@@ -39,7 +38,7 @@ const errorHandler = (
   next: NextFunction
 ): void => {
   let { statusCode, message } = err;
-  const { isOperational, stack } = err;
+  const { isOperational } = err;
   const { errorData }: { errorData: ErrorData } = err;
 
   if (config.env === "production" && !isOperational) {
@@ -53,15 +52,12 @@ const errorHandler = (
     // msg: string;
     message: string;
     error: boolean;
-    data: unknown;
-    stack?: string;
+    data: unknown;    
   } = {
     // msg: errorData.msg || "",
     message: errorData?.msg || "",
     error: true,
-    data: errorData.data || null,
-    ...((config.env === "development" ||
-      config.env === ENV_DEVELOPMENT_LOCAL) && { stack }),
+    data: errorData.data || null,    
   };
 
   if (statusCode === 500) {
@@ -69,11 +65,7 @@ const errorHandler = (
       // msg: errorData.msg || messages.SOMETHING_WENT_WRONG,
       message: errorData?.msg || message,
       error: true,
-      data: errorData?.data || null,
-      ...((config.env === "development" ||
-        config.env === ENV_DEVELOPMENT_LOCAL) && {
-        stack,
-      }),
+      data: errorData?.data || null,      
     };
   }
 

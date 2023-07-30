@@ -141,8 +141,7 @@ const updateStatus = async (userData: any, password: string, status: string, use
   return found;
 }
 
-const search = async (status: string, username: string, userId: string): Promise<void> => {
-
+const search = async (username : string, status: string, userId: string): Promise<void> => {
   const data: any = await User.find({
     $or: [
       { "username": username },
@@ -170,19 +169,27 @@ const myBalance = async (userData: any): Promise<void> => {
   return res;
 }
 
-const exportCsv = async (userData: any): Promise<string> => {
-
-  const countries: any = [
-    { name: 'Cameroon', capital: 'Yaounde', countryCode: 'CM', phoneIndicator: 237 },
-    { name: 'France', capital: 'Paris', countryCode: 'FR', phoneIndicator: 33 },
-    { name: 'United States', capital: 'Washington, D.C.', countryCode: 'US', phoneIndicator: 1 },
-    { name: 'India', capital: 'New Delhi', countryCode: 'IN', phoneIndicator: 91 },
-    { name: 'Brazil', capital: 'Brasília', countryCode: 'BR', phoneIndicator: 55 },
-    { name: 'Japan', capital: 'Tokyo', countryCode: 'JP', phoneIndicator: 81 },
-    { name: 'Australia', capital: 'Canberra', countryCode: 'AUS', phoneIndicator: 61 },
-    { name: 'Nigeria', capital: 'Abuja', countryCode: 'NG', phoneIndicator: 234 },
-    { name: 'Germany', capital: 'Berlin', countryCode: 'DE', phoneIndicator: 49 },
-  ];
+const exportCsv = async (username : string, status: string, userId: string): Promise<string> => {
+  const result: any = await User.find({
+    $or: [
+      { "username": username },
+      { "status": status }
+    ],
+    $and: [{ "parentId": userId }]
+  })
+  let resData: any[] = [];
+  result.map((item: any) => {
+    resData.push({
+      account: item.username,
+      creditRef: 0,
+      balance: parseFloat(item.balance.toString()),
+      exposure: 0,
+      availBal: parseFloat(item.balance.toString()),
+      exposureLimit: item.exposureLimit,
+      ref: 0,
+      status: item.status
+    });    
+  });
 
   const fileName = `data_${Date.now()}.csv`;
   const filePath = path.resolve(__dirname, fileName);
@@ -191,21 +198,24 @@ const exportCsv = async (userData: any): Promise<string> => {
   const writer = csvWriter.createObjectCsvWriter({
     path: filePath,
     header: [
-      { id: 'name', title: 'Name' },
-      { id: 'countryCode', title: 'Country Code' },
-      { id: 'capital', title: 'Capital' },
-      { id: 'phoneIndicator', title: 'International Direct Dialling' },
+      { id: 'account', title: 'Account' },
+      { id: 'creditRef', title: 'Credit Ref' },
+      { id: 'balance', title: 'Balance' },
+      { id: 'exposure', title: 'Exposure' },
+      { id: 'availBal', title: 'Available Balance' },
+      { id: 'exposureLimit', title: 'Exposure Limit' },
+      { id: 'ref', title: 'Ref P/L' },
+      { id: 'status', title: 'Status' },
     ],
   });
 
-  await writer.writeRecords(countries).then(async () => {
+  await writer.writeRecords(resData).then(async () => {
     // Uploading to S3
     const s3: any = new AWS.S3({
       accessKeyId: process.env.AWS_ACCESS,
       secretAccessKey: process.env.AWS_SECRETS,
       signatureVersion: "v4",
     });
-
     
     const fileContent = fs.readFileSync(filePath);
     const params = {
@@ -216,9 +226,7 @@ const exportCsv = async (userData: any): Promise<string> => {
 
     try {
       await s3.putObject(params).promise();  
-        await fs.unlinkSync(filePath)
-      const s3FileUrl = `https://${bucketName}.s3.amazonaws.com/${Key}`;
-      console.log("s3FileUrl",s3FileUrl);
+      await fs.unlinkSync(filePath)      
     } catch (error) {
       console.error('Error uploading file to S3:', error);
        throw new ApiError(httpStatus.INTERNAL_SERVER_ERROR, {
@@ -227,7 +235,6 @@ const exportCsv = async (userData: any): Promise<string> => {
     }
   });
   const s3FileUrl:string = `https://${bucketName}.s3.amazonaws.com/${Key}`;
-
   return s3FileUrl; 
 }
 
