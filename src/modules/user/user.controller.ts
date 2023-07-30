@@ -9,14 +9,13 @@ import httpStatus from "http-status";
 
 const fetchUserProfile = catchAsync(
   async (req: Request, res: CustomResponse) => {
-    const { firstName, lastName, mobile} =
-      req.user as UserProfile;
-    const userData = {
-      firstName,
-      lastName,
-      mobile
-    };
-    res.send(prepareResponse({ message: "SUCCESS", data: { user: userData } }));
+    const { userId} =req.body;
+    const data = await UserService.accountDetail(userId);    
+    const response = prepareResponse({
+      message: "User fetched success",
+      data,
+    });
+    res.status(httpStatus.OK).json(response);
   }
 );
 

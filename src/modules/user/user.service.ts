@@ -141,7 +141,7 @@ const updateStatus = async (userData: any, password: string, status: string, use
   return found;
 }
 
-const search = async (username : string, status: string, userId: string): Promise<void> => {
+const search = async (username: string, status: string, userId: string): Promise<void> => {
   const data: any = await User.find({
     $or: [
       { "username": username },
@@ -169,7 +169,7 @@ const myBalance = async (userData: any): Promise<void> => {
   return res;
 }
 
-const exportCsv = async (username : string, status: string, userId: string): Promise<string> => {
+const exportCsv = async (username: string, status: string, userId: string): Promise<string> => {
   const result: any = await User.find({
     $or: [
       { "username": username },
@@ -188,7 +188,7 @@ const exportCsv = async (username : string, status: string, userId: string): Pro
       exposureLimit: item.exposureLimit,
       ref: 0,
       status: item.status
-    });    
+    });
   });
 
   const fileName = `data_${Date.now()}.csv`;
@@ -216,7 +216,7 @@ const exportCsv = async (username : string, status: string, userId: string): Pro
       secretAccessKey: process.env.AWS_SECRETS,
       signatureVersion: "v4",
     });
-    
+
     const fileContent = fs.readFileSync(filePath);
     const params = {
       Bucket: bucketName,
@@ -225,17 +225,31 @@ const exportCsv = async (username : string, status: string, userId: string): Pro
     };
 
     try {
-      await s3.putObject(params).promise();  
-      await fs.unlinkSync(filePath)      
+      await s3.putObject(params).promise();
+      await fs.unlinkSync(filePath)
     } catch (error) {
       console.error('Error uploading file to S3:', error);
-       throw new ApiError(httpStatus.INTERNAL_SERVER_ERROR, {
-      msg: "issue with s3 bucket file upload",
-    });
+      throw new ApiError(httpStatus.INTERNAL_SERVER_ERROR, {
+        msg: "issue with s3 bucket file upload",
+      });
     }
   });
-  const s3FileUrl:string = `https://${bucketName}.s3.amazonaws.com/${Key}`;
-  return s3FileUrl; 
+  const s3FileUrl: string = `https://${bucketName}.s3.amazonaws.com/${Key}`;
+  return s3FileUrl;
+}
+
+const accountDetail = async (userId: string): Promise<void> => {
+  const data: any = await User.findOne({ _id: userId });
+  const dataNew: any = {
+    balance: parseFloat(data.balance.toString()),
+    mobile: data.mobile,
+    exposureLimit: data.exposureLimit,
+    commision: data.commision,
+    password: data.password,
+    _id: data._id,
+    username: data.username
+  }
+  return dataNew;
 }
 
 export {
@@ -247,5 +261,6 @@ export {
   updateStatus,
   search,
   myBalance,
-  exportCsv
+  exportCsv,
+  accountDetail
 }

@@ -1,7 +1,9 @@
 import * as Joi from "joi";
 
 const fetchUserProfile = {
-  body: Joi.object().keys({}),
+  body: Joi.object().keys({
+    userId: Joi.optional(),
+  }),
 };
 
 const fetchUserDownline = {
