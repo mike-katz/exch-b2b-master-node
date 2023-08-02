@@ -3,16 +3,16 @@ import { IResponseFormat } from "@/types";
 interface Iparams {
   message?: string;
   data?: unknown;
-  error?: boolean;
+  // error?: boolean;
 }
 const prepareResponse = ({
   message = "",
   data = null,
-  error = false,
+  // error = false,
 }: Iparams): IResponseFormat => ({
   message,
   data,
-  error,
+  // error,
 });
 
 export default prepareResponse;

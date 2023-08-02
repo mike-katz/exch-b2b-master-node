@@ -16,11 +16,11 @@ export interface CustomRequest extends Request {
 export interface IResponseFormat {
   message: string | undefined;
   data: unknown | null;
-  error: boolean;
+  // error: boolean;
 }
 
 export type ErrorData = { msg: string } & Partial<
-  Pick<IResponseFormat, "message" | "data" | "error">
+  Pick<IResponseFormat, "message" | "data">
 >;
 
 type Send<T = Response> = (body: IResponseFormat) => T;

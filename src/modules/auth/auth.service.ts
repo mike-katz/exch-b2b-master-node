@@ -25,9 +25,9 @@ import ApiError from "@/utils/ApiError";
  */
 const loginUser = async (
   username: string | undefined,
-  password: string,  
-)=> {
-  let user:any = await User.findOne({ username });  
+  password: string,
+) => {
+  let user: any = await User.findOne({ username });
   if (!user) {
     throw new ApiError(httpStatus.BAD_REQUEST, {
       msg: "username is wrong",
@@ -39,10 +39,15 @@ const loginUser = async (
       msg: "wrong password",
     });
   }
+  if (user.roles.includes('User')) {
+    throw new ApiError(httpStatus.BAD_REQUEST, {
+      msg: "user not allow to login",
+    });
+  }
   const { roles, mobile } = user;
   const tokens = await tokenService.generateAuthTokens(user);
 
-  if (tokens) {    
+  if (tokens) {
     user.refreshToken = tokens.refreshToken;
     await user.save();
   }
@@ -64,7 +69,7 @@ const createUser = async (body: NewRegisteredUser): Promise<UserProfile> => {
  * @returns {Promise}
  */
 const logout = async (
-  refreshToken: string | undefined,  
+  refreshToken: string | undefined,
 ): Promise<void> => {
   if (refreshToken) {
     const refreshTokenDoc = await Token.findOne({
@@ -134,9 +139,9 @@ const resetPasswordbyOtp = async (resetData: IResetData): Promise<void> => {
     source === userOtpVarification.EMAIL && email
       ? await userService.getUserByEmail(email)
       : source === userOtpVarification.PHONE &&
-        countryCode &&
-        mobile &&
-        (await userService.getUserByMobileNo(countryCode, mobile));
+      countryCode &&
+      mobile &&
+      (await userService.getUserByMobileNo(countryCode, mobile));
 
 
 };
@@ -146,5 +151,5 @@ export {
   fileUploadDemo,
   loginUser,
   logout,
-  resetPasswordbyOtp,  
+  resetPasswordbyOtp,
 };

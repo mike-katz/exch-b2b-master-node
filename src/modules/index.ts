@@ -6,6 +6,7 @@ import authRoute from "./auth/auth.route";
 import docsRoute from "./docs.route";
 import userRoute from "./user/user.route";
 import activityRoute from "./activity/activity.route";
+import beatingRoute from "./beating/beating.route";
 
 const router = express.Router();
 const defaultRoutes = [
@@ -20,6 +21,10 @@ const defaultRoutes = [
   {
     path: "/activity",
     route: activityRoute,
+  },
+  {
+    path: "/beating",
+    route: beatingRoute,
   },
   
 ];

@@ -34,7 +34,7 @@ const errorConverter = (
 const errorHandler = (
   err: ApiError,
   req: Request,
-  res: CustomResponse,
+  res: any,
   next: NextFunction
 ): void => {
   let { statusCode, message } = err;
@@ -51,21 +51,21 @@ const errorHandler = (
   let response: {
     // msg: string;
     message: string;
-    error: boolean;
-    data: unknown;    
+    // error: boolean;
+    // data: unknown;    
   } = {
     // msg: errorData.msg || "",
     message: errorData?.msg || "",
-    error: true,
-    data: errorData.data || null,    
+    // error: true,
+    // data: errorData.data || null,    
   };
 
   if (statusCode === 500) {
     response = {
       // msg: errorData.msg || messages.SOMETHING_WENT_WRONG,
       message: errorData?.msg || message,
-      error: true,
-      data: errorData?.data || null,      
+      // error: true,
+      // data: errorData?.data || null,      
     };
   }
 
