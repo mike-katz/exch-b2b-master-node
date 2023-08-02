@@ -51,6 +51,7 @@ const login = {
   body: Joi.object().keys({    
     password: Joi.string().required(),
     username: Joi.string().required(),
+    ip: Joi.string(),
   }),
 };
 

@@ -10,5 +10,5 @@ export interface IRegisterBody {
 export interface ILoginBody {
   username: string; 
   password: string;
- 
+  ip:any 
 }

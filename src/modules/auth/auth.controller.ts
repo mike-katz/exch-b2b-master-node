@@ -16,18 +16,20 @@ const login = catchAsync(
     req: {
       body: ILoginBody;
     },
-    res: CustomResponse
+    res: any
   ) => {
-    const { username, password } = req.body; 
-    const data:any = await AuthService.loginUser(
-          username,
-          password,
+    const { username, password, ip } = req.body;
+    const data: any = await AuthService.loginUser(
+      username,
+      password,
+      ip
     );
-    
-    const response = prepareResponse({
+
+    const response = {
       message: "login success",
-      data: {"roles":data.roles, "username":data.username, "mobile":data.mobile, "tokens":data.tokens},
-    });
+      "roles": data.roles, "username": data.username, "mobile": data.mobile, "accessToken": data.tokens.accessToken,
+    };
+// console.log("response",{...response.data});
     res.status(httpStatus.OK).json(response);
   }
 );
@@ -67,5 +69,5 @@ const handleRefreshToken = catchAsync(
 export {
   handleRefreshToken,
   login,
-  logout,  
+  logout,
 };

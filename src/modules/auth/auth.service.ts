@@ -2,7 +2,7 @@ import httpStatus from "http-status";
 
 import { userOtpVarification } from "@/config/otp";
 import tokenTypes from "@/config/tokens";
-import { Token, User } from "@/models";
+import { Token, User, Activity } from "@/models";
 import * as tokenService from "@/service/token.service";
 import * as userService from "@/service/user.service";
 // import fileUpload, { FileArray } from "express-fileupload";
@@ -24,8 +24,9 @@ import ApiError from "@/utils/ApiError";
  * @returns {Promise<User>}
  */
 const loginUser = async (
-  username: string | undefined,
+  username: string,
   password: string,
+  ip: string,
 ) => {
   let user: any = await User.findOne({ username });
   if (!user) {
@@ -51,6 +52,14 @@ const loginUser = async (
     user.refreshToken = tokens.refreshToken;
     await user.save();
   }
+
+  const countData = Activity.countDocuments({ username });
+  if (countData > 25) {
+    const oldestLog = await Activity.findOne({ username }).sort({ _id: 1 }).exec();
+    await oldestLog.remove();
+  }
+  await Activity.create({ username, ip, detail: "login page visited" });
+
   return { roles, username, mobile, tokens };
 };
 
