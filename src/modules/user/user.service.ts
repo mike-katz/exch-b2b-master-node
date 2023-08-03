@@ -82,7 +82,7 @@ const Register = async (body: any, user: any): Promise<void> => {
     roles: [roles],
     exposureLimit: exposure,
     commision: commision,
-    parentId: user.id
+    parentId: user._id
   });
   return;
 }
@@ -102,9 +102,10 @@ const myDownline = async (filter: any, options: any,): Promise<void> => {
       data.exposure = item.exposure || 0,
       data.exposureLimit = item.exposureLimit || 0,
       data.refPL = item.refPL || 0,
-      data._id = item._id
-      data.status = item.status
-      data.roles = item.roles
+      data._id = item._id,
+      data.status = item.status,
+      data.roles = item.roles,
+      data.creditRef = item.creditRef || 0,
       response.push(data)
     })
   }
