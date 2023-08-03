@@ -133,7 +133,7 @@ userSchema.pre(
   "save",
   async function saveMiddleware(this: UserProfile, next: () => void) {
     if (this.password && this.isModified("password")) {
-      this.password = await bcrypt.hash(this.password, 8);
+      this.password = await bcrypt.hash(this.password, 10);
     }
     next();
   }

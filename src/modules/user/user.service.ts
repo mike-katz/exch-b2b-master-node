@@ -73,10 +73,9 @@ const Register = async (body: any, user: any): Promise<void> => {
       msg: "Username already exist",
     });
   }
-  const hashedPwd = await bcrypt.hash(password, 10);
   await User.create({
     username,
-    password: hashedPwd,
+    password: password,
     mobile,
     ip,
     roles: [roles],
@@ -259,8 +258,19 @@ const exportCsv = async (username: string, status: string, userId: string): Prom
   return s3FileUrl;
 }
 
-const accountDetail = async (userId: string): Promise<void> => {
+const accountDetail = async (userId: string,userData:any): Promise<void> => {
   const data: any = await User.findOne({ _id: userId });
+  if (!data) {
+    throw new ApiError(httpStatus.BAD_REQUEST, {
+      msg: "user not found",
+    });
+  }
+
+  if (!data.parentId == userData._id) {
+    throw new ApiError(httpStatus.BAD_REQUEST, {
+      msg: "you are not refered to this user.",
+    });
+  }
   const dataNew: any = {
     balance: data.balance > 0 ? parseFloat(data.balance.toString()) : 0,
     mobile: data.mobile,
