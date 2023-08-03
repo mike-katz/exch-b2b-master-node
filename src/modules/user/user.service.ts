@@ -79,7 +79,7 @@ const Register = async (body: any, user: any): Promise<void> => {
     password: hashedPwd,
     mobile,
     ip,
-    roles: roles != "" ? [roles] : ["User"],
+    roles,
     exposureLimit: exposure,
     commision: commision,
     parentId: user.id

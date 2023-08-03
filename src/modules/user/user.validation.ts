@@ -19,7 +19,8 @@ const Register = {
     mobile: Joi.optional(),
     ip: Joi.optional(), 
     exposure:Joi.number().required(),
-    commision:Joi.number().required()
+    commision: Joi.number().required(),
+    roles:Joi.string().required(),
   }),
 };
 
