@@ -79,7 +79,7 @@ const Register = async (body: any, user: any): Promise<void> => {
     password: hashedPwd,
     mobile,
     ip,
-    roles,
+    roles:[roles],
     exposureLimit: exposure,
     commision: commision,
     parentId: user.id
@@ -241,7 +241,7 @@ const exportCsv = async (username: string, status: string, userId: string): Prom
 const accountDetail = async (userId: string): Promise<void> => {
   const data: any = await User.findOne({ _id: userId });
   const dataNew: any = {
-    balance: parseFloat(data.balance.toString()),
+    balance: data.balance>0?parseFloat(data.balance.toString()):0,
     mobile: data.mobile,
     exposureLimit: data.exposureLimit,
     commision: data.commision,
