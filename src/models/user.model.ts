@@ -52,7 +52,7 @@ const userSchema = new mongoose.Schema<UserProfile, UserModel>(
     parentId: [{
       type: String,
     }],
-    
+
     level: {
       type: Number,
     },
@@ -72,7 +72,13 @@ const userSchema = new mongoose.Schema<UserProfile, UserModel>(
       type: String,
       enum: userStatus,
       default: userStatus.active,
-    }
+    },
+    exposure: {
+      type: String,
+    },
+    refPL: {
+      type: String,
+    },
   },
   { timestamps: true }
 );

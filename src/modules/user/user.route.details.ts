@@ -40,7 +40,7 @@ const routeDetails: IAuthRouteDetails[] = [
   
   {
     key: "MyDownlineAPI",
-    method: "post",
+    method: "get",
     url: "/my-team",
     validationMethodName: "myDownline",
     controllerMethodName: "myDownline",
@@ -94,7 +94,7 @@ const routeDetails: IAuthRouteDetails[] = [
 
   {
     key: "myBalanceAPI",
-    method: "post",
+    method: "get",
     url: "/my-balance",
     validationMethodName: "myBalance",
     controllerMethodName: "myBalance",

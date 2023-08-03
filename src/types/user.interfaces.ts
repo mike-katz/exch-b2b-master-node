@@ -17,7 +17,9 @@ interface User {
   ip: string;
   refreshToken: string;  
   commission: String
-  status:string
+  status: string,
+  exposure: string,
+  refPL:string
 }
 
 interface UserProfile extends User, Document {

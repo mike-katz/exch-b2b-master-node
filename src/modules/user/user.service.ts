@@ -79,7 +79,7 @@ const Register = async (body: any, user: any): Promise<void> => {
     password: hashedPwd,
     mobile,
     ip,
-    roles:[roles],
+    roles: [roles],
     exposureLimit: exposure,
     commision: commision,
     parentId: user.id
@@ -87,8 +87,28 @@ const Register = async (body: any, user: any): Promise<void> => {
   return;
 }
 
-const myDownline = async (user: any): Promise<void> => {
-  const users: any = await User.find({ parentId: user.id });
+const myDownline = async (filter: any, options: any,): Promise<void> => {
+  if (filter.search) {
+    filter.username =  { $regex: filter.search, $options: "i" }
+    delete filter.search
+  }
+  let users: any = await User.paginate(filter, options);
+  let response: any = [];
+  if (users.results.length > 0) {
+    users.results.map((item: any) => {
+      const data: any = {}
+      data.username = item.username,
+      data.balance = item.balance > 0 ? parseFloat(item.balance.toString()) : 0,
+      data.exposure = item.exposure || 0,
+      data.exposureLimit = item.exposureLimit || 0,
+      data.refPL = item.refPL || 0,
+      data._id = item._id
+      data.status = item.status
+      data.roles = item.roles
+      response.push(data)
+    })
+  }
+  users.results = response;
   return users;
 }
 
@@ -241,7 +261,7 @@ const exportCsv = async (username: string, status: string, userId: string): Prom
 const accountDetail = async (userId: string): Promise<void> => {
   const data: any = await User.findOne({ _id: userId });
   const dataNew: any = {
-    balance: data.balance>0?parseFloat(data.balance.toString()):0,
+    balance: data.balance > 0 ? parseFloat(data.balance.toString()) : 0,
     mobile: data.mobile,
     exposureLimit: data.exposureLimit,
     commision: data.commision,

@@ -6,6 +6,7 @@ import catchAsync from "@/utils/catchAsync";
 import prepareResponse from "@/utils/prepareResponse";
 import * as UserService from "./user.service";
 import httpStatus from "http-status";
+import pick from "@/utils/pick";
 
 const fetchUserProfile = catchAsync(
   async (req: Request, res: CustomResponse) => {
@@ -43,8 +44,11 @@ const Register = catchAsync(
 );
 
 const myDownline = catchAsync(
-  async (req: Request, res: CustomResponse) => {
-    const data = await UserService.myDownline(req?.user);    
+  async (req: any, res: CustomResponse) => {
+
+    const filter = { ...pick(req?.query, ["search", "status"]), parentId:req?.user?._id};
+    const options = pick(req?.query, ["sortBy", "limit", "page"]);
+    const data = await UserService.myDownline(filter,options);    
     const response = prepareResponse({
       message: "successful",
       data,
