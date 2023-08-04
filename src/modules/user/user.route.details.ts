@@ -75,15 +75,6 @@ const routeDetails: IAuthRouteDetails[] = [
   },
 
   {
-    key: "searchAPI",
-    method: "post",
-    url: "/search",
-    validationMethodName: "search",
-    controllerMethodName: "search",
-    auth: "",
-  },
-
-  {
     key: "exposureAPI",
     method: "post",
     url: "/change-exposure",

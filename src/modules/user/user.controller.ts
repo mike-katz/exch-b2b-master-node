@@ -93,19 +93,6 @@ const updateStatus = catchAsync(
   }
 );
 
-const search = catchAsync(
-  async (req: Request, res: CustomResponse) => {
-    const { username, status, userId } = req.body;
-    const data = await UserService.search(username, status, userId);
-    const response = prepareResponse({
-      message: "fetch data successfully.",
-      data,
-    });
-    res.status(httpStatus.OK).json(response);
-  }
-);
-
-
 const updateExposure = catchAsync(
   async (req: Request, res: CustomResponse) => {
     const { password, exposure, userId } = req.body;
@@ -143,4 +130,4 @@ const exportCsv = catchAsync(
   }
 );
 
-export default { fetchUserProfile, fetchUserDownline, Register, myDownline, addCreditLog, getCreditLog, updateStatus, search, updateExposure, myBalance, exportCsv };
+export default { fetchUserProfile, fetchUserDownline, Register, myDownline, addCreditLog, getCreditLog, updateStatus, updateExposure, myBalance, exportCsv };

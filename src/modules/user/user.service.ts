@@ -202,17 +202,6 @@ const updateStatus = async (userData: any, password: string, status: string, use
   return found;
 }
 
-const search = async (username: string, status: string, userId: string): Promise<void> => {
-  const data: any = await User.find({
-    $or: [
-      { "username": username },
-      { "status": status }
-    ],
-    $and: [{ "parentId": userId }]
-  })
-  return data;
-}
-
 const myBalance = async (userData: any): Promise<void> => {
 
   const users = await User.find({ parentId: userData._id });
@@ -317,8 +306,8 @@ const accountDetail = async (userId: string, userData: any): Promise<void> => {
     mobile: data.mobile,
     exposureLimit: data.exposureLimit,
     commision: data.commision,
-    password: data.password,
     _id: data._id,
+    timeZone: "IST",
     username: data.username
   }
   return dataNew;
@@ -331,7 +320,6 @@ export {
   addCreditLog,
   getCreditLog,
   updateStatus,
-  search,
   myBalance,
   exportCsv,
   accountDetail
