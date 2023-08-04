@@ -20,6 +20,16 @@ const findMaxRole = async (rolesArray: any): Promise<string> => {
 }
 
 const findDownline = async (data: any, filter: any, options: any,): Promise<void> => {
+  if (filter?.status === "") {
+    delete filter.status;
+  }
+  
+  if (filter.search && filter.search != "") {
+    filter.username = { $regex: filter.search, $options: "i" }
+  }
+  delete filter.search
+  
+  filter.parentId = { $in: [data?._id] }
 
   if (!data.roles) {
     throw new ApiError(httpStatus.BAD_REQUEST, {
@@ -54,7 +64,6 @@ const findDownline = async (data: any, filter: any, options: any,): Promise<void
     default:
       filter._id = null;
   }
-  filter.parentId = { $in: [data?._id] }
 
   if (filter?.userId) {
     filter.parentId = { $in: [filter?.userId] }
@@ -108,12 +117,16 @@ const Register = async (body: any, user: any): Promise<void> => {
 
 const myDownline = async (filter: any, options: any, userData: any): Promise<void> => {
 
+  if (filter?.status === "") {
+    delete filter.status;
+  }
+  
   if (filter.search && filter.search != "") {
     filter.username = { $regex: filter.search, $options: "i" }
-    delete filter.search
   }
+    delete filter.search
   filter.parentId = { $in: [userData?._id] }
-
+  
   let users: any = await User.paginate(filter, options);
   let response: any = [];
   if (users.results.length > 0) {

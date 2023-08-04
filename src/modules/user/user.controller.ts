@@ -23,7 +23,7 @@ const fetchUserProfile = catchAsync(
 const fetchUserDownline = catchAsync(
   async (req: any, res: CustomResponse) => {
 
-    const filter = pick(req?.query, ["userId", "status"]);
+    const filter = pick(req?.query, ["userId", "search", "status"]);
     const options = pick(req?.query, ["sortBy", "limit", "page"]);
     const data = await UserService.findDownline(req.user, filter, options);
     const response = prepareResponse({
