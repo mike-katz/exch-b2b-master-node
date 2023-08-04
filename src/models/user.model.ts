@@ -75,10 +75,7 @@ const userSchema = new mongoose.Schema<UserProfile, UserModel>(
     },
     exposure: {
       type: String,
-    },
-    refPL: {
-      type: String,
-    },
+    },  
   },
   { timestamps: true }
 );

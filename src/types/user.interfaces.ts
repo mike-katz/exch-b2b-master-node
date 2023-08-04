@@ -19,7 +19,6 @@ interface User {
   commission: String
   status: string,
   exposure: string,
-  refPL:string
 }
 
 interface UserProfile extends User, Document {

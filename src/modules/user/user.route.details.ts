@@ -22,7 +22,7 @@ const routeDetails: IAuthRouteDetails[] = [
 
   {
     key: "fetchDownlineDataAPI",
-    method: "post",
+    method: "get",
     url: "/downline",
     validationMethodName: "fetchUserDownline",
     controllerMethodName: "fetchUserDownline",

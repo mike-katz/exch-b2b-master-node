@@ -1,7 +1,6 @@
 import { CreditLog, User } from "@/models"
 import ApiError from "@/utils/ApiError";
 import httpStatus from "http-status";
-import bcrypt from 'bcryptjs';
 import AWS from "aws-sdk";
 import fs from 'fs';
 import path from 'path';
@@ -20,7 +19,7 @@ const findMaxRole = async (rolesArray: any): Promise<string> => {
   return maxRole;
 }
 
-const findDownline = async (data: any, userId: string): Promise<void> => {
+const findDownline = async (data: any, filter: any, options: any,): Promise<void> => {
 
   if (!data.roles) {
     throw new ApiError(httpStatus.BAD_REQUEST, {
@@ -29,40 +28,61 @@ const findDownline = async (data: any, userId: string): Promise<void> => {
   }
 
   let maxRole = await findMaxRole(data.roles);
-  if (userId) {
-    const user: any = await User.findOne({ _id: userId });
+  if (filter?.userId) {
+    const user: any = await User.findOne({ _id: filter?.userId });
     maxRole = await findMaxRole(user.roles);
   }
-
-  let query = {};
 
   switch (maxRole) {
     case 'Admin':
       break;
     case 'White Label':
-      query = { roles: { $in: ['Super'] } };
+      filter.roles = { $in: ['Super'] };
       break;
     case 'Super':
-      query = { roles: { $in: ['Master'] } };
+      filter.roles = { $in: ['Master'] };
       break;
     case 'Master':
-      query = { roles: { $in: ['Agent'] } };
+      filter.roles = { $in: ['Agent'] };
       break;
     case 'Agent':
-      query = { roles: { $in: ['User'] } };
+      filter.roles = { $in: ['User'] };
       break;
     case 'User':
-      query = { roles: [] };
+      filter.roles = [];
       break;
     default:
-      query = { _id: null };
+      filter._id = null;
   }
+  filter.parentId = { $in: [data?._id] }
 
-  if (userId) {
-    query = { ...query, parentId: userId };
-    const users: any = await User.find(query);
-    return users;
+  if (filter?.userId) {
+    filter.parentId = { $in: [filter?.userId] }
+  };
+
+  let users: any = await User.paginate(filter, options);
+  let response: any = [];
+  if (users.results.length > 0) {
+    await Promise.all(users.results.map(async (item: any) => {
+      let ref = 0;
+      const credit = await CreditLog.findOne({ username: item.username }).sort({ _id: -1 })
+      if (credit) {
+        ref = credit?.old;
+      }
+      const data: any = {}
+      data.username = item.username,
+        data.balance = item.balance > 0 ? parseFloat(item.balance.toString()) : 0,
+        data.exposure = item.exposure || 0,
+        data.exposureLimit = item.exposureLimit || 0,
+        data._id = item._id,
+        data.status = item.status,
+        data.roles = item.roles,
+        data.creditRef = ref
+      response.push(data)
+    }));
   }
+  users.results = response;
+  return users;
 }
 
 const Register = async (body: any, user: any): Promise<void> => {
@@ -86,27 +106,35 @@ const Register = async (body: any, user: any): Promise<void> => {
   return;
 }
 
-const myDownline = async (filter: any, options: any,): Promise<void> => {
-  if (filter.search) {
-    filter.username =  { $regex: filter.search, $options: "i" }
+const myDownline = async (filter: any, options: any, userData: any): Promise<void> => {
+
+  if (filter.search && filter.search != "") {
+    filter.username = { $regex: filter.search, $options: "i" }
     delete filter.search
   }
+  filter.parentId = { $in: [userData?._id] }
+
   let users: any = await User.paginate(filter, options);
   let response: any = [];
   if (users.results.length > 0) {
-    users.results.map((item: any) => {
+    await Promise.all(users.results.map(async (item: any) => {
+      let ref = 0;
+      const credit = await CreditLog.findOne({ username: item.username }).sort({ _id: -1 })
+      if (credit) {
+        ref = credit?.old;
+      }
       const data: any = {}
       data.username = item.username,
-      data.balance = item.balance > 0 ? parseFloat(item.balance.toString()) : 0,
-      data.exposure = item.exposure || 0,
-      data.exposureLimit = item.exposureLimit || 0,
-      data.refPL = item.refPL || 0,
-      data._id = item._id,
-      data.status = item.status,
-      data.roles = item.roles,
-      data.creditRef = item.creditRef || 0,
+        data.balance = item.balance > 0 ? parseFloat(item.balance.toString()) : 0,
+        data.exposure = item.exposure || 0,
+        data.exposureLimit = item.exposureLimit || 0,
+        data._id = item._id,
+        data.status = item.status,
+        data.roles = item.roles,
+        data.creditRef = ref
+
       response.push(data)
-    })
+    }));
   }
   users.results = response;
   return users;
@@ -258,7 +286,7 @@ const exportCsv = async (username: string, status: string, userId: string): Prom
   return s3FileUrl;
 }
 
-const accountDetail = async (userId: string,userData:any): Promise<void> => {
+const accountDetail = async (userId: string, userData: any): Promise<void> => {
   const data: any = await User.findOne({ _id: userId });
   if (!data) {
     throw new ApiError(httpStatus.BAD_REQUEST, {

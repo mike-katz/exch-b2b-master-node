@@ -11,7 +11,7 @@ import pick from "@/utils/pick";
 const fetchUserProfile = catchAsync(
   async (req: Request, res: CustomResponse) => {
     const { userId } = req.body;
-    const data = await UserService.accountDetail(userId,req.user);
+    const data = await UserService.accountDetail(userId, req.user);
     const response = prepareResponse({
       message: "User fetched success",
       data,
@@ -21,9 +21,11 @@ const fetchUserProfile = catchAsync(
 );
 
 const fetchUserDownline = catchAsync(
-  async (req: Request, res: CustomResponse) => {
-    const { id } = req.body
-    const data = await UserService.findDownline(req.user, id);
+  async (req: any, res: CustomResponse) => {
+
+    const filter = pick(req?.query, ["userId", "status"]);
+    const options = pick(req?.query, ["sortBy", "limit", "page"]);
+    const data = await UserService.findDownline(req.user, filter, options);
     const response = prepareResponse({
       message: "User fetched success",
       data,
@@ -45,10 +47,9 @@ const Register = catchAsync(
 
 const myDownline = catchAsync(
   async (req: any, res: CustomResponse) => {
-
-    const filter = { ...pick(req?.query, ["search", "status"]), parentId: req?.user?._id };
+    const filter = pick(req?.query, ["search", "status"]);
     const options = pick(req?.query, ["sortBy", "limit", "page"]);
-    const data = await UserService.myDownline(filter, options);
+    const data = await UserService.myDownline(filter, options, req.user);
     const response = prepareResponse({
       message: "successful",
       data,
