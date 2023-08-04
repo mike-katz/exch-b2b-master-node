@@ -1,7 +1,6 @@
 import { Request } from "express";
 
 import { CustomResponse } from "@/types";
-import { UserProfile } from "@/types/user.interfaces";
 import catchAsync from "@/utils/catchAsync";
 import prepareResponse from "@/utils/prepareResponse";
 import * as UserService from "./user.service";

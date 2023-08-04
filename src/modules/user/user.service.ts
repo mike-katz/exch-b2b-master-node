@@ -164,7 +164,7 @@ const addCreditLog = async (userData: any, password: string, rate: number, userI
   let found: any = await User.findOne({ _id: userId })
   if (found) {
     await CreditLog.create({
-      userId: userId,
+      username: found.username,
       old: found?.balance,
       new: rate
     });
