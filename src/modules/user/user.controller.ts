@@ -98,7 +98,7 @@ const updateExposure = catchAsync(
     const data = await UserService.updateStatus(req?.user, password, exposure, userId, "exposure");
     const response = prepareResponse({
       message: "Exposure update successfully.",
-      data,
+      data:null,
     });
     res.status(httpStatus.OK).json(response);
   }
