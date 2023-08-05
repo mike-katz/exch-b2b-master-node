@@ -70,8 +70,9 @@ const addCreditLog = catchAsync(
 );
 
 const getCreditLog = catchAsync(
-  async (req: Request, res: CustomResponse) => {
-    const data = await UserService.getCreditLog(req?.user);
+  async (req: any, res: CustomResponse) => {
+    const{userId} = req.query
+    const data = await UserService.getCreditLog(req?.user, userId);
     const response = prepareResponse({
       message: "credit log fetched successfully.",
       data,

@@ -179,15 +179,25 @@ const addCreditLog = async (userData: any, password: string, rate: number, userI
       old: found?.balance,
       new: rate
     });
-    found.balance = rate;
-    await found.save();
+    // found.balance = rate;
+    // await found.save();
     return found;
   }
   return;
 }
 
-const getCreditLog = async (user: any): Promise<void> => {
-  const data = await CreditLog.find({ username: user.username })
+const getCreditLog = async (user: any, userId: string): Promise<void> => {
+  let username = user?.username;
+  if (userId !== "") {
+    const data: any = await User.findOne({ _id: userId });
+    if (!data) {
+      throw new ApiError(httpStatus.BAD_REQUEST, {
+        msg: "user not found",
+      });
+    }
+    username = data.username
+  }
+  const data = await CreditLog.find({ username })
   return data;
 }
 
@@ -300,17 +310,20 @@ const exportCsv = async (username: string, status: string, userId: string): Prom
 }
 
 const accountDetail = async (userId: string, userData: any): Promise<void> => {
-  const data: any = await User.findOne({ _id: userId });
-  if (!data) {
-    throw new ApiError(httpStatus.BAD_REQUEST, {
-      msg: "user not found",
-    });
-  }
+  let data: any = userData;
+  if (userId !== "") {
+    data = await User.findOne({ _id: userId });
+    if (!data) {
+      throw new ApiError(httpStatus.BAD_REQUEST, {
+        msg: "user not found",
+      });
+    }
 
-  if (!data.parentId == userData._id) {
-    throw new ApiError(httpStatus.BAD_REQUEST, {
-      msg: "you are not refered to this user.",
-    });
+    if (!data.parentId == userData._id) {
+      throw new ApiError(httpStatus.BAD_REQUEST, {
+        msg: "you are not refered to this user.",
+      });
+    }
   }
   const dataNew: any = {
     balance: data.balance > 0 ? parseFloat(data.balance.toString()) : 0,

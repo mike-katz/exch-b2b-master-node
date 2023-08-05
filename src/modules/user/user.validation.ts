@@ -37,7 +37,10 @@ const addCreditLog = {
 };
 
 const getCreditLog = {
-  body: Joi.object().keys({}),
+  query: Joi.object().keys({
+    userId:Joi.string().optional(),
+
+  }),
 };
 
 const updateStatus = {

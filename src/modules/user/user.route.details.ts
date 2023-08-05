@@ -58,7 +58,7 @@ const routeDetails: IAuthRouteDetails[] = [
 
   {
     key: "GetCreditLogAPI",
-    method: "post",
+    method: "get",
     url: "/creditlogs",
     validationMethodName: "getCreditLog",
     controllerMethodName: "getCreditLog",
