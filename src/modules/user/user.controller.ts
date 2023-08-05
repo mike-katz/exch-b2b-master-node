@@ -118,10 +118,8 @@ const myBalance = catchAsync(
 
 const exportCsv = catchAsync(
   async (req: Request, res: CustomResponse) => {
-    const { username, status, userId } = req.body;
-    const data = await UserService.exportCsv(username, status, userId);
-    console.log("data", data);
-
+    const { search, status, userId, type } = req.body;
+    const data = await UserService.exportCsv(search, status, userId, type, req?.user);
     const response = prepareResponse({
       message: "CSV generate successfully.",
       data,

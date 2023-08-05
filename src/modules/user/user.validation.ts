@@ -64,7 +64,12 @@ const myBalance = {
 };
 
 const exportCsv = {
-  body: Joi.object().keys({}),
+  body: Joi.object().keys({
+    userId: Joi.string().optional(),
+    status: Joi.string().optional(),
+    search: Joi.string().optional(),
+    type: Joi.string().required(),
+  }),
 };
 
 export default { fetchUserProfile, fetchUserDownline, Register, myDownline, addCreditLog, getCreditLog, updateStatus, search, myBalance, exportCsv };

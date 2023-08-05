@@ -15,11 +15,33 @@ const findMaxRole = async (rolesArray: any): Promise<string> => {
     const currentIndex = rolesOrder.indexOf(currentRole);
     return currentIndex > maxIndex ? currentRole : max;
   }, rolesOrder[0]);
-
-  return maxRole;
+    let filter: any;
+   switch (maxRole) {
+      case 'Admin':
+        filter='WhiteLabel';
+        break;
+      case 'WhiteLabel':
+        filter='Super';
+        break;
+      case 'Super':
+        filter='Master';
+        break;
+      case 'Master':
+        filter='Agent';
+        break;
+      case 'Agent':
+        filter='User';
+        break;
+      case 'User':
+        filter = "";
+        break;
+      default:
+        filter = "";
+    }
+  return filter;
 }
 
-const findDownline = async (data: any, filter: any, options: any,): Promise<void> => {
+const findDownline = async (data: any, filter: any, options: any): Promise<void> => {
   try {
     if (filter?.status === "") {
       delete filter.status;
@@ -37,34 +59,13 @@ const findDownline = async (data: any, filter: any, options: any,): Promise<void
     }
 
     let maxRole = await findMaxRole(data.roles);
-    if (filter?.userId === "") {
+    if (filter?.userId !== "") {
       const user: any = await User.findOne({ _id: filter?.userId });
       maxRole = await findMaxRole(user.roles);
     }
 
-    switch (maxRole) {
-      case 'Admin':
-        filter.roles = { $in: ['WhiteLabel'] };
-        break;
-      case 'WhiteLabel':
-        filter.roles = { $in: ['Super'] };
-        break;
-      case 'Super':
-        filter.roles = { $in: ['Master'] };
-        break;
-      case 'Master':
-        filter.roles = { $in: ['Agent'] };
-        break;
-      case 'Agent':
-        filter.roles = { $in: ['User'] };
-        break;
-      case 'User':
-        filter.roles = [];
-        break;
-      default:
-        filter._id = null;
-    }
-
+    filter.roles = { $in: [maxRole] };
+    
     if (filter?.userId) {
       filter.parentId = { $in: [filter?.userId] }
     };
@@ -240,28 +241,57 @@ const myBalance = async (userData: any): Promise<void> => {
   return res;
 }
 
-const exportCsv = async (username: string, status: string, userId: string): Promise<string> => {
-  const result: any = await User.find({
-    $or: [
-      { "username": username },
-      { "status": status }
-    ],
-    $and: [{ "parentId": userId }]
-  })
-  let resData: any[] = [];
-  result.map((item: any) => {
-    resData.push({
-      account: item.username,
-      creditRef: 0,
-      balance: parseFloat(item.balance.toString()),
-      exposure: 0,
-      availBal: parseFloat(item.balance.toString()),
-      exposureLimit: item.exposureLimit,
-      ref: 0,
-      status: item.status
-    });
-  });
+const exportCsv = async (search: string, status: string, userId: string, type:string, userData:any): Promise<string> => {
+  let responseData: any = [];
 
+   let filter:any ={}
+    if (status) {
+     filter.status = status
+    }
+    if (search && search != "") {
+      filter.username = { $regex: search, $options: "i" }
+  }  
+  
+  if (type == "user") {   
+    filter.parentId = { $in: [userData?._id] }
+    if (userId) {
+    filter.parentId = { $in: [userId] }      
+    }
+  }
+  if (type == "master") {
+
+    let maxRole = await findMaxRole(userData.roles);
+    if (userId) {
+      const user: any = await User.findOne({ _id: filter?.userId });
+      maxRole = await findMaxRole(user.roles);
+      filter.parentId = { $in: [userId] }
+    }
+    filter.roles = { $in: [maxRole] };    
+  }
+  responseData = await User.find(filter);
+
+  let resData: any[] = [];
+
+   let response: any = [];
+    if (responseData.length > 0) {
+      await Promise.all(responseData.map(async (item: any) => {
+        let ref = 0;
+        const credit = await CreditLog.findOne({ username: item.username }).sort({ _id: -1 })
+        if (credit) {
+          ref = credit?.old;
+        }
+        const data: any = {}
+        data.account = item.username,
+          data.creditRef = ref,          
+          data.availBal = item.balance > 0 ? parseFloat(item.balance.toString()) : 0,
+          data.exposure = item.exposure || 0,
+          data.balance = item.balance > 0 ? parseFloat(item.balance.toString()) : 0,
+          data.exposureLimit = item.exposureLimit || 0,
+          data.status = item.status,
+          data.ref = ref,
+          response.push(data)
+      }));
+    }
   const fileName = `data_${Date.now()}.csv`;
   const filePath = path.resolve(__dirname, fileName);
   const bucketName = 'exch-s3-react-dev-002';
