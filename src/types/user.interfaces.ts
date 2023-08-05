@@ -16,7 +16,6 @@ interface User {
   origin: string;
   ip: string;
   refreshToken: string;  
-  commission: String
   status: string,
   exposure: string,
 }

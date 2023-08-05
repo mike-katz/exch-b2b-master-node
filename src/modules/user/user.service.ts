@@ -115,7 +115,7 @@ const Register = async (body: any, user: any): Promise<void> => {
     ip,
     roles: [roles],
     exposureLimit: exposure,
-    commision: commision,
+    commission: commision,
     parentId: user._id
   });
   return;
@@ -316,7 +316,7 @@ const accountDetail = async (userId: string, userData: any): Promise<void> => {
     balance: data.balance > 0 ? parseFloat(data.balance.toString()) : 0,
     mobile: data.mobile,
     exposureLimit: data.exposureLimit,
-    commision: data.commision,
+    commission: data.commision,
     _id: data._id,
     timeZone: "IST",
     username: data.username
