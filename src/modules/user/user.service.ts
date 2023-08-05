@@ -58,18 +58,15 @@ const findDownline = async (data: any, filter: any, options: any): Promise<void>
       });
     }
 
-    let maxRole = await findMaxRole(data.roles);
-    if (filter?.userId !== "") {
+  let maxRole = await findMaxRole(data.roles);
+ 
+    if (filter?.userId && filter?.userId !== "") {
       const user: any = await User.findOne({ _id: filter?.userId });
       maxRole = await findMaxRole(user.roles);
+      filter.parentId = { $in: [filter?.userId] }
     }
-
     filter.roles = { $in: [maxRole] };
     
-    if (filter?.userId) {
-      filter.parentId = { $in: [filter?.userId] }
-    };
-
     let users: any = await User.paginate(filter, options);
     let response: any = [];
     if (users.results.length > 0) {
@@ -243,7 +240,6 @@ const myBalance = async (userData: any): Promise<void> => {
 
 const exportCsv = async (search: string, status: string, userId: string, type:string, userData:any): Promise<string> => {
   let responseData: any = [];
-
    let filter:any ={}
     if (status) {
      filter.status = status
@@ -254,23 +250,20 @@ const exportCsv = async (search: string, status: string, userId: string, type:st
   
   if (type == "user") {   
     filter.parentId = { $in: [userData?._id] }
-    if (userId) {
+    if (userId && userId !="") {
     filter.parentId = { $in: [userId] }      
     }
   }
   if (type == "master") {
-
     let maxRole = await findMaxRole(userData.roles);
-    if (userId) {
-      const user: any = await User.findOne({ _id: filter?.userId });
+    if (userId && userId !="") {
+      const user: any = await User.findOne({ _id: userId });
       maxRole = await findMaxRole(user.roles);
       filter.parentId = { $in: [userId] }
     }
     filter.roles = { $in: [maxRole] };    
   }
   responseData = await User.find(filter);
-
-  let resData: any[] = [];
 
    let response: any = [];
     if (responseData.length > 0) {
@@ -310,7 +303,7 @@ const exportCsv = async (search: string, status: string, userId: string, type:st
     ],
   });
 
-  await writer.writeRecords(resData).then(async () => {
+  await writer.writeRecords(response).then(async () => {
     // Uploading to S3
     const s3: any = new AWS.S3({
       accessKeyId: process.env.AWS_ACCESS,
