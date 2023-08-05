@@ -7,7 +7,7 @@ import path from 'path';
 
 const csvWriter = require('csv-writer');
 const findMaxRole = async (rolesArray: any): Promise<string> => {
-  const rolesOrder = ['Admin', 'White Label', 'Super', 'Master', 'Agent', 'User'];
+  const rolesOrder = ['Admin', 'WhiteLabel', 'Super', 'Master', 'Agent', 'User'];
 
   // Find the maximum role
   const maxRole = rolesArray.reduce((max: string, currentRole: string) => {
@@ -46,7 +46,7 @@ const findDownline = async (data: any, filter: any, options: any,): Promise<void
   switch (maxRole) {
     case 'Admin':
       break;
-    case 'White Label':
+    case 'WhiteLabel':
       filter.roles = { $in: ['Super'] };
       break;
     case 'Super':
