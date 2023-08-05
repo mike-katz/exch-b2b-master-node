@@ -3,7 +3,7 @@ import profileValidation from "./activity.validation";
 
 export interface IActivityRouteDetails {
   key: string;
-  method: "post";
+  method: "get";
   url: string;
   auth?: string;
   validationMethodName?: keyof typeof profileValidation;
@@ -13,7 +13,7 @@ export interface IActivityRouteDetails {
 const routeDetails: IActivityRouteDetails[] = [
   {
     key: "fetchActivityAPI",
-    method: "post",
+    method: "get",
     url: "/",
     validationMethodName: "fetchActivity",
     controllerMethodName: "fetchActivity",

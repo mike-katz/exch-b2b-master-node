@@ -20,7 +20,6 @@ const fetchActivity = async (data: any, userId: string): Promise<void> => {
       }
       username = userData.username
     }
-
     const response = await Activity.find({ username });
     return response;
   } catch (error) {
@@ -29,4 +28,5 @@ const fetchActivity = async (data: any, userId: string): Promise<void> => {
     });
   }
 }
+
 export { fetchActivity }

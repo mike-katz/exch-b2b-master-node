@@ -1,14 +1,13 @@
 import * as Joi from "joi";
 
 const fetchUserProfile = {
-  body: Joi.object().keys({
+  query: Joi.object().keys({
     userId: Joi.optional(),
   }),
 };
 
 const fetchUserDownline = {
   body: Joi.object().keys({
-    userId: Joi.optional(),
   }),
 };
 
@@ -19,7 +18,7 @@ const Register = {
     mobile: Joi.optional(),
     ip: Joi.optional(), 
     exposure:Joi.number().required(),
-    commision: Joi.number().required(),
+    commission: Joi.number().required(),
     roles:Joi.string().required(),
   }),
 };

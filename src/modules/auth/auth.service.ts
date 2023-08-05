@@ -45,14 +45,14 @@ const loginUser = async (
       msg: "user not allow to login",
     });
   }
-  const { roles, mobile } = user;
+  const { roles, mobile, balance } = user;
   const tokens = await tokenService.generateAuthTokens(user);
 
-  if (tokens) {
-    user.refreshToken = tokens.refreshToken;
-    await user.save();
-  }
-
+  // if (tokens) {
+  //   user.refreshToken = tokens.refreshToken;
+  //   await user.save();
+  // }
+  const balanceData = balance > 0 ? parseFloat(balance.toString()) : 0;
   const countData = Activity.countDocuments({ username });
   if (countData > 25) {
     const oldestLog = await Activity.findOne({ username }).sort({ _id: 1 }).exec();
@@ -60,7 +60,7 @@ const loginUser = async (
   }
   await Activity.create({ username, ip, detail: "login page visited" });
 
-  return { roles, username, mobile, tokens };
+  return { roles, username, mobile, tokens, balanceData };
 };
 
 /**

@@ -13,7 +13,7 @@ export interface IAuthRouteDetails {
 const routeDetails: IAuthRouteDetails[] = [
   {
     key: "fetchUserProfileAPI",
-    method: "post",
+    method: "get",
     url: "/detail",
     validationMethodName: "fetchUserProfile",
     controllerMethodName: "fetchUserProfile",

@@ -8,8 +8,8 @@ import httpStatus from "http-status";
 import pick from "@/utils/pick";
 
 const fetchUserProfile = catchAsync(
-  async (req: Request, res: CustomResponse) => {
-    const { userId } = req.body;
+  async (req: any, res: CustomResponse) => {
+    const { userId } = req.query;
     const data = await UserService.accountDetail(userId, req.user);
     const response = prepareResponse({
       message: "User fetched success",
