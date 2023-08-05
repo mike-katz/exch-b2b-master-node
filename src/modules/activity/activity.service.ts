@@ -25,9 +25,8 @@ const fetchActivity = async (data: any, userId: string): Promise<void> => {
     return response;
   } catch (error) {
     throw new ApiError(httpStatus.BAD_REQUEST, {
-          msg: "invalid user id.",
-        });
-    
+      msg: "invalid user id.",
+    });
   }
 }
 export { fetchActivity }
