@@ -28,8 +28,6 @@ const findDownline = async (data: any, filter: any, options: any,): Promise<void
     filter.username = { $regex: filter.search, $options: "i" }
   }
   delete filter.search
-  
-  filter.parentId = { $in: [data?._id] }
 
   if (!data.roles) {
     throw new ApiError(httpStatus.BAD_REQUEST, {
@@ -45,6 +43,7 @@ const findDownline = async (data: any, filter: any, options: any,): Promise<void
 
   switch (maxRole) {
     case 'Admin':
+      filter.roles = { $in: ['WhiteLabel'] };
       break;
     case 'WhiteLabel':
       filter.roles = { $in: ['Super'] };
