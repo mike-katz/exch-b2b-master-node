@@ -7,7 +7,12 @@ const fetchUserProfile = {
 };
 
 const fetchUserDownline = {
-  body: Joi.object().keys({
+  query: Joi.object().keys({
+    userId: Joi.string().optional(),
+    search: Joi.string().optional(),
+    status: Joi.string().optional(),
+    page: Joi.number().required(),
+    limit: Joi.number().required(),
   }),
 };
 
@@ -24,7 +29,13 @@ const Register = {
 };
 
 const myDownline = {
-  body: Joi.object().keys({}),
+  query: Joi.object().keys({
+    userId: Joi.string().optional(),
+    search: Joi.string().optional(),
+    status: Joi.string().optional(),
+    page: Joi.number().required(),
+    limit: Joi.number().required(),
+  }),
 };
 
 

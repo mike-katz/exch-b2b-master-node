@@ -256,11 +256,11 @@ const exportCsv = async (search: string, status: string, userId: string, type:st
   }
   if (type == "master") {
     let maxRole = await findMaxRole(userData.roles);
-    if (userId && userId !="") {
+    if (userId !== undefined && userId !== "") {
       const user: any = await User.findOne({ _id: userId });
       maxRole = await findMaxRole(user.roles);
       filter.parentId = { $in: [userId] }
-    }
+    }    
     filter.roles = { $in: [maxRole] };    
   }
   responseData = await User.find(filter);
