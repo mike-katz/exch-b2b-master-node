@@ -8,11 +8,11 @@ const creditLogSchema = new Schema({
     required: true,
   },
   old: {
-    type: String,
+    type: Number,
     required: true,
   },
   new: {
-    type: String,
+    type: Number,
     required: true,
  }
 }, { timestamps: true });

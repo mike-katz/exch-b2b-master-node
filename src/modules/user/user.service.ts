@@ -310,31 +310,38 @@ const exportCsv = async (username: string, status: string, userId: string): Prom
 }
 
 const accountDetail = async (userId: string, userData: any): Promise<void> => {
-  let data: any = userData;
-  if (userId !== "") {
-    data = await User.findOne({ _id: userId });
-    if (!data) {
-      throw new ApiError(httpStatus.BAD_REQUEST, {
-        msg: "user not found",
-      });
-    }
 
-    if (!data.parentId == userData._id) {
-      throw new ApiError(httpStatus.BAD_REQUEST, {
-        msg: "you are not refered to this user.",
-      });
+  try {
+    let data: any = userData;
+    if (userId) {
+      data = await User.findOne({ _id: userId });
+      if (!data) {
+        throw new ApiError(httpStatus.BAD_REQUEST, {
+          msg: "user not found",
+        });
+      }
+
+      if (!data.parentId == userData._id) {
+        throw new ApiError(httpStatus.BAD_REQUEST, {
+          msg: "you are not refered to this user.",
+        });
+      }
     }
+    const dataNew: any = {
+      balance: data.balance > 0 ? parseFloat(data.balance.toString()) : 0,
+      mobile: data.mobile,
+      exposureLimit: data.exposureLimit,
+      commission: data.commision,
+      _id: data._id,
+      timeZone: "IST",
+      username: data.username
+    }
+    return dataNew;
+  } catch (error) {
+    throw new ApiError(httpStatus.BAD_REQUEST, {
+      msg: "user id not valid",
+    });
   }
-  const dataNew: any = {
-    balance: data.balance > 0 ? parseFloat(data.balance.toString()) : 0,
-    mobile: data.mobile,
-    exposureLimit: data.exposureLimit,
-    commission: data.commision,
-    _id: data._id,
-    timeZone: "IST",
-    username: data.username
-  }
-  return dataNew;
 }
 
 export {
