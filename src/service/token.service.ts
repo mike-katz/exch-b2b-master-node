@@ -101,7 +101,7 @@ const generateAuthTokens = async (
     "minutes"
   );
   const accessToken = generateToken(
-    user._id,
+    user.id,
     accessTokenExpires,
     tokenTypes.ACCESS
   );
