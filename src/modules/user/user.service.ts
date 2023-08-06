@@ -57,14 +57,17 @@ const findDownline = async (data: any, filter: any, options: any): Promise<void>
         msg: "role not found",
       });
     }
-
-  let maxRole = await findMaxRole(data.roles); 
+    filter.parentId = { $in: [data?._id] }
+    let maxRole = await findMaxRole(data.roles); 
     if (filter?.userId && filter?.userId !== "") {
       const user: any = await User.findOne({ _id: filter?.userId });
       maxRole = await findMaxRole(user.roles);
       filter.parentId = { $in: [filter?.userId] }
+      delete filter.userId
     }
     filter.roles = { $in: [maxRole] };
+    console.log("filter",filter);
+    
     let users: any = await User.paginate(filter, options);
     let response: any = [];
     if (users.results.length > 0) {
@@ -104,7 +107,7 @@ const Register = async (body: any, user: any): Promise<void> => {
     });
   }
   await User.create({
-    username,
+    username:username.toLowerCase(),
     password: password,
     mobile,
     ip,
@@ -126,7 +129,8 @@ const myDownline = async (filter: any, options: any, userData: any): Promise<voi
       filter.username = { $regex: filter?.search, $options: "i" }
     }
     delete filter.search
-    filter.parentId = { $in: [userData?._id] }
+    filter.parentId = { $in: [userData?._id] }    
+    filter.roles = { $in: ['User'] };
 
     let users: any = await User.paginate(filter, options);
     let response: any = [];

@@ -13,21 +13,24 @@ const userSchema = new mongoose.Schema<UserProfile, UserModel>(
     lastName: { type: String },
 
     username: { type: String, required: true },
-
     password: {
       type: String,
       required: false,
-      trim: true,
-      minlength: 5,
-      validate(value: string): void {
-        if (!/\d/.test(value) || !/[A-Za-z]/.test(value)) {
-          throw new Error(
-            "Password must contain at least one letter and one number"
-          );
-        }
-      },
-      private: true, // used by the toJSON plugins
     },
+    // password: {
+    //   type: String,
+    //   required: false,
+    //   trim: true,
+    //   minlength: 5,
+    //   validate(value: string): void {
+    //     if (!/\d/.test(value) || !/[A-Za-z]/.test(value)) {
+    //       throw new Error(
+    //         "Password must contain at least one letter and one number"
+    //       );
+    //     }
+    //   },
+    //   private: true, // used by the toJSON plugins
+    // },
 
     mobile: {
       type: String,
