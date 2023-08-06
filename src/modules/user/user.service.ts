@@ -135,7 +135,7 @@ const myDownline = async (filter: any, options: any, userData: any): Promise<voi
         let ref = 0;
         const credit = await CreditLog.findOne({ username: item.username }).sort({ _id: -1 })
         if (credit) {
-          ref = credit?.old;
+          ref = credit?.new;
         }
         const data: any = {}
         data.username = item.username,

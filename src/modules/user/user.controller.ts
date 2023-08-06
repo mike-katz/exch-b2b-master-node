@@ -1,4 +1,4 @@
-import { Request } from "express";
+import { Request, Response } from "express";
 
 import { CustomResponse } from "@/types";
 import catchAsync from "@/utils/catchAsync";
@@ -70,14 +70,15 @@ const addCreditLog = catchAsync(
 );
 
 const getCreditLog = catchAsync(
-  async (req: any, res: CustomResponse) => {
+  async (req: any, res: Response) => {
     const{userId} = req.query
     const data = await UserService.getCreditLog(req?.user, userId);
-    const response = prepareResponse({
+    
+    res.status(httpStatus.OK).json({
       message: "credit log fetched successfully.",
       data,
+      userId
     });
-    res.status(httpStatus.OK).json(response);
   }
 );
 
