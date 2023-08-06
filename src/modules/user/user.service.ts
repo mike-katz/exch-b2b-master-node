@@ -47,9 +47,9 @@ const findDownline = async (data: any, filter: any, options: any): Promise<void>
       delete filter.status;
     }
 
-    if (filter.search && filter.search != "") {
-      filter.username = { $regex: filter.search, $options: "i" }
-    }
+    if (filter.search !== undefined && filter.search != "") {
+      filter.username = { $regex: filter?.search, $options: "i" }
+    }    
     delete filter.search
 
     if (!data.roles) {
@@ -58,15 +58,13 @@ const findDownline = async (data: any, filter: any, options: any): Promise<void>
       });
     }
 
-  let maxRole = await findMaxRole(data.roles);
- 
+  let maxRole = await findMaxRole(data.roles); 
     if (filter?.userId && filter?.userId !== "") {
       const user: any = await User.findOne({ _id: filter?.userId });
       maxRole = await findMaxRole(user.roles);
       filter.parentId = { $in: [filter?.userId] }
     }
     filter.roles = { $in: [maxRole] };
-    
     let users: any = await User.paginate(filter, options);
     let response: any = [];
     if (users.results.length > 0) {
@@ -94,7 +92,6 @@ const findDownline = async (data: any, filter: any, options: any): Promise<void>
     throw new ApiError(httpStatus.BAD_REQUEST, {
       msg: "invalid user id.",
     });
-
   }
 }
 
@@ -125,8 +122,8 @@ const myDownline = async (filter: any, options: any, userData: any): Promise<voi
       delete filter.status;
     }
 
-    if (filter.search && filter.search != "") {
-      filter.username = { $regex: filter.search, $options: "i" }
+    if (filter.search !== undefined && filter.search != "") {
+      filter.username = { $regex: filter?.search, $options: "i" }
     }
     delete filter.search
     filter.parentId = { $in: [userData?._id] }
