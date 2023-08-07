@@ -1,23 +1,13 @@
 import { Activity, User } from "@/models"
 import ApiError from "@/utils/ApiError";
 import httpStatus from "http-status";
+import * as userService from "@/modules/user/user.service";
 
 const fetchActivity = async (data: any, userId: string): Promise<void> => {
   let username = data.username
   try {
     if (userId) {
-      const userData: any = await User.findOne({ _id: userId });
-      if (!userData) {
-        throw new ApiError(httpStatus.BAD_REQUEST, {
-          msg: "user not found",
-        });
-      }
-
-      if (!userData.parentId == userData._id) {
-        throw new ApiError(httpStatus.BAD_REQUEST, {
-          msg: "you are not refered to this user.",
-        });
-      }
+      const userData: any = await userService.checkParent(userId, data._id);
       username = userData.username
     }
     const response = await Activity.find({ username });

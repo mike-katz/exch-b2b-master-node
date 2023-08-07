@@ -45,6 +45,15 @@ const loginUser = async (
       msg: "user not allow to login",
     });
   }
+
+  if (user.status == "locked") {
+    throw new ApiError(httpStatus.BAD_REQUEST, {
+      msg: `your account ${user.status}`,
+    });
+  }
+
+  
+
   const { roles, mobile, balance } = user;
   const tokens = await tokenService.generateAuthTokens(user);
 

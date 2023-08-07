@@ -13,6 +13,7 @@ export interface Options {
   populate?: string;
   limit?: number;
   page?: number;
+  path?: any;
 }
 
 const getProject = (projectBy: string | undefined): string => {
@@ -99,6 +100,9 @@ const paginate = <T extends Document, U extends Model<U>>(
         }
         docsPromise = docsPromise.populate(populatePath);
       }
+    }
+    if (options.path) {
+      docsPromise = docsPromise.populate(options.path);
     }
     const docsPromiseExec = docsPromise.exec();
 

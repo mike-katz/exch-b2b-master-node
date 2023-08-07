@@ -6,40 +6,40 @@ import fs from 'fs';
 import path from 'path';
 
 const csvWriter = require('csv-writer');
-const findMaxRole = async (rolesArray: any): Promise<string> => {
-  const rolesOrder = ['Admin', 'WhiteLabel', 'Super', 'Master', 'Agent', 'User'];
+// const findMaxRole = async (rolesArray: any): Promise<string> => {
+//   const rolesOrder = ['Admin', 'WhiteLabel', 'Super', 'Master', 'Agent', 'User'];
 
-  // Find the maximum role
-  const maxRole = rolesArray.reduce((max: string, currentRole: string) => {
-    const maxIndex = rolesOrder.indexOf(max);
-    const currentIndex = rolesOrder.indexOf(currentRole);
-    return currentIndex > maxIndex ? currentRole : max;
-  }, rolesOrder[0]);
-    let filter: any;
-   switch (maxRole) {
-      case 'Admin':
-        filter='WhiteLabel';
-        break;
-      case 'WhiteLabel':
-        filter='Super';
-        break;
-      case 'Super':
-        filter='Master';
-        break;
-      case 'Master':
-        filter='Agent';
-        break;
-      case 'Agent':
-        filter='User';
-        break;
-      case 'User':
-        filter = "";
-        break;
-      default:
-        filter = "";
-    }
-  return filter;
-}
+//   // Find the maximum role
+//   const maxRole = rolesArray.reduce((max: string, currentRole: string) => {
+//     const maxIndex = rolesOrder.indexOf(max);
+//     const currentIndex = rolesOrder.indexOf(currentRole);
+//     return currentIndex > maxIndex ? currentRole : max;
+//   }, rolesOrder[0]);
+//   let filter: any;
+//   switch (maxRole) {
+//     case 'Admin':
+//       filter = 'WhiteLabel';
+//       break;
+//     case 'WhiteLabel':
+//       filter = 'Super';
+//       break;
+//     case 'Super':
+//       filter = 'Master';
+//       break;
+//     case 'Master':
+//       filter = 'Agent';
+//       break;
+//     case 'Agent':
+//       filter = 'User';
+//       break;
+//     case 'User':
+//       filter = "";
+//       break;
+//     default:
+//       filter = "";
+//   }
+//   return filter;
+// }
 
 const findDownline = async (data: any, filter: any, options: any): Promise<void> => {
   try {
@@ -49,7 +49,7 @@ const findDownline = async (data: any, filter: any, options: any): Promise<void>
 
     if (filter.search !== undefined && filter.search != "") {
       filter.username = { $regex: filter?.search, $options: "i" }
-    }    
+    }
     delete filter.search
 
     if (!data.roles) {
@@ -57,40 +57,58 @@ const findDownline = async (data: any, filter: any, options: any): Promise<void>
         msg: "role not found",
       });
     }
-    filter.parentId = { $in: [data?._id] }
-    let maxRole = await findMaxRole(data.roles); 
+
+    filter.roles = { $nin: ['User'] };
+
+    let parentId = data?._id
+    // let maxRole = await findMaxRole(data.roles);
     if (filter?.userId && filter?.userId !== "") {
-      const user: any = await User.findOne({ _id: filter?.userId });
-      maxRole = await findMaxRole(user.roles);
-      filter.parentId = { $in: [filter?.userId] }
+      // const user: any = await User.findOne({ _id: filter?.userId });
+      // maxRole = await findMaxRole(user.roles);
+      parentId = filter?.userId
       delete filter.userId
+      delete filter.roles
     }
-    filter.roles = { $in: [maxRole] };
-    console.log("filter",filter);
     
-    let users: any = await User.paginate(filter, options);
-    let response: any = [];
-    if (users.results.length > 0) {
-      await Promise.all(users.results.map(async (item: any) => {
-        let ref = 0;
-        const credit = await CreditLog.findOne({ username: item.username }).sort({ _id: -1 })
-        if (credit) {
-          ref = credit?.old;
-        }
-        const data: any = {}
-        data.username = item.username,
-          data.balance = item.balance > 0 ? parseFloat(item.balance.toString()) : 0,
-          data.exposure = item.exposure || 0,
-          data.exposureLimit = item.exposureLimit || 0,
-          data._id = item._id,
-          data.status = item.status,
-          data.roles = item.roles,
-          data.creditRef = ref
-        response.push(data)
-      }));
+    const { limit = 10, page = 1 } = options;
+    const skip = (page - 1) * limit;
+    const query = {
+      $and: [
+        {
+          $expr: {
+            $eq: [
+              parentId.toString(),
+              {
+                $arrayElemAt: ['$parentId', -1]
+              }
+            ]
+          }
+        },
+        filter
+      ]
     }
-    users.results = response;
-    return users;
+    const [results, totalResults] = await Promise.all([
+      User.find(query).sort({ createdAt: -1 }).skip(skip).limit(limit),
+      User.countDocuments(query),
+    ]);
+
+    const resData:any = {
+      results: results.map((item: any)=> ({
+        username: item.username,
+        balance: item.balance > 0 ? parseFloat(item.balance.toString()) : 0,
+        exposure: item.exposure || 0,
+        exposureLimit: item.exposureLimit || 0,
+        _id: item._id,
+        status: item.status,
+        roles: item.roles,
+        creditRef: item.creditRef,
+      })),
+      page,
+      limit,
+      totalPages: Math.ceil(totalResults / limit),
+      totalResults,
+    };
+    return resData;
   } catch (error) {
     throw new ApiError(httpStatus.BAD_REQUEST, {
       msg: "invalid user id.",
@@ -106,15 +124,18 @@ const Register = async (body: any, user: any): Promise<void> => {
       msg: "Username already exist",
     });
   }
+  const parentId = [...user?.parentId]
+  parentId.push(user?._id);
+
   await User.create({
-    username:username.toLowerCase(),
+    username: username.toLowerCase(),
     password: password,
     mobile,
     ip,
     roles: [roles],
     exposureLimit: exposure,
     commision: commission,
-    parentId: user._id
+    parentId
   });
   return;
 }
@@ -129,33 +150,48 @@ const myDownline = async (filter: any, options: any, userData: any): Promise<voi
       filter.username = { $regex: filter?.search, $options: "i" }
     }
     delete filter.search
-    filter.parentId = { $in: [userData?._id] }    
+    let parentId: string = userData?._id;
     filter.roles = { $in: ['User'] };
 
-    let users: any = await User.paginate(filter, options);
-    let response: any = [];
-    if (users.results.length > 0) {
-      await Promise.all(users.results.map(async (item: any) => {
-        let ref = 0;
-        const credit = await CreditLog.findOne({ username: item.username }).sort({ _id: -1 })
-        if (credit) {
-          ref = credit?.new;
-        }
-        const data: any = {}
-        data.username = item.username,
-          data.balance = item.balance > 0 ? parseFloat(item.balance.toString()) : 0,
-          data.exposure = item.exposure || 0,
-          data.exposureLimit = item.exposureLimit || 0,
-          data._id = item._id,
-          data.status = item.status,
-          data.roles = item.roles,
-          data.creditRef = ref
-
-        response.push(data)
-      }));
+    const { limit = 10, page = 1 } = options;
+    const skip = (page - 1) * limit;
+    const query = {
+      $and: [
+        {
+          $expr: {
+            $eq: [
+              parentId.toString(),
+              {
+                $arrayElemAt: ['$parentId', -1]
+              }
+            ]
+          }
+        },
+        filter
+      ]
     }
-    users.results = response;
-    return users;
+    const [results, totalResults] = await Promise.all([
+      User.find(query).sort({ createdAt: -1 }).skip(skip).limit(limit),
+      User.countDocuments(query),
+    ]);
+
+    const resData:any = {
+      results: results.map((item: any)=> ({
+        username: item.username,
+        balance: item.balance > 0 ? parseFloat(item.balance.toString()) : 0,
+        exposure: item.exposure || 0,
+        exposureLimit: item.exposureLimit || 0,
+        _id: item._id,
+        status: item.status,
+        roles: item.roles,
+        creditRef: item.creditRef,
+      })),
+      page,
+      limit,
+      totalPages: Math.ceil(totalResults / limit),
+      totalResults,
+    };
+    return resData;
   } catch (error) {
     throw new ApiError(httpStatus.BAD_REQUEST, {
       msg: "invalid user id.",
@@ -170,16 +206,15 @@ const addCreditLog = async (userData: any, password: string, rate: number, userI
       msg: "wrong password",
     });
   }
-
-  let found: any = await User.findOne({ _id: userId })
+  let found = await checkParent(userId, userData._id);
   if (found) {
     await CreditLog.create({
       username: found.username,
-      old: found?.balance,
+      old: found?.creditRef,
       new: rate
     });
-    // found.balance = rate;
-    // await found.save();
+    found.creditRef = rate;
+    await found.save();
     return found;
   }
   return;
@@ -187,13 +222,8 @@ const addCreditLog = async (userData: any, password: string, rate: number, userI
 
 const getCreditLog = async (user: any, userId: string): Promise<void> => {
   let username = user?.username;
-  if (userId !== "") {
-    const data: any = await User.findOne({ _id: userId });
-    if (!data) {
-      throw new ApiError(httpStatus.BAD_REQUEST, {
-        msg: "user not found",
-      });
-    }
+  if (userId != "") {
+    const data = await checkParent(userId, user._id);
     username = data.username
   }
   const data = await CreditLog.find({ username })
@@ -207,13 +237,7 @@ const updateStatus = async (userData: any, password: string, status: string, use
       msg: "wrong password",
     });
   }
-
-  let found: any = await User.findOne({ _id: userId })
-  if (!found) {
-    throw new ApiError(httpStatus.BAD_REQUEST, {
-      msg: "selected user not found.",
-    });
-  }
+  const found = await checkParent(userId, user._id);
   if (found) {
     type == "status" ?
       found.status = status : found.exposureLimit = status
@@ -239,53 +263,62 @@ const myBalance = async (userData: any): Promise<void> => {
   return res;
 }
 
-const exportCsv = async (search: string, status: string, userId: string, type:string, userData:any): Promise<string> => {
+const exportCsv = async (search: string, status: string, userId: string, type: string, userData: any): Promise<string> => {
   let responseData: any = [];
-   let filter:any ={}
-    if (status) {
-     filter.status = status
-    }
-    if (search && search != "") {
-      filter.username = { $regex: search, $options: "i" }
-  }  
-  
-  if (type == "user") {   
-    filter.parentId = { $in: [userData?._id] }
-    if (userId && userId !="") {
-    filter.parentId = { $in: [userId] }      
+  let filter: any = {}
+  if (status) {
+    filter.status = status
+  }
+  if (search && search != "") {
+    filter.username = { $regex: search, $options: "i" }
+  }
+
+    let parentId = userData?._id
+
+  if (type == "user") {
+    if (userId && userId != "") {
+      parentId = userId;
     }
   }
   if (type == "master") {
-    let maxRole = await findMaxRole(userData.roles);
+    filter.roles = { $nin: ['User'] };
     if (userId !== undefined && userId !== "") {
-      const user: any = await User.findOne({ _id: userId });
-      maxRole = await findMaxRole(user.roles);
-      filter.parentId = { $in: [userId] }
-    }    
-    filter.roles = { $in: [maxRole] };    
-  }
-  responseData = await User.find(filter);
-
-   let response: any = [];
-    if (responseData.length > 0) {
-      await Promise.all(responseData.map(async (item: any) => {
-        let ref = 0;
-        const credit = await CreditLog.findOne({ username: item.username }).sort({ _id: -1 })
-        if (credit) {
-          ref = credit?.old;
-        }
-        const data: any = {}
-        data.account = item.username,
-          data.creditRef = ref,          
-          data.availBal = item.balance > 0 ? parseFloat(item.balance.toString()) : 0,
-          data.exposure = item.exposure || 0,
-          data.balance = item.balance > 0 ? parseFloat(item.balance.toString()) : 0,
-          data.exposureLimit = item.exposureLimit || 0,
-          data.status = item.status,
-          data.ref = ref,
-          response.push(data)
-      }));
+      parentId = userId
+      delete filter.roles
     }
+  }
+  const query = {
+      $and: [
+        {
+          $expr: {
+            $eq: [
+              parentId.toString(),
+              {
+                $arrayElemAt: ['$parentId', -1]
+              }
+            ]
+          }
+        },
+        filter
+      ]
+  }
+  
+  responseData = await User.find(query);
+  let response: any = [];
+  if (responseData.length > 0) {
+    await Promise.all(responseData.map(async (item: any) => {
+      const data: any = {}
+      data.account = item.username,
+        data.creditRef = item.creditRef,
+        data.availBal = item.balance > 0 ? parseFloat(item.balance.toString()) : 0,
+        data.exposure = item.exposure || 0,
+        data.balance = item.balance > 0 ? parseFloat(item.balance.toString()) : 0,
+        data.exposureLimit = item.exposureLimit || 0,
+        data.status = item.status,
+        data.ref = 0,
+        response.push(data)
+    }));
+  }
   const fileName = `data_${Date.now()}.csv`;
   const filePath = path.resolve(__dirname, fileName);
   const bucketName = 'exch-s3-react-dev-002';
@@ -334,22 +367,10 @@ const exportCsv = async (search: string, status: string, userId: string, type:st
 }
 
 const accountDetail = async (userId: string, userData: any): Promise<void> => {
-
   try {
     let data: any = userData;
     if (userId) {
-      data = await User.findOne({ _id: userId });
-      if (!data) {
-        throw new ApiError(httpStatus.BAD_REQUEST, {
-          msg: "user not found",
-        });
-      }
-
-      if (!data.parentId == userData._id) {
-        throw new ApiError(httpStatus.BAD_REQUEST, {
-          msg: "you are not refered to this user.",
-        });
-      }
+      data = await checkParent(userId, userData._id);
     }
     const dataNew: any = {
       balance: data.balance > 0 ? parseFloat(data.balance.toString()) : 0,
@@ -368,6 +389,21 @@ const accountDetail = async (userId: string, userData: any): Promise<void> => {
   }
 }
 
+const checkParent = async (userId: string, loginedId: string) => {
+  const data: any = await User.findOne({ _id: userId });
+  if (!data) {
+    throw new ApiError(httpStatus.BAD_REQUEST, {
+      msg: "user not found",
+    });
+  }
+
+  if (data.parentId != loginedId) {
+    throw new ApiError(httpStatus.BAD_REQUEST, {
+      msg: "you are not refered to this user.",
+    });
+  }
+  return data;
+}
 export {
   findDownline,
   Register,
@@ -377,5 +413,6 @@ export {
   updateStatus,
   myBalance,
   exportCsv,
-  accountDetail
+  accountDetail,
+  checkParent
 }

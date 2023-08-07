@@ -15,7 +15,10 @@ const userSchema = new mongoose.Schema<UserProfile, UserModel>(
     username: { type: String, required: true },
     password: {
       type: String,
-      required: false,
+      minlength: 8,
+      trim: true,
+      required: true,
+      private: true,
     },
     // password: {
     //   type: String,
@@ -79,6 +82,12 @@ const userSchema = new mongoose.Schema<UserProfile, UserModel>(
     exposure: {
       type: String,
     },  
+    creditRef: {
+      type: Number,
+    },
+    parentStatus:[{
+      type: String,
+    }],
   },
   { timestamps: true }
 );

@@ -18,6 +18,8 @@ interface User {
   refreshToken: string;  
   status: string,
   exposure: string,
+  creditRef: number
+  parentStatus: [string];
 }
 
 interface UserProfile extends User, Document {
