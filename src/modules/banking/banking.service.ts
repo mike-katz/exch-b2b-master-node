@@ -4,6 +4,10 @@ import httpStatus from "http-status";
 
 
 const saveTransaction = async (userData: any, password: string, data: any): Promise<string> => {
+  console.log("userData", userData);
+  console.log("data",data);
+  
+  
   const user: any = await User.findOne({ username: userData.username })
   if (!(await user.isPasswordMatch(password))) {
     throw new ApiError(httpStatus.BAD_REQUEST, {
