@@ -2,6 +2,7 @@ import * as Joi from "joi";
 
 const saveTransaction = {
   body: Joi.object().keys({
+    data: Joi.array(),
   //  data: Joi.array().items(
   //   Joi.object({
   //     userId: Joi.string().required(),
