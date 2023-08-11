@@ -5,10 +5,10 @@ const saveTransaction = {
    data: Joi.array().items(
     Joi.object({
       userId: Joi.string().required(),
-      balance: Joi.number().positive().required(),
-      type: Joi.string().valid('deposit', 'withdraw').required(),
-      remark: Joi.string().required(),
-      creditRef: Joi.string().required(),
+      balance: Joi.number().positive().optional(),
+      type: Joi.string().valid('deposit', 'withdraw',"").required(),
+      remark: Joi.string().optional(),
+      creditRef: Joi.number().optional(),
     })
     ).required(),    
     password: Joi.string().required(),

@@ -7,9 +7,9 @@ import httpStatus from "http-status";
 import pick from "@/utils/pick";
 const saveTransaction = catchAsync(
   async (req: any, res: CustomResponse) => {
-    const { password,data } = req.body
+    const { password, data } = req.body
     const response = await ActivityService.saveTransaction(req.user, password, data);
-    res.status(httpStatus.OK).json({ message: response,data });
+    res.status(httpStatus.OK).json({ message: response,data:null });
   }
 );
 
