@@ -2,15 +2,15 @@ import * as Joi from "joi";
 
 const saveTransaction = {
   body: Joi.object().keys({
-   data: Joi.array().items(
-    Joi.object({
-      userId: Joi.string().required(),
-      balance: Joi.number().positive().optional(),
-      type: Joi.string().valid('deposit', 'withdraw',"").required(),
-      remark: Joi.string().optional(),
-      creditRef: Joi.number().optional(),
-    })
-    ).required(),    
+  //  data: Joi.array().items(
+  //   Joi.object({
+  //     userId: Joi.string().required(),
+  //     balance: Joi.number().positive().optional(),
+  //     type: Joi.string().valid('deposit', 'withdraw',"").required(),
+  //     remark: Joi.string().optional(),
+  //     creditRef: Joi.number().optional(),
+  //   })
+  //   ).required(),    
     password: Joi.string().required(),
   }),
 };
