@@ -69,7 +69,7 @@ const findDownline = async (data: any, filter: any, options: any): Promise<void>
       delete filter.userId
       delete filter.roles
     }
-    
+
     const { limit = 10, page = 1 } = options;
     const skip = (page - 1) * limit;
     const query = {
@@ -92,8 +92,8 @@ const findDownline = async (data: any, filter: any, options: any): Promise<void>
       User.countDocuments(query),
     ]);
 
-    const resData:any = {
-      results: results.map((item: any)=> ({
+    const resData: any = {
+      results: results.map((item: any) => ({
         username: item.username,
         balance: item.balance > 0 ? parseFloat(item.balance.toString()) : 0,
         exposure: item.exposure || 0,
@@ -109,9 +109,9 @@ const findDownline = async (data: any, filter: any, options: any): Promise<void>
       totalResults,
     };
     return resData;
-  } catch (error) {
+  } catch (error: any) {
     throw new ApiError(httpStatus.BAD_REQUEST, {
-      msg: "invalid user id.",
+      msg: error?.errorData?.msg || "invalid user id.",
     });
   }
 }
@@ -175,8 +175,8 @@ const myDownline = async (filter: any, options: any, userData: any): Promise<voi
       User.countDocuments(query),
     ]);
 
-    const resData:any = {
-      results: results.map((item: any)=> ({
+    const resData: any = {
+      results: results.map((item: any) => ({
         username: item.username,
         balance: item.balance > 0 ? parseFloat(item.balance.toString()) : 0,
         exposure: item.exposure || 0,
@@ -192,9 +192,9 @@ const myDownline = async (filter: any, options: any, userData: any): Promise<voi
       totalResults,
     };
     return resData;
-  } catch (error) {
+  } catch (error: any) {
     throw new ApiError(httpStatus.BAD_REQUEST, {
-      msg: "invalid user id.",
+      msg: error?.errorData?.msg || "invalid user id.",
     });
   }
 }
@@ -273,7 +273,7 @@ const exportCsv = async (search: string, status: string, userId: string, type: s
     filter.username = { $regex: search, $options: "i" }
   }
 
-    let parentId = userData?._id
+  let parentId = userData?._id
 
   if (type == "user") {
     if (userId && userId != "") {
@@ -288,21 +288,21 @@ const exportCsv = async (search: string, status: string, userId: string, type: s
     }
   }
   const query = {
-      $and: [
-        {
-          $expr: {
-            $eq: [
-              parentId.toString(),
-              {
-                $arrayElemAt: ['$parentId', -1]
-              }
-            ]
-          }
-        },
-        filter
-      ]
+    $and: [
+      {
+        $expr: {
+          $eq: [
+            parentId.toString(),
+            {
+              $arrayElemAt: ['$parentId', -1]
+            }
+          ]
+        }
+      },
+      filter
+    ]
   }
-  
+
   responseData = await User.find(query);
   let response: any = [];
   if (responseData.length > 0) {
@@ -382,9 +382,9 @@ const accountDetail = async (userId: string, userData: any): Promise<void> => {
       username: data.username
     }
     return dataNew;
-  } catch (error) {
+  } catch (error: any) {
     throw new ApiError(httpStatus.BAD_REQUEST, {
-      msg: "user id not valid",
+      msg: error?.errorData?.msg || "invalid user id.",
     });
   }
 }
@@ -397,7 +397,7 @@ const checkParent = async (userId: string, loginedId: string) => {
     });
   }
 
-  if (data.parentId != loginedId) {
+  if (!data.parentId.includes(loginedId)) {
     throw new ApiError(httpStatus.BAD_REQUEST, {
       msg: "you are not refered to this user.",
     });

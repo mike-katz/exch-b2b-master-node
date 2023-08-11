@@ -89,8 +89,7 @@ const saveTransaction = async (userData: any, password: string, data: any): Prom
             username: toUser?.username,
             old: toUser?.creditRef || 0,
             new: item?.creditRef || 0
-          });
-        
+          });        
       }
       await toUser.save();
       successfulTransactions += `, success with ${toUser.username}`;

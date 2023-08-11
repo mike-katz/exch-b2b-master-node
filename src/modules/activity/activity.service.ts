@@ -12,9 +12,9 @@ const fetchActivity = async (data: any, userId: string): Promise<void> => {
     }
     const response = await Activity.find({ username });
     return response;
-  } catch (error) {
+  } catch (error:any) {
     throw new ApiError(httpStatus.BAD_REQUEST, {
-      msg: "invalid user id.",
+      msg: error?.errorData?.msg ||"invalid user id.",
     });
   }
 }
