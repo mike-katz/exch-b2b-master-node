@@ -210,7 +210,7 @@ const addCreditLog = async (userData: any, password: string, rate: number, userI
   if (found) {
     await CreditLog.create({
       username: found.username,
-      old: found?.creditRef,
+      old: found?.creditRef ||0,
       new: rate
     });
     found.creditRef = rate;
