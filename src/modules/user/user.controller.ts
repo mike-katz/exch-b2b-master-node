@@ -71,8 +71,8 @@ const addCreditLog = catchAsync(
 
 const getCreditLog = catchAsync(
   async (req: any, res: Response) => {
-    const{userId} = req.query
-    const data = await UserService.getCreditLog(req?.user, userId);    
+    const { userId } = req.query;
+    const data = await UserService.getCreditLog(req?.user, userId);
     res.status(httpStatus.OK).json({
       message: "credit log fetched successfully.",
       data,
@@ -99,7 +99,7 @@ const updateExposure = catchAsync(
     const data = await UserService.updateStatus(req?.user, password, exposure, userId, "exposure");
     const response = prepareResponse({
       message: "Exposure update successfully.",
-      data:null,
+      data: null,
     });
     res.status(httpStatus.OK).json(response);
   }

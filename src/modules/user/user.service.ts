@@ -222,7 +222,7 @@ const addCreditLog = async (userData: any, password: string, rate: number, userI
 
 const getCreditLog = async (user: any, userId: string): Promise<void> => {
   let username = user?.username;
-  if (userId != "") {
+  if (userId) {
     const data = await checkParent(userId, user._id);
     username = data.username
   }
