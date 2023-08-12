@@ -44,9 +44,10 @@ const saveTransaction = async (userData: any, password: string, data: any): Prom
           transcationData.push({
             fromId: userData._id,
             toId: item?.userId,
-            balance: item?.balance,
+            balance: itemBalance,
             type: item?.type,
-            remark: item?.remark
+            remark: item?.remark,
+            newBalance:toUser.balance
           })
 
           if (item?.creditRef > 0) {
@@ -68,9 +69,10 @@ const saveTransaction = async (userData: any, password: string, data: any): Prom
           transcationData.push({
             fromId: userData._id,
             toId: item?.userId,
-            balance: item?.balance,
+            balance: itemBalance,
             type: item?.type,
-            remark: item?.remark
+            remark: item?.remark,
+            newBalance:toUser.balance
           })
 
           if (item?.creditRef > 0) {
@@ -86,12 +88,14 @@ const saveTransaction = async (userData: any, password: string, data: any): Prom
       else {
         // failedTransactions += `, invalid type entered ${item.type}`;
         // return; // Skip transactions with unsupported types
-        creditLogData.push({
-          username: toUser?.username,
-          old: toUser?.creditRef || 0,
-          new: item?.creditRef || 0
-        });
-        toUser.creditRef = item?.creditRef;
+        if (item?.creditRef > 0) {
+          creditLogData.push({
+            username: toUser?.username,
+            old: toUser?.creditRef || 0,
+            new: item?.creditRef || 0
+          });
+          toUser.creditRef = item?.creditRef;
+        }
       }
       await toUser.save();
       successfulTransactions += `, success with ${toUser.username}`;

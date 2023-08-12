@@ -24,7 +24,11 @@ const transcationSchema = new Schema({
   },
   remark: {
     type: String,    
-  }
+  },
+  newBalance: {
+    type: Number,
+    required: true,
+  },
 }, { timestamps: true });
 
 // add plugin that converts mongoose to json
