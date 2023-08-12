@@ -340,7 +340,7 @@ const exportCsv = async (search: string, status: string, userId: string, type: s
   }
   const fileName = `data_${Date.now()}.csv`;
   const filePath = path.resolve(__dirname, fileName);
-  const bucketName = 'exch-s3-react-dev-002';
+  const bucketName = 'bx-s3-dev-001';
   const Key = `csv-files/${fileName}`;
   const writer = csvWriter.createObjectCsvWriter({
     path: filePath,
