@@ -86,12 +86,12 @@ const saveTransaction = async (userData: any, password: string, data: any): Prom
       else {
         // failedTransactions += `, invalid type entered ${item.type}`;
         // return; // Skip transactions with unsupported types
-        toUser.creditRef = item?.creditRef;
         creditLogData.push({
           username: toUser?.username,
           old: toUser?.creditRef || 0,
           new: item?.creditRef || 0
         });
+        toUser.creditRef = item?.creditRef;
       }
       await toUser.save();
       successfulTransactions += `, success with ${toUser.username}`;
