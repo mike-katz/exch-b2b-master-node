@@ -19,7 +19,7 @@ interface User {
   status: string,
   exposure: string,
   creditRef: number
-  parentStatus: [string];
+  parentStatus: string;
 }
 
 interface UserProfile extends User, Document {

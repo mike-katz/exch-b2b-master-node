@@ -1,5 +1,6 @@
 const allRoles = {
   Admin: [],
+  SuperSuper: [],
   WhiteLabel: [],
   Super: [],
   Master: [],

@@ -46,13 +46,11 @@ const loginUser = async (
     });
   }
 
-  if (user.status == "locked") {
+  if (user.status == "Lock") {
     throw new ApiError(httpStatus.BAD_REQUEST, {
       msg: `your account ${user.status}`,
     });
   }
-
-  
 
   const { roles, mobile, balance } = user;
   const tokens = await tokenService.generateAuthTokens(user);

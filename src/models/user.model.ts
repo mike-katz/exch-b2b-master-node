@@ -85,9 +85,11 @@ const userSchema = new mongoose.Schema<UserProfile, UserModel>(
     creditRef: {
       type: Number,
     },
-    parentStatus:[{
+    parentStatus:{
       type: String,
-    }],
+      enum: userStatus,
+      default: userStatus.active,
+    },
   },
   { timestamps: true }
 );

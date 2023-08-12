@@ -1,27 +1,8 @@
-enum userEmailVarification {
-  LINK = "LINK",
-  OTP = "OTP",
-}
-
-enum userPlatform {
-  APP = "app",
-  ANDROID = "android",
-  IOS = "ios",
-  WEB = "web",
-}
-
-// const socialLoginTypes = ["google", "facebook", "apple"];
-const socialLoginTypes = {
-  google: "google",
-  facebook: "facebook",
-  apple: "apple",
-};
-
 const userStatus= {
-  active: "active",
-  suspend: "suspend",
-  locked: "locked",
+  active: "Active",
+  suspend: "Suspend",
+  locked: "Lock",
 };
 
 
-export { socialLoginTypes, userEmailVarification, userPlatform,userStatus };
+export { userStatus };

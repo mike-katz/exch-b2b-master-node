@@ -1,7 +1,6 @@
 import mongoose from "mongoose";
 
 import tokenTypes from "@/config/tokens";
-import { socialLoginTypes, userPlatform } from "@/config/users";
 import { ITokenDoc, ITokenModel } from "@/types/token.interfaces";
 
 import { toJSON } from "./plugins";
@@ -32,17 +31,6 @@ const tokenSchema = new mongoose.Schema<ITokenDoc, ITokenModel>(
     expires: {
       type: Date,
       required: true,
-    },
-    provider: {
-      type: String,
-      enum: [
-        socialLoginTypes.apple,
-        socialLoginTypes.facebook,
-        socialLoginTypes.google,
-        "local",
-      ],
-      required: true,
-      default: "local",
     },
     blacklisted: {
       type: Boolean,

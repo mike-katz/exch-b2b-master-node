@@ -4,8 +4,6 @@ import httpStatus from "http-status";
 
 
 const saveTransaction = async (userData: any, password: string, data: any): Promise<string> => {
-  console.log("userData", userData);
-  console.log("data", data);
   const user: any = await User.findOne({ username: userData.username })
   if (!(await user.isPasswordMatch(password))) {
     throw new ApiError(httpStatus.BAD_REQUEST, {
@@ -42,31 +40,6 @@ const saveTransaction = async (userData: any, password: string, data: any): Prom
           }
           userBalance -= itemBalance;
           toUser.balance = toUserBalance + itemBalance;
-          toUser.creditRef = item?.creditRef;
-
-          transcationData.push({
-            fromId: userData._id,
-            toId: item?.userId,
-            balance: item?.balance,
-            type: item?.balance,
-            remark: item?.remark
-          })
-
-          creditLogData.push({
-            username: toUser?.username,
-            old: toUser?.creditRef || 0,
-            new: item?.creditRef || 0
-          });
-
-        } else if (item.type === "withdraw") {
-          if (itemBalance > toUserBalance) {
-            failedTransactions += `, insuficinant balance for withdraw ${toUser?.username}`;
-            return; // Skip transactions with insufficient balance for withdrawal
-          }
-
-          userBalance += itemBalance;
-          toUser.balance = toUserBalance - itemBalance;
-          toUser.creditRef = item?.creditRef;
 
           transcationData.push({
             fromId: userData._id,
@@ -76,11 +49,38 @@ const saveTransaction = async (userData: any, password: string, data: any): Prom
             remark: item?.remark
           })
 
-          creditLogData.push({
-            username: toUser?.username,
-            old: toUser?.creditRef || 0,
-            new: item?.creditRef || 0
-          });
+          if (item?.creditRef > 0) {
+            creditLogData.push({
+              username: toUser?.username,
+              old: toUser?.creditRef || 0,
+              new: item?.creditRef || 0
+            });
+          toUser.creditRef = item?.creditRef;
+          }
+
+        } else if (item.type === "withdraw") {
+          if (itemBalance > toUserBalance) {
+            failedTransactions += `, insuficinant balance for withdraw ${toUser?.username}`;
+            return; // Skip transactions with insufficient balance for withdrawal
+          }
+            userBalance += itemBalance;
+            toUser.balance = toUserBalance - itemBalance;
+          transcationData.push({
+            fromId: userData._id,
+            toId: item?.userId,
+            balance: item?.balance,
+            type: item?.type,
+            remark: item?.remark
+          })
+
+          if (item?.creditRef > 0) {
+            creditLogData.push({
+              username: toUser?.username,
+              old: toUser?.creditRef || 0,
+              new: item?.creditRef || 0
+            });            
+            toUser.creditRef = item?.creditRef;
+          }
         }
       }
       else {
@@ -120,7 +120,8 @@ const getTransaction = async (userData: any, userId: string, options: any): Prom
 
     if (userId !== undefined && userId !== "") {
       filter.toId = userId;
-      username = await User.findOne({_id:userId}).select('username')
+      const getUsername:any = await User.findOne({ _id: userId }).select('username');
+      username = getUsername?.username;
     }
     const optObj = {
       ...options,
