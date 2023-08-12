@@ -128,14 +128,15 @@ const Register = async (body: any, user: any): Promise<void> => {
   parentId.push(user?._id);
 
   await User.create({
-    username: username.toLowerCase(),
+    username: username.toLowerCase().trim(),
     password: password,
     mobile,
     ip,
     roles: [roles],
     exposureLimit: exposure,
     commision: commission,
-    parentId
+    parentId,
+    creditRef: 0
   });
   return;
 }
@@ -210,7 +211,7 @@ const addCreditLog = async (userData: any, password: string, rate: number, userI
   if (found) {
     await CreditLog.create({
       username: found.username,
-      old: found?.creditRef ||0,
+      old: found?.creditRef || 0,
       new: rate
     });
     found.creditRef = rate;
@@ -227,7 +228,8 @@ const getCreditLog = async (user: any, userId: string): Promise<void> => {
     username = data.username
   }
   const data = await CreditLog.find({ username })
-  return data;
+  const resp: any = { data, username };
+  return resp;
 }
 
 const updateStatus = async (userData: any, password: string, status: string, userId: string, type: string): Promise<void> => {

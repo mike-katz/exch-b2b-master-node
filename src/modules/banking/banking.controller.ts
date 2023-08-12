@@ -5,6 +5,7 @@ import catchAsync from "@/utils/catchAsync";
 import * as ActivityService from "./banking.service";
 import httpStatus from "http-status";
 import pick from "@/utils/pick";
+import { Response } from "express";
 const saveTransaction = catchAsync(
   async (req: any, res: CustomResponse) => {
     const { password, data } = req.body
@@ -14,13 +15,15 @@ const saveTransaction = catchAsync(
 );
 
 const getTransaction = catchAsync(
-  async (req: any, res: CustomResponse) => {
+  async (req: any, res: Response) => {
     const { userId } = req.query;
     const options = pick(req?.query, ["sortBy", "limit", "page"]);
-    const response = await ActivityService.getTransaction(req.user, userId, options);
+    const resp:any = await ActivityService.getTransaction(req.user, userId, options);
     res.status(httpStatus.OK).json({
       message: "get Transaction log success",
-      data: response,
+       data: resp?.data,
+      userId: userId ? userId : req?.user?._id,
+      username: resp?.username
     });
   }
 );

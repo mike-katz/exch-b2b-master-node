@@ -5,9 +5,7 @@ import httpStatus from "http-status";
 
 const saveTransaction = async (userData: any, password: string, data: any): Promise<string> => {
   console.log("userData", userData);
-  console.log("data",data);
-  
-  
+  console.log("data", data);
   const user: any = await User.findOne({ username: userData.username })
   if (!(await user.isPasswordMatch(password))) {
     throw new ApiError(httpStatus.BAD_REQUEST, {
@@ -34,7 +32,7 @@ const saveTransaction = async (userData: any, password: string, data: any): Prom
           failedTransactions += `, balance 0 not allow for ${item.userId}`;
           return; // Skip transactions with non-positive balances
         }
-      
+
         let toUserBalance: number = parseFloat(toUser.balance) || 0;
         const itemBalance: number = parseFloat(item.balance) || 0;
         if (item.type === "deposit") {
@@ -88,12 +86,12 @@ const saveTransaction = async (userData: any, password: string, data: any): Prom
       else {
         // failedTransactions += `, invalid type entered ${item.type}`;
         // return; // Skip transactions with unsupported types
-          toUser.creditRef = item?.creditRef;
-          creditLogData.push({
-            username: toUser?.username,
-            old: toUser?.creditRef || 0,
-            new: item?.creditRef || 0
-          });        
+        toUser.creditRef = item?.creditRef;
+        creditLogData.push({
+          username: toUser?.username,
+          old: toUser?.creditRef || 0,
+          new: item?.creditRef || 0
+        });
       }
       await toUser.save();
       successfulTransactions += `, success with ${toUser.username}`;
@@ -116,20 +114,24 @@ const saveTransaction = async (userData: any, password: string, data: any): Prom
 
 const getTransaction = async (userData: any, userId: string, options: any): Promise<void> => {
   try {
+    let username = userData?.username;
     let filter: any = {}
     filter.fromId = userData?._id
 
     if (userId !== undefined && userId !== "") {
-      filter.toId = userId
+      filter.toId = userId;
+      username = await User.findOne({_id:userId}).select('username')
     }
     const optObj = {
-    ...options,
-    path: Transcation.POPULATED_FIELDS,
-    sortBy: options.sortBy ? options.sortBy : "createdAt:desc",
+      ...options,
+      path: Transcation.POPULATED_FIELDS,
+      sortBy: options.sortBy ? options.sortBy : "createdAt:desc",
     };
-    
+
     const data = await Transcation.paginate(filter, optObj);
-    return data
+    const resp: any = { data, username };
+    return resp;
+
   } catch (error) {
     throw new ApiError(httpStatus.BAD_REQUEST, {
       msg: "invalid user id.",

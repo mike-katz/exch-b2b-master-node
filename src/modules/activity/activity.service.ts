@@ -11,7 +11,9 @@ const fetchActivity = async (data: any, userId: string): Promise<void> => {
       username = userData.username
     }
     const response = await Activity.find({ username });
-    return response;
+    const resp: any = { data:response, username };
+    return resp;
+
   } catch (error:any) {
     throw new ApiError(httpStatus.BAD_REQUEST, {
       msg: error?.errorData?.msg ||"invalid user id.",
