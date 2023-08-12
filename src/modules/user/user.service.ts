@@ -240,10 +240,10 @@ const updateStatus = async (userData: any, password: string, status: string, use
         msg: "wrong password",
       });
     }
-    
+
     const found = await checkParent(userId, user._id);
-    console.log("found",found);
-    
+    console.log("found", found);
+
     if (found) {
       type == "status" ?
         found.status = status : found.exposureLimit = status
@@ -251,7 +251,7 @@ const updateStatus = async (userData: any, password: string, status: string, use
       if (type == "status") {
         const users: any = await User.distinct("_id", { parentId: { $in: [userId] } });
         await User.updateMany(
-          { _id: { $in: users } }, 
+          { _id: { $in: users } },
           { $set: { parentStatus: status } }
         );
       }
@@ -334,7 +334,7 @@ const exportCsv = async (search: string, status: string, userId: string, type: s
         data.balance = item.balance > 0 ? parseFloat(item.balance.toString()) : 0,
         data.exposureLimit = item.exposureLimit || 0,
         data.status = item.status,
-        data.ref = 0,
+        data.ref = (parseFloat(item.creditRef) || 0) + (parseFloat(item.balance) || 0);
         response.push(data)
     }));
   }
