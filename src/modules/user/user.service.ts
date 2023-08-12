@@ -233,19 +233,36 @@ const getCreditLog = async (user: any, userId: string): Promise<void> => {
 }
 
 const updateStatus = async (userData: any, password: string, status: string, userId: string, type: string): Promise<void> => {
-  let user: any = await User.findOne({ username: userData.username })
-  if (!(await user.isPasswordMatch(password))) {
+  try {
+    const user: any = await User.findOne({ username: userData.username })
+    if (!(await user.isPasswordMatch(password))) {
+      throw new ApiError(httpStatus.BAD_REQUEST, {
+        msg: "wrong password",
+      });
+    }
+    
+    const found = await checkParent(userId, user._id);
+    console.log("found",found);
+    
+    if (found) {
+      type == "status" ?
+        found.status = status : found.exposureLimit = status
+      await found.save();
+      if (type == "status") {
+        const users: any = await User.distinct("_id", { parentId: { $in: [userId] } });
+        await User.updateMany(
+          { _id: { $in: users } }, 
+          { $set: { parentStatus: status } }
+        );
+      }
+    }
+    return found;
+  }
+  catch (error: any) {
     throw new ApiError(httpStatus.BAD_REQUEST, {
-      msg: "wrong password",
+      msg: error?.errorData?.msg || "invalid user id.",
     });
   }
-  const found = await checkParent(userId, user._id);
-  if (found) {
-    type == "status" ?
-      found.status = status : found.exposureLimit = status
-    await found.save();
-  }
-  return found;
 }
 
 const myBalance = async (userData: any): Promise<void> => {
