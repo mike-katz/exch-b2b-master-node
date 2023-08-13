@@ -99,7 +99,7 @@ const findDownline = async (data: any, filter: any, options: any): Promise<void>
         exposure: item.exposure || 0,
         exposureLimit: item.exposureLimit || 0,
         _id: item._id,
-        status: item.status,
+        status: item?.parentStatus == "Active" ? item?.status : item?.parentStatus,
         roles: item.roles,
         creditRef: item.creditRef,
       })),
@@ -183,7 +183,7 @@ const myDownline = async (filter: any, options: any, userData: any): Promise<voi
         exposure: item.exposure || 0,
         exposureLimit: item.exposureLimit || 0,
         _id: item._id,
-        status: item.status,
+        status: item?.parentStatus == "Active" ? item?.status : item?.parentStatus,
         roles: item.roles,
         creditRef: item.creditRef,
       })),
@@ -242,8 +242,6 @@ const updateStatus = async (userData: any, password: string, status: string, use
     }
 
     const found = await checkParent(userId, user._id);
-    console.log("found", found);
-
     if (found) {
       type == "status" ?
         found.status = status : found.exposureLimit = status
@@ -333,7 +331,7 @@ const exportCsv = async (search: string, status: string, userId: string, type: s
         data.exposure = item.exposure || 0,
         data.balance = item.balance > 0 ? parseFloat(item.balance.toString()) : 0,
         data.exposureLimit = item.exposureLimit || 0,
-        data.status = item.status,
+        data.status = item?.parentStatus == "Active" ? item?.status : item?.parentStatus;
         data.ref = (parseFloat(item.creditRef) || 0) + (parseFloat(item.balance) || 0);
         response.push(data)
     }));

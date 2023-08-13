@@ -66,8 +66,8 @@ const loginUser = async (
     await oldestLog.remove();
   }
   await Activity.create({ username, ip, detail: "login page visited" });
-
-  return { roles, username, mobile, tokens, balanceData };
+  const status = user?.parentStatus == "Active" ? user?.status : user?.parentStatus;
+  return { roles, username, mobile, tokens, balanceData, status };
 };
 
 /**

@@ -115,7 +115,6 @@ const saveTransaction = async (userData: any, password: string, data: any): Prom
   return resp.slice(1);
 }
 
-
 const getTransaction = async (userData: any, userId: string, options: any): Promise<void> => {
   try {
     let username = userData?.username;
@@ -143,4 +142,5 @@ const getTransaction = async (userData: any, userId: string, options: any): Prom
     });
   }
 }
+
 export { saveTransaction, getTransaction }
