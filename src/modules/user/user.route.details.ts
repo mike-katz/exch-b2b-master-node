@@ -100,6 +100,15 @@ const routeDetails: IAuthRouteDetails[] = [
     controllerMethodName: "exportCsv",
     auth: "",
   },
+  
+  {
+    key: "getParentUsernameAPI",
+    method: "get",
+    url: "/get-parentList",
+    validationMethodName: "getParentUsername",
+    controllerMethodName: "getParentUsername",
+    auth: "",
+  },
 ];
 
 export default routeDetails;

@@ -1,4 +1,4 @@
-import { CreditLog, User } from "@/models"
+import { B2cUser, CreditLog, User } from "@/models"
 import ApiError from "@/utils/ApiError";
 import httpStatus from "http-status";
 import AWS from "aws-sdk";
@@ -41,6 +41,11 @@ const csvWriter = require('csv-writer');
 //   return filter;
 // }
 
+const getb2cUsers = async (managerId: string)=>{
+      const b2cData = await B2cUser.find({ managerId });
+  return b2cData;
+}
+
 const findDownline = async (data: any, filter: any, options: any): Promise<void> => {
   try {
     if (filter?.status === "") {
@@ -57,14 +62,17 @@ const findDownline = async (data: any, filter: any, options: any): Promise<void>
         msg: "role not found",
       });
     }
-
+    let role = data?.roles;
+    let managerId:string = data?.managerId ||"";
     filter.roles = { $nin: ['User'] };
 
     let parentId = data?._id
     // let maxRole = await findMaxRole(data.roles);
     if (filter?.userId && filter?.userId !== "") {
-      // const user: any = await User.findOne({ _id: filter?.userId });
+      const user: any = await User.findOne({ _id: filter?.userId });
       // maxRole = await findMaxRole(user.roles);
+      role = user?.roles;
+      managerId = user?.managerId ||"";
       parentId = filter?.userId
       delete filter.userId
       delete filter.roles
@@ -87,11 +95,18 @@ const findDownline = async (data: any, filter: any, options: any): Promise<void>
         filter
       ]
     }
-    const [results, totalResults] = await Promise.all([
+    let [results, totalResults] = await Promise.all([
       User.find(query).sort({ createdAt: -1 }).skip(skip).limit(limit),
       User.countDocuments(query),
     ]);
 
+    //b2c process start
+    if (role.includes('Agent') && managerId && managerId!=="") {
+      const b2cData = await getb2cUsers(managerId);
+      totalResults += Number(b2cData.length);
+      results = [...b2cData,...results];
+    }
+    
     const resData: any = {
       results: results.map((item: any) => ({
         username: item.username,
@@ -421,6 +436,13 @@ const checkParent = async (userId: string, loginedId: string) => {
   }
   return data;
 }
+
+const getParentUsername = async (userId: string) => {
+  const data: any = await User.findOne({ _id: userId });
+  const userData = await User.find({ _id: { $in: data?.parentId } }).select("username");
+  return userData;
+};
+
 export {
   findDownline,
   Register,
@@ -431,5 +453,6 @@ export {
   myBalance,
   exportCsv,
   accountDetail,
-  checkParent
+  checkParent,
+  getParentUsername
 }

@@ -129,4 +129,17 @@ const exportCsv = catchAsync(
   }
 );
 
-export default { fetchUserProfile, fetchUserDownline, Register, myDownline, addCreditLog, getCreditLog, updateStatus, updateExposure, myBalance, exportCsv };
+const getParentUsername = catchAsync(
+  async (req: any, res: CustomResponse) => {
+    const { userId } = req.query;
+    const data = await UserService.getParentUsername(userId);
+    const response = prepareResponse({
+      message: "username get successfully.",
+      data,
+    });
+    res.status(httpStatus.OK).json(response);
+  }
+);
+
+
+export default { fetchUserProfile, fetchUserDownline, Register, myDownline, addCreditLog, getCreditLog, updateStatus, updateExposure, myBalance, exportCsv,getParentUsername };

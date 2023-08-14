@@ -16,10 +16,13 @@ interface User {
   origin: string;
   ip: string;
   refreshToken: string;  
-  status: string,
-  exposure: string,
-  creditRef: number
+  status: string;
+  exposure: string;
+  creditRef: number;
   parentStatus: string;
+  managerId: Schema.Types.ObjectId;  
+  isLocked: boolean;
+  isActive: boolean;
 }
 
 interface UserProfile extends User, Document {

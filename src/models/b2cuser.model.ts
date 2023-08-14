@@ -1,12 +1,12 @@
 
 import bcrypt from "bcryptjs";
-import mongoose, { Document, Schema, Types } from "mongoose";
+import mongoose, { Types, Schema } from "mongoose";
 import { roles } from "@/config/roles";
 import { UserModel, UserProfile } from "@/types/user.interfaces";
 import * as plugin from "./plugins";
 import { userStatus } from "@/config/users";
 
-const userSchema = new mongoose.Schema<UserProfile, UserModel>(
+const b2cuserSchema = new mongoose.Schema<UserProfile, UserModel>(
   {
     firstName: { type: String },
 
@@ -91,68 +91,21 @@ const userSchema = new mongoose.Schema<UserProfile, UserModel>(
       default: userStatus.active,
     },
     managerId: {
-      type: Types.ObjectId,      
-    }, 
+      type: Types.ObjectId,
+    },
+    isActive:{
+    type:Boolean
+    },
+    isLocked:{
+    type:Boolean
+    },
   },
   { timestamps: true }
 );
 // add plugin that converts mongoose to json
-userSchema.plugin(plugin.toJSON);
-userSchema.plugin(plugin.paginate);
+b2cuserSchema.plugin(plugin.toJSON);
+b2cuserSchema.plugin(plugin.paginate);
 
-/**
- * Check if email is taken
- * @param {string} email - The user's email
- * @param {ObjectId} [excludeUserId] - The id of the user to be excluded
- * @returns {Promise<boolean>}
- */
-userSchema.statics.isUsernameTaken = async function isUsernameTaken(
-  this: UserModel,
-  email: string,
-  excludeUserId: string
-): Promise<boolean> {
-  const user = await this.findOne({ email, _id: { $ne: excludeUserId } });
-  return !!user;
-};
+const B2cuser = mongoose.model<UserProfile, UserModel>("B2cuser", b2cuserSchema);
 
-/**
- * Check if mobileNo is taken
- * @param {string} mobile - The user's email
- * @param {ObjectId} [excludeUserId] - The id of the user to be excluded
- * @returns {Promise<boolean>}
- */
-userSchema.statics.isMobileNoTaken = async function isMobileNoTaken(
-  this: UserModel,
-  mobile: string,
-  excludeUserId: string
-): Promise<boolean> {
-  const user = await this.findOne({ mobile, _id: { $ne: excludeUserId } });
-  return !!user;
-};
-/**
- * Check if password matches the user's password
- * @param {string} password
- * @returns {Promise<boolean>}
- */
-
-userSchema.methods.isPasswordMatch = async function isPasswordMatch(
-  this: Document,
-  password: string
-): Promise<boolean> {
-  // Method implementation
-  return bcrypt.compare(password, this.get("password") as string);
-};
-
-userSchema.pre(
-  "save",
-  async function saveMiddleware(this: UserProfile, next: () => void) {
-    if (this.password && this.isModified("password")) {
-      this.password = await bcrypt.hash(this.password, 10);
-    }
-    next();
-  }
-);
-
-const User = mongoose.model<UserProfile, UserModel>("User", userSchema);
-
-export default User;
+export default B2cuser;

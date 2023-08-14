@@ -74,6 +74,12 @@ const myBalance = {
   body: Joi.object().keys({}),
 };
 
+const getParentUsername = {
+  query: Joi.object().keys({
+    userId:Joi.string().optional(),
+  }),
+};
+
 const exportCsv = {
   body: Joi.object().keys({
     userId: Joi.string().optional(),
@@ -83,4 +89,4 @@ const exportCsv = {
   }),
 };
 
-export default { fetchUserProfile, fetchUserDownline, Register, myDownline, addCreditLog, getCreditLog, updateStatus, search, myBalance, exportCsv };
+export default { fetchUserProfile, fetchUserDownline, Register, myDownline, addCreditLog, getCreditLog, updateStatus, search, myBalance, exportCsv,getParentUsername };
