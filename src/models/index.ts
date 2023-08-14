@@ -4,3 +4,4 @@ export { default as Activity } from "./activity.model";
 export { default as CreditLog } from "./creditLog.model";
 export { default as Transcation } from "./transcation.model";
 export { default as B2cUser } from "./b2cuser.model";
+export { default as Stake } from "./stake.model";

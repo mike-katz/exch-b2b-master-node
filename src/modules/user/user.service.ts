@@ -1,9 +1,10 @@
-import { B2cUser, CreditLog, User } from "@/models"
+import { B2cUser, CreditLog, Stake, User } from "@/models"
 import ApiError from "@/utils/ApiError";
 import httpStatus from "http-status";
 import AWS from "aws-sdk";
 import fs from 'fs';
 import path from 'path';
+import stakes from "@/config/stake";
 
 const csvWriter = require('csv-writer');
 // const findMaxRole = async (rolesArray: any): Promise<string> => {
@@ -153,6 +154,11 @@ const Register = async (body: any, user: any): Promise<void> => {
     parentId,
     creditRef: 0
   });
+  
+  await Stake.create({
+    username: username.toLowerCase().trim(),
+    stakes
+  })
   return;
 }
 
