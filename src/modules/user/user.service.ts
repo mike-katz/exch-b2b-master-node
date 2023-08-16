@@ -463,7 +463,9 @@ const checkParent = async (userId: string, loginedId: string) => {
 
 const getParentUsername = async (userId: string) => {
   const data: any = await User.findOne({ _id: userId });
-  const userData = await User.find({ _id: { $in: data?.parentId } }).select("username");
+  console.log("data",data);
+  
+  const userData = await User.find({ _id: { $in: data?.parentId } }).select("username roles");
   return userData;
 };
 
