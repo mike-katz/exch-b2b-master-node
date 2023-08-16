@@ -142,8 +142,7 @@ const Register = async (body: any, user: any): Promise<void> => {
   }
   const parentId = [...user?.parentId]
   parentId.push(user?._id);
-
-  await User.create({
+  let data:any = {
     username: username.toLowerCase().trim(),
     password: password,
     mobile,
@@ -153,7 +152,11 @@ const Register = async (body: any, user: any): Promise<void> => {
     commision: commission,
     parentId,
     creditRef: 0
-  });
+  };
+  if (roles=='User') {
+    data = {...data, exposure: 0};
+  }
+  await User.create(data);
   
   await Stake.create({
     username: username.toLowerCase().trim(),

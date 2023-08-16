@@ -81,7 +81,6 @@ const userSchema = new mongoose.Schema<UserProfile, UserModel>(
     },
     exposure: {
       type: Number,
-      default: 0,
     },  
     creditRef: {
       type: Number,
