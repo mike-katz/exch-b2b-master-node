@@ -17,7 +17,7 @@ interface User {
   ip: string;
   refreshToken: string;  
   status: string;
-  exposure: string;
+  exposure: number;
   creditRef: number;
   parentStatus: string;
   managerId: Schema.Types.ObjectId;  

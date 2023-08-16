@@ -80,7 +80,8 @@ const userSchema = new mongoose.Schema<UserProfile, UserModel>(
       default: userStatus.active,
     },
     exposure: {
-      type: String,
+      type: Number,
+      default: 0,
     },  
     creditRef: {
       type: Number,

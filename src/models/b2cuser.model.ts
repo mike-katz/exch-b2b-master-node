@@ -80,7 +80,7 @@ const b2cuserSchema = new mongoose.Schema<UserProfile, UserModel>(
       default: userStatus.active,
     },
     exposure: {
-      type: String,
+      type: Number,
     },  
     creditRef: {
       type: Number,
