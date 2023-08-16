@@ -81,7 +81,7 @@ const findDownline = async (data: any, filter: any, options: any): Promise<void>
 
     const { limit = 10, page = 1 } = options;
     const skip = (page - 1) * limit;
-    const query = {
+    let query:any = {
       $and: [
         {
           $expr: {
@@ -96,6 +96,14 @@ const findDownline = async (data: any, filter: any, options: any): Promise<void>
         filter
       ]
     }
+    //Agent use only
+    if (data?.roles.includes('Agent') && data?.branch && data?.branch != "") {
+      query = {
+        branch: data?.branch,
+        roles:{$in:["User"]}
+      }
+    }
+    
     let [results, totalResults] = await Promise.all([
       User.find(query).sort({ createdAt: -1 }).skip(skip).limit(limit),
       User.countDocuments(query),
