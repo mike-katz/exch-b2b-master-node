@@ -60,10 +60,10 @@ const loginUser = async (
   //   await user.save();
   // }
   const balanceData = balance > 0 ? parseFloat(balance.toString()) : 0;
-  const countData = Activity.countDocuments({ username });
+  const countData = await Activity.countDocuments({ username });
   if (countData > 25) {
     const oldestLog = await Activity.findOne({ username }).sort({ _id: 1 }).exec();
-    await oldestLog.remove();
+    if (oldestLog) await oldestLog.deleteOne();
   }
   await Activity.create({ username, ip, detail: "login page visited" });
   const status = user?.parentStatus == "Active" ? user?.status : user?.parentStatus;

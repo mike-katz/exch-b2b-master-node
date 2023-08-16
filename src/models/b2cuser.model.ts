@@ -1,5 +1,3 @@
-
-import bcrypt from "bcryptjs";
 import mongoose, { Types, Schema } from "mongoose";
 import { roles } from "@/config/roles";
 import { UserModel, UserProfile } from "@/types/user.interfaces";

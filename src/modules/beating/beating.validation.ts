@@ -22,4 +22,9 @@ const transaction = {
   body: Joi.object().keys({}),
 };
 
-export default { bettingHistory, profitLoss, transaction };
+
+const getSports = {
+  body: Joi.object().keys({}),
+};
+
+export default { bettingHistory, profitLoss, transaction, getSports };

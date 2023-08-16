@@ -6,12 +6,17 @@ import prepareResponse from "@/utils/prepareResponse";
 
 import * as BettingService from "./beating.service";
 import httpStatus from "http-status";
+import pick from "@/utils/pick";
 
 const bettingHistory = catchAsync(
-  async (req: Request, res: CustomResponse) => {
-    const { type, from, to, status } = req.body;
+  async (req: any, res: CustomResponse) => {
+    // const { type, from, to, status, userId, sportName } = req.body;
 
-    const data = BettingService.bettingHistory(req.user, type, from, to, status);
+    const filter = pick(req?.query, ["userId", "sportName", "status","type", "from", "to"]);
+    const options = pick(req?.query, ["sortBy", "limit", "page"]);
+
+    // const data = await BettingService.bettingHistory(req.user, type, from, to, status, userId, sportName);
+    const data = await BettingService.bettingHistory(req.user,filter,options );
     const response = prepareResponse({
       message: "Betting success",
       data,
@@ -43,4 +48,14 @@ const transaction = catchAsync(
   }
 );
 
-export default { bettingHistory, profitLoss, transaction };
+const getSports = catchAsync(
+  async (req: Request, res: CustomResponse) => {
+    const data = await BettingService.getSports();
+    const response = prepareResponse({
+      message: "Sports get success",
+      data,
+    });
+    res.status(httpStatus.OK).json(response);
+  }
+);
+export default { bettingHistory, profitLoss, transaction, getSports };
