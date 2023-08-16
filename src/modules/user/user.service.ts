@@ -96,13 +96,6 @@ const findDownline = async (data: any, filter: any, options: any): Promise<void>
         filter
       ]
     }
-    //Agent use only
-    if (data?.roles.includes('Agent') && data?.branch && data?.branch != "") {
-      query = {
-        branch: data?.branch,
-        roles:{$in:["User"]}
-      }
-    }
     
     let [results, totalResults] = await Promise.all([
       User.find(query).sort({ createdAt: -1 }).skip(skip).limit(limit),
