@@ -14,17 +14,7 @@ const bettingHistory = async (data: any, filter: any, options: any): Promise<voi
     }
     filter.username = username;
 
-    if (filter?.to) {
-      filter.createdAt = new Date(filter.to);
-      delete filter.to
-    }
-
-    if (filter?.from) {
-      filter.createdAt = new Date(filter.from);
-      delete filter.from
-    }
-
-    if ((filter?.from && filter?.from != "") && (filter?.to && filter?.to != "")) {
+    if (filter?.from && filter?.from != "" && filter?.to && filter?.to != "") {
       delete filter.createdAt
       const date1 = moment(filter?.from, 'YYYY-MM-DD');
       const date2 = moment(filter?.to, 'YYYY-MM-DD');
@@ -41,6 +31,16 @@ const bettingHistory = async (data: any, filter: any, options: any): Promise<voi
       delete filter.to
       delete filter.from
     }
+    if (filter?.to) {
+      filter.createdAt = new Date(filter.to);
+      delete filter.to
+    }
+
+    if (filter?.from) {
+      filter.createdAt = new Date(filter.from);
+      delete filter.from
+    }
+    
     options.path = [
       {
         path: "sportId",
