@@ -56,6 +56,9 @@ const cricketbetplaceSchema = new Schema<any>(
       type: Number,
       default: 1,
     },
+    sportName: {
+      type: String,
+    },
   },
   { timestamps: true }
 );

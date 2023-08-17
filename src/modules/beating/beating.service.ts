@@ -2,6 +2,7 @@ import { CricketBetPlace, Sport } from "@/models"
 import ApiError from "@/utils/ApiError";
 import httpStatus from "http-status";
 import { checkParent } from "@/modules/user/user.service";
+import moment from "moment";
 
 // const bettingHistory = async (data: any, type: string, from: string, to: string, status: string, userId: string, sportName: string): Promise<void> => {
 const bettingHistory = async (data: any, filter: any, options: any): Promise<void> => {
@@ -25,6 +26,14 @@ const bettingHistory = async (data: any, filter: any, options: any): Promise<voi
 
     if ((filter?.from && filter?.from != "") && (filter?.to && filter?.to != "")) {
       delete filter.createdAt
+      const date1 = moment(filter?.from, 'YYYY-MM-DD');
+      const date2 = moment(filter?.to, 'YYYY-MM-DD');
+      const diffInDays = date2.diff(date1, 'days');
+      if (diffInDays >= 15) {
+        throw new ApiError(httpStatus.BAD_REQUEST, {
+          msg: "Please select only 15 days range only.",
+        });
+      }
       filter.createdAt = {
         $gte: new Date(filter?.from),
         $lte: new Date(filter?.to),
@@ -53,7 +62,7 @@ const transaction = async (data: any): Promise<void> => {
 
 
 const getSports = async (): Promise<void> => {
-  const data:any = await Sport.find().sort({ _id: -1 });
+  const data: any = await Sport.find().sort({ _id: -1 });
   return data;
 }
 

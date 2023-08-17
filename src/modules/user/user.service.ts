@@ -155,14 +155,15 @@ const Register = async (body: any, user: any): Promise<void> => {
     creditRef: 0
   };
   if (roles=='User') {
-    data = {...data, exposure: 0};
+    data = { ...data, exposure: 0 };
+    await Stake.create({
+      username: username.toLowerCase().trim(),
+      stakes
+    })
   }
   await User.create(data);
   
-  await Stake.create({
-    username: username.toLowerCase().trim(),
-    stakes
-  })
+  
   return;
 }
 
