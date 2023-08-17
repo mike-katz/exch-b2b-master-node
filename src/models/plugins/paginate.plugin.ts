@@ -26,7 +26,7 @@ const getProject = (projectBy: string | undefined): string => {
     });
     project = projectionCriteria.join(" ");
   } else {
-    project = "-createdAt -updatedAt";
+    // project = "-createdAt -updatedAt";
   }
   return project;
 };

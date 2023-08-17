@@ -49,13 +49,25 @@ const bettingHistory = async (data: any, filter: any, options: any): Promise<voi
     ]
     let datas: any = await CricketBetPlace.paginate(filter, options)
     const resData: any = [];
-    datas?.results.map((item: any) => {
-      const itemData:any = {
-        ...item, odds: item.odds > 0 ? parseFloat(item.odds.toString()) : 0,
+    datas?.results.forEach((item: any) => {
+      const itemData = {
+        username: item?.username,
+        odds: item.odds > 0 ? parseFloat(item.odds.toString()) : 0,
         pl: item.pl > 0 ? parseFloat(item.pl.toString()) : 0,
-      }
+        _id: item?._id,
+        stake: item?.stake,
+        type: item?.type,
+        eventName: item?.eventName,
+        selectionName: item?.selectionName,
+        marketType: item?.marketType,
+        createdAt: item?.createdAt,
+        updatedAt: item?.updatedAt,
+        selectionId: item?.selectionId,
+        sportName: item?.sportId?.sportName ||"",
+      };
+
       resData.push(itemData);
-      }),
+    }),
       datas.results = resData
     return datas;
   }
@@ -77,11 +89,11 @@ const transaction = async (data: any): Promise<void> => {
 
 const getSports = async (): Promise<void> => {
   const data: any = await Sport.find({
-      sportId: {
-        $type: 'string', // Match only string values
-        $regex: /^[0-9]+(\.[0-9]*)?$/, // Use regex to match numeric values
-      },
-    }).sort({ _id: -1 });
+    sportId: {
+      $type: 'string', // Match only string values
+      $regex: /^[0-9]+(\.[0-9]*)?$/, // Use regex to match numeric values
+    },
+  }).sort({ _id: -1 });
   return data;
 }
 
