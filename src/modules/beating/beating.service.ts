@@ -4,13 +4,13 @@ import httpStatus from "http-status";
 import { checkParent } from "@/modules/user/user.service";
 import moment from "moment";
 
-// const bettingHistory = async (data: any, type: string, from: string, to: string, status: string, userId: string, sportName: string): Promise<void> => {
 const bettingHistory = async (data: any, filter: any, options: any): Promise<void> => {
   try {
     let username = data?.username;
     if (filter?.userId && filter?.userId != "") {
       const user = await checkParent(filter?.userId, data?._id);
       username = user?.username
+      delete filter.userId
     }
     filter.username = username;
 
@@ -41,8 +41,22 @@ const bettingHistory = async (data: any, filter: any, options: any): Promise<voi
       delete filter.to
       delete filter.from
     }
-
-    const datas: any = await CricketBetPlace.paginate(filter, options)
+    options.path = [
+      {
+        path: "sportId",
+        select: "sportName",
+      },
+    ]
+    let datas: any = await CricketBetPlace.paginate(filter, options)
+    const resData: any = [];
+    datas?.results.map((item: any) => {
+      const itemData:any = {
+        ...item, odds: item.odds > 0 ? parseFloat(item.odds.toString()) : 0,
+        pl: item.pl > 0 ? parseFloat(item.pl.toString()) : 0,
+      }
+      resData.push(itemData);
+      }),
+      datas.results = resData
     return datas;
   }
   catch (error: any) {
@@ -62,7 +76,12 @@ const transaction = async (data: any): Promise<void> => {
 
 
 const getSports = async (): Promise<void> => {
-  const data: any = await Sport.find().sort({ _id: -1 });
+  const data: any = await Sport.find({
+      sportId: {
+        $type: 'string', // Match only string values
+        $regex: /^[0-9]+(\.[0-9]*)?$/, // Use regex to match numeric values
+      },
+    }).sort({ _id: -1 });
   return data;
 }
 
