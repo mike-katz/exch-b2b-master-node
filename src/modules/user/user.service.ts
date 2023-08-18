@@ -552,7 +552,6 @@ const updateProfile = async (userId: string, password: string, commission: numbe
         msg: "wrong password",
       });
     }
-console.log("commission",commission);
 
     if (commission > 100) {
       throw new ApiError(httpStatus.BAD_REQUEST, {

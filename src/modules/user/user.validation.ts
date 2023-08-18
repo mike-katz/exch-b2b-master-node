@@ -95,7 +95,7 @@ const updateProfile = {
     password: Joi.string().optional(),
     myPassword: Joi.string().required(),
     commission: Joi.number().optional(),
-    mobile: Joi.string().required(),
+    mobile: Joi.string().optional(),
   }),
 };
 
