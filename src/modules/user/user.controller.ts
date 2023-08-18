@@ -146,7 +146,7 @@ const updateProfile = catchAsync(
     const { userId,password,commission,mobile,myPassword } = req.body;
     const data = await UserService.updateProfile(userId,password,commission,mobile,myPassword,req.user);
     const response = prepareResponse({
-      message: "username get successfully.",
+      message: "profile update successfully.",
       data,
     });
     res.status(httpStatus.OK).json(response);
