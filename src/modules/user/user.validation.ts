@@ -89,4 +89,14 @@ const exportCsv = {
   }),
 };
 
-export default { fetchUserProfile, fetchUserDownline, Register, myDownline, addCreditLog, getCreditLog, updateStatus, search, myBalance, exportCsv,getParentUsername };
+const updateProfile = {
+  body: Joi.object().keys({
+    userId: Joi.string().required(),
+    password: Joi.string().optional(),
+    myPassword: Joi.string().required(),
+    commission: Joi.number().optional(),
+    mobile: Joi.string().required(),
+  }),
+};
+
+export default { fetchUserProfile, fetchUserDownline, Register, myDownline, addCreditLog, getCreditLog, updateStatus, search, myBalance, exportCsv,getParentUsername, updateProfile };

@@ -209,6 +209,12 @@ const Register = async (body: any, user: any): Promise<void> => {
       msg: "Username already exist",
     });
   }
+  if (commission <= 100) {
+    throw new ApiError(httpStatus.BAD_REQUEST, {
+      msg: "Please enter lower then 100",
+    });
+  }
+
   if (user?.commission > commission) {
     throw new ApiError(httpStatus.BAD_REQUEST, {
       msg: "Please add higher then your commision",
@@ -530,10 +536,54 @@ const checkParent = async (userId: string, loginedId: string) => {
 
 const getParentUsername = async (userId: string) => {
   const data: any = await User.findOne({ _id: userId });
-  const parentId = data?.parentId || []; 
+  const parentId = data?.parentId || [];
   parentId.push(userId);
   const userData = await User.find({ _id: { $in: parentId } }).select("username roles");
   return userData;
+};
+
+const updateProfile = async (userId: string, password: string, commission: number, mobile: string, myPassword: string, userData: any) => {
+  try {
+    const user: any = await User.findOne({ username: userData.username })
+    if (!(await user.isPasswordMatch(myPassword))) {
+      throw new ApiError(httpStatus.BAD_REQUEST, {
+        msg: "wrong password",
+      });
+    }
+
+    if (commission <= 100) {
+      throw new ApiError(httpStatus.BAD_REQUEST, {
+        msg: "Please enter lower then 100",
+      });
+    }
+
+    if (user?.commission > commission) {
+      throw new ApiError(httpStatus.BAD_REQUEST, {
+        msg: "Please add higher then your commision",
+      });
+    }
+
+    const found = await checkParent(userId, userData._id);
+    if (found) {
+      if (password && password != "") {
+        found.password = password
+      }
+
+      if (mobile && mobile != "") {
+        found.mobile = mobile
+      }
+
+      if (commission && commission > 0 ) {
+        found.commision = commission
+      }
+      await found.save();
+    }
+  }
+  catch (error: any) {
+    throw new ApiError(httpStatus.BAD_REQUEST, {
+      msg: error?.errorData?.msg || "invalid user id.",
+    });
+  }
 };
 
 export {
@@ -547,5 +597,6 @@ export {
   exportCsv,
   accountDetail,
   checkParent,
-  getParentUsername
+  getParentUsername,
+  updateProfile
 }

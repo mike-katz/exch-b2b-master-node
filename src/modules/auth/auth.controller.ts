@@ -27,7 +27,7 @@ const login = catchAsync(
 
     const response = {
       message: "login success",
-      "roles": data.roles, "username": data.username, "mobile": data.mobile, "accessToken": data.tokens.accessToken, "balance": data.balanceData, "status": data.status, "commision": data.commision
+      "roles": data.roles, "username": data.username, "mobile": data.mobile, "accessToken": data.tokens.accessToken, "balance": data.balanceData, "status": data.status, "commission": data.commision
     };
     // console.log("response",{...response.data});
     res.status(httpStatus.OK).json(response);

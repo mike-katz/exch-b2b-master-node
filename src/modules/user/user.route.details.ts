@@ -109,6 +109,15 @@ const routeDetails: IAuthRouteDetails[] = [
     controllerMethodName: "getParentUsername",
     auth: "",
   },
+
+  {
+    key: "UpdateProfileAPI",
+    method: "post",
+    url: "/update-profile",
+    validationMethodName: "updateProfile",
+    controllerMethodName: "updateProfile",
+    auth: "",
+  },
 ];
 
 export default routeDetails;

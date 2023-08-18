@@ -141,5 +141,16 @@ const getParentUsername = catchAsync(
   }
 );
 
+const updateProfile = catchAsync(
+  async (req: Request, res: CustomResponse) => {
+    const { userId,password,commission,mobile,myPassword } = req.body;
+    const data = await UserService.updateProfile(userId,password,commission,mobile,myPassword,req.user);
+    const response = prepareResponse({
+      message: "username get successfully.",
+      data,
+    });
+    res.status(httpStatus.OK).json(response);
+  }
+);
 
-export default { fetchUserProfile, fetchUserDownline, Register, myDownline, addCreditLog, getCreditLog, updateStatus, updateExposure, myBalance, exportCsv,getParentUsername };
+export default { fetchUserProfile, fetchUserDownline, Register, myDownline, addCreditLog, getCreditLog, updateStatus, updateExposure, myBalance, exportCsv,getParentUsername, updateProfile };
