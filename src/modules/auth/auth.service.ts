@@ -67,7 +67,7 @@ const loginUser = async (
   }
   await Activity.create({ username, ip, detail: "login page visited" });
   const status = user?.parentStatus == "Active" ? user?.status : user?.parentStatus;
-  return { roles, username, mobile, tokens, balanceData, status };
+  return { roles, username, mobile, tokens, balanceData, status, commision };
 };
 
 /**
