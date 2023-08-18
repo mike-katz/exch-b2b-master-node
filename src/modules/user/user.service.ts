@@ -209,7 +209,9 @@ const Register = async (body: any, user: any): Promise<void> => {
       msg: "Username already exist",
     });
   }
-  if (commission <= 100) {
+  console.log("commission",commission);
+  
+  if (commission > 100) {
     throw new ApiError(httpStatus.BAD_REQUEST, {
       msg: "Please enter lower then 100",
     });
@@ -550,8 +552,9 @@ const updateProfile = async (userId: string, password: string, commission: numbe
         msg: "wrong password",
       });
     }
+console.log("commission",commission);
 
-    if (commission <= 100) {
+    if (commission > 100) {
       throw new ApiError(httpStatus.BAD_REQUEST, {
         msg: "Please enter lower then 100",
       });
