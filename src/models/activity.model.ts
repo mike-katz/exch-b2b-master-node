@@ -12,7 +12,11 @@ const activitySchema = new Schema({
   detail: {
     type: String,
     required: true,
- }
+  },
+  status: {
+    type: String,
+    required: true,
+  }
 }, { timestamps: true });
 
 const Activity = mongoose.model("Activity", activitySchema);

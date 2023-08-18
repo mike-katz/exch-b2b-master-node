@@ -19,29 +19,14 @@ const routeDetails: IAuthRouteDetails[] = [
     controllerMethodName: "login",
     // auth: "",
   },
-  {
-    key: "AdminloginAPI",
-    method: "post",
-    url: "/admin/login",
-    validationMethodName: "login",
-    controllerMethodName: "login",
-  },  
-  
-  {
-    key: "logoutAPI",
-    method: "post",
-    url: "/logout",
-    validationMethodName: "logout",
-    controllerMethodName: "logout",
-  },
-  
-  {
-    key: "refreshTokenAPI",
-    method: "post",
-    url: "/refresh-token",
-    validationMethodName: "refreshToken",
-    controllerMethodName: "handleRefreshToken",
-  },  
+  // {
+  //   key: "ChangePasswordAPI",
+  //   method: "post",
+  //   url: "/change-password",
+  //   validationMethodName: "changePwd",
+  //   controllerMethodName: "changePwd",
+  //   auth: "",
+  // },
 ];
 
 export default routeDetails;

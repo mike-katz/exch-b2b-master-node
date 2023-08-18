@@ -30,23 +30,27 @@ const loginUser = async (
 ) => {
   let user: any = await User.findOne({ username });
   if (!user) {
+    await Activity.create({ username, ip, detail: "login page visited" , stauts:"failed"});
     throw new ApiError(httpStatus.BAD_REQUEST, {
       msg: "username is wrong",
     });
   }
 
   if (!(await user.isPasswordMatch(password))) {
+    await Activity.create({ username, ip, detail: "login page visited" , stauts:"failed"});
     throw new ApiError(httpStatus.BAD_REQUEST, {
       msg: "wrong password",
     });
   }
   if (user.roles.includes('User')) {
+    await Activity.create({ username, ip, detail: "login page visited" , stauts:"failed"});
     throw new ApiError(httpStatus.BAD_REQUEST, {
       msg: "user not allow to login",
     });
   }
 
   if (user.status == "Lock") {
+    await Activity.create({ username, ip, detail: "login page visited" , stauts:"failed"});
     throw new ApiError(httpStatus.BAD_REQUEST, {
       msg: `your account ${user.status}`,
     });
@@ -65,7 +69,7 @@ const loginUser = async (
     const oldestLog = await Activity.findOne({ username }).sort({ _id: 1 }).exec();
     if (oldestLog) await oldestLog.deleteOne();
   }
-  await Activity.create({ username, ip, detail: "login page visited" });
+  await Activity.create({ username, ip, detail: "login page visited" , stauts:"success"});
   const status = user?.parentStatus == "Active" ? user?.status : user?.parentStatus;
   return { roles, username, mobile, tokens, balanceData, status, commision };
 };
