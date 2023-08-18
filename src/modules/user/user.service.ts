@@ -42,8 +42,8 @@ const csvWriter = require('csv-writer');
 //   return filter;
 // }
 
-const getb2cUsers = async (managerId: string)=>{
-      const b2cData = await B2cUser.find({ managerId });
+const getb2cUsers = async (managerId: string) => {
+  const b2cData = await B2cUser.find({ managerId });
   return b2cData;
 }
 
@@ -64,7 +64,7 @@ const findDownline = async (data: any, filter: any, options: any): Promise<void>
       });
     }
     let role = data?.roles;
-    let managerId:string = data?.managerId ||"";
+    let managerId: string = data?.managerId || "";
     filter.roles = { $nin: ['User'] };
 
     let parentId = data?._id
@@ -73,7 +73,7 @@ const findDownline = async (data: any, filter: any, options: any): Promise<void>
       const user: any = await User.findOne({ _id: filter?.userId });
       // maxRole = await findMaxRole(user.roles);
       role = user?.roles;
-      managerId = user?.managerId ||"";
+      managerId = user?.managerId || "";
       parentId = filter?.userId
       delete filter.userId
       delete filter.roles
@@ -81,7 +81,7 @@ const findDownline = async (data: any, filter: any, options: any): Promise<void>
 
     const { limit = 10, page = 1 } = options;
     const skip = (page - 1) * limit;
-    let query:any = {
+    let query: any = {
       $and: [
         {
           $expr: {
@@ -96,37 +96,106 @@ const findDownline = async (data: any, filter: any, options: any): Promise<void>
         filter
       ]
     }
-    
+
+
+    // let [results, totalResults] = await Promise.all([
+    //   User.aggregate([
+    //     {
+    //       $match: query
+    //     },
+    //     {
+    //       $sort: { createdAt: -1 }
+    //     },
+    //     {
+    //       $skip: skip
+    //     },
+    //     {
+    //       $limit: limit
+    //     },
+    //     { $unwind: "$parentId" },
+    //      {
+    //         $addFields: {
+    //           parentId: { $toString: "$parentId" }
+    //         }
+    //       },
+    //     {
+    //       $lookup: {
+    //         from: 'users',
+    //         localField: '_id',
+    //         foreignField: 'parentId',
+    //         as: 'children'
+    //       }
+    //     },
+
+    //     {
+    //       $group: {
+    //         _id: '$_id',
+    //         username: { $first: '$username' },  // Use $first to preserve the parent fields
+    //         // ... other fields
+    //         isParent: { $first: '$isParent' },
+    //         totalChildrenBalance: { $sum: '$children.balance' }  // Calculate total balance of children
+    //       }
+    //     },
+    //   ]),
+    //   User.countDocuments(query)
+    // ]);
+
     let [results, totalResults] = await Promise.all([
       User.find(query).sort({ createdAt: -1 }).skip(skip).limit(limit),
       User.countDocuments(query),
     ]);
 
-    //b2c process start
-    if (role.includes('Agent') && managerId && managerId!=="") {
-      const b2cData = await getb2cUsers(managerId);
-      totalResults += Number(b2cData.length);
-      results = [...b2cData,...results];
-    }
-    
-    const resData: any = {
-      results: results.map((item: any) => ({
+    // const idArray = Array.from(results, item => item._id.toString());
+
+    const finalResult: any = [];
+    await Promise.all(results.map(async (item: any) => {
+      let balance: number = 0;
+      let exposure: number = 0;
+      const childData: any = await User.aggregate([
+        {
+          $match: {
+            parentId: { $in: [item?._id.toString()] }
+          }
+        },
+        {
+          $group:
+          {
+            _id: null,
+            totalBalance: { $sum: '$balance' },
+            totalExposure: { $sum: '$exposure' }
+          }
+        },
+      ]);
+
+      if (childData.length > 0) {
+        balance = childData[0].totalBalance.toString();
+        exposure = childData[0].totalExposure.toString();
+      }
+      const data: any = {
         username: item.username,
-        balance: item.balance > 0 ? parseFloat(item.balance.toString()) : 0,
-        exposure: item.exposure || 0,
+        // balance: item.balance > 0 ? parseFloat(item.balance.toString()) : 0,
+        balance,
+        exposure,
         exposureLimit: item.exposureLimit || 0,
         _id: item._id,
         status: item?.parentStatus == "Active" ? item?.status : item?.parentStatus,
         roles: item.roles,
         creditRef: item.creditRef,
-      })),
+      }
+      finalResult.push(data);
+    }));
+
+    const resData: any = {
       page,
       limit,
       totalPages: Math.ceil(totalResults / limit),
       totalResults,
+      results: finalResult
     };
     return resData;
   } catch (error: any) {
+    console.log("error", error);
+
     throw new ApiError(httpStatus.BAD_REQUEST, {
       msg: error?.errorData?.msg || "invalid user id.",
     });
@@ -143,7 +212,7 @@ const Register = async (body: any, user: any): Promise<void> => {
   }
   const parentId = [...user?.parentId]
   parentId.push(user?._id);
-  let data:any = {
+  let data: any = {
     username: username.toLowerCase().trim(),
     password: password,
     mobile,
@@ -154,7 +223,7 @@ const Register = async (body: any, user: any): Promise<void> => {
     parentId,
     creditRef: 0
   };
-  if (roles=='User') {
+  if (roles == 'User') {
     data = { ...data, exposure: 0 };
     await Stake.create({
       username: username.toLowerCase().trim(),
@@ -162,8 +231,8 @@ const Register = async (body: any, user: any): Promise<void> => {
     })
   }
   await User.create(data);
-  
-  
+
+
   return;
 }
 
@@ -182,7 +251,7 @@ const myDownline = async (filter: any, options: any, userData: any): Promise<voi
 
     const { limit = 10, page = 1 } = options;
     const skip = (page - 1) * limit;
-    let query:any = {
+    let query: any = {
       $and: [
         {
           $expr: {
@@ -197,11 +266,11 @@ const myDownline = async (filter: any, options: any, userData: any): Promise<voi
         filter
       ]
     }
-     //Agent use only
+    //Agent use only
     if (userData?.roles.includes('Agent') && userData?.branch && userData?.branch != "") {
       query = {
         branch: userData?.branch,
-        roles:{$in:["User"]}
+        roles: { $in: ["User"] }
       }
     }
     const [results, totalResults] = await Promise.all([
@@ -365,8 +434,8 @@ const exportCsv = async (search: string, status: string, userId: string, type: s
         data.balance = item.balance > 0 ? parseFloat(item.balance.toString()) : 0,
         data.exposureLimit = item.exposureLimit || 0,
         data.status = item?.parentStatus == "Active" ? item?.status : item?.parentStatus;
-        data.ref = (parseFloat(item.creditRef) || 0) + (parseFloat(item.balance) || 0);
-        response.push(data)
+      data.ref = (parseFloat(item.creditRef) || 0) + (parseFloat(item.balance) || 0);
+      response.push(data)
     }));
   }
   const fileName = `data_${Date.now()}.csv`;
