@@ -154,7 +154,10 @@ const findDownline = async (data: any, filter: any, options: any): Promise<void>
       const childData: any = await User.aggregate([
         {
           $match: {
-            parentId: { $in: [item?._id.toString()] }
+            $and: [
+              { parentId: { $in: [item?._id.toString()] } },
+              { roles: { $in: ['User'] } }
+            ]
           }
         },
         {

@@ -52,7 +52,7 @@ const loginUser = async (
     });
   }
 
-  const { roles, mobile, balance } = user;
+  const { roles, mobile, balance, commision } = user;
   const tokens = await tokenService.generateAuthTokens(user);
 
   // if (tokens) {
