@@ -10,7 +10,7 @@ const fetchActivity = async (data: any, userId: string): Promise<void> => {
       const userData: any = await userService.checkParent(userId, data._id);
       username = userData.username
     }
-    const response = await ActivityLog.find({ username });
+    const response = await ActivityLog.find({ username }).sort({ createdAt: -1 });
     const resp: any = { data:response, username };
     return resp;
 
