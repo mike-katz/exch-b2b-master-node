@@ -2,7 +2,7 @@ import httpStatus from "http-status";
 
 import { userOtpVarification } from "@/config/otp";
 import tokenTypes from "@/config/tokens";
-import { Token, User, Activity } from "@/models";
+import { Token, User, ActivityLog } from "@/models";
 import * as tokenService from "@/service/token.service";
 import * as userService from "@/service/user.service";
 // import fileUpload, { FileArray } from "express-fileupload";
@@ -15,7 +15,30 @@ import {
 import ApiError from "@/utils/ApiError";
 
 // import uploadFileInBucket from "@/utils/fileUpload";
+const addActivity = async (foundUser: any, activity: any, status: string) => {
+  try {
+    const activityPayload = {
+      username: foundUser.username,
+      ip: activity?.query,
+      detail: JSON.stringify(activity),
+      status,
+    };
 
+    const findActivity = await ActivityLog
+      .find({ username: foundUser.username }).countDocuments().lean();
+
+    if (findActivity > 25) {
+      const firstRecord: any = await ActivityLog
+        .findOne({ username: foundUser.username }, { sort: { createdAt: 1 } });
+      if (firstRecord) {
+        await ActivityLog.findByIdAndDelete({ _id: firstRecord._id });
+      }
+    }
+    await ActivityLog.create(activityPayload);
+  } catch (err) {
+    return false;
+  }
+};
 /**
  * Login with username and password
  * @param {string} email
@@ -30,27 +53,26 @@ const loginUser = async (
 ) => {
   let user: any = await User.findOne({ username });
   if (!user) {
-    await Activity.create({ username, ip, detail: "login page visited" , stauts:"failed"});
     throw new ApiError(httpStatus.BAD_REQUEST, {
       msg: "username is wrong",
     });
   }
 
   if (!(await user.isPasswordMatch(password))) {
-    await Activity.create({ username, ip, detail: "login page visited" , stauts:"failed"});
+    await addActivity(user, ip, 'failed');
     throw new ApiError(httpStatus.BAD_REQUEST, {
       msg: "wrong password",
     });
   }
   if (user.roles.includes('User')) {
-    await Activity.create({ username, ip, detail: "login page visited" , stauts:"failed"});
+    await addActivity(user, ip, 'failed');
     throw new ApiError(httpStatus.BAD_REQUEST, {
       msg: "user not allow to login",
     });
   }
 
   if (user.status == "Lock") {
-    await Activity.create({ username, ip, detail: "login page visited" , stauts:"failed"});
+    await addActivity(user, ip, 'failed');
     throw new ApiError(httpStatus.BAD_REQUEST, {
       msg: `your account ${user.status}`,
     });
@@ -64,12 +86,7 @@ const loginUser = async (
   //   await user.save();
   // }
   const balanceData = balance > 0 ? parseFloat(balance.toString()) : 0;
-  const countData = await Activity.countDocuments({ username });
-  if (countData > 25) {
-    const oldestLog = await Activity.findOne({ username }).sort({ _id: 1 }).exec();
-    if (oldestLog) await oldestLog.deleteOne();
-  }
-  await Activity.create({ username, ip, detail: "login page visited" , stauts:"success"});
+  await addActivity(user, ip, 'success');
   const status = user?.parentStatus == "Active" ? user?.status : user?.parentStatus;
   return { roles, username, mobile, tokens, balanceData, status, commision };
 };

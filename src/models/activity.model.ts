@@ -1,6 +1,6 @@
 import mongoose,{ Schema } from 'mongoose';
 
-const activitySchema = new Schema({
+const activityLogSchema = new Schema({
   username: {
     type: String,
     required: true,
@@ -19,5 +19,5 @@ const activitySchema = new Schema({
   }
 }, { timestamps: true });
 
-const Activity = mongoose.model("Activity", activitySchema);
-export default Activity;
+const ActivityLog = mongoose.model("ActivityLog", activityLogSchema);
+export default ActivityLog;

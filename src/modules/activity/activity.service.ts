@@ -1,4 +1,4 @@
-import { Activity, User } from "@/models"
+import { ActivityLog, User } from "@/models"
 import ApiError from "@/utils/ApiError";
 import httpStatus from "http-status";
 import * as userService from "@/modules/user/user.service";
@@ -10,7 +10,7 @@ const fetchActivity = async (data: any, userId: string): Promise<void> => {
       const userData: any = await userService.checkParent(userId, data._id);
       username = userData.username
     }
-    const response = await Activity.find({ username });
+    const response = await ActivityLog.find({ username });
     const resp: any = { data:response, username };
     return resp;
 
