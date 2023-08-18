@@ -42,10 +42,10 @@ const csvWriter = require('csv-writer');
 //   return filter;
 // }
 
-const getb2cUsers = async (managerId: string) => {
-  const b2cData = await B2cUser.find({ managerId });
-  return b2cData;
-}
+// const getb2cUsers = async (managerId: string) => {
+//   const b2cData = await B2cUser.find({ managerId });
+//   return b2cData;
+// }
 
 const findDownline = async (data: any, filter: any, options: any): Promise<void> => {
   try {
@@ -63,8 +63,6 @@ const findDownline = async (data: any, filter: any, options: any): Promise<void>
         msg: "role not found",
       });
     }
-    let role = data?.roles;
-    let managerId: string = data?.managerId || "";
     filter.roles = { $nin: ['User'] };
 
     let parentId = data?._id
@@ -72,8 +70,6 @@ const findDownline = async (data: any, filter: any, options: any): Promise<void>
     if (filter?.userId && filter?.userId !== "") {
       const user: any = await User.findOne({ _id: filter?.userId });
       // maxRole = await findMaxRole(user.roles);
-      role = user?.roles;
-      managerId = user?.managerId || "";
       parentId = filter?.userId
       delete filter.userId
       delete filter.roles
@@ -211,6 +207,11 @@ const Register = async (body: any, user: any): Promise<void> => {
   if (duplicate) {
     throw new ApiError(httpStatus.BAD_REQUEST, {
       msg: "Username already exist",
+    });
+  }
+  if (user?.commission > commission) {
+    throw new ApiError(httpStatus.BAD_REQUEST, {
+      msg: "Please add higher then your commision",
     });
   }
   const parentId = [...user?.parentId]
@@ -529,7 +530,7 @@ const checkParent = async (userId: string, loginedId: string) => {
 
 const getParentUsername = async (userId: string) => {
   const data: any = await User.findOne({ _id: userId });
-  const parentId = data?.parentId || []; // Ensure parentId is an array
+  const parentId = data?.parentId || []; 
   parentId.push(userId);
   const userData = await User.find({ _id: { $in: parentId } }).select("username roles");
   return userData;
