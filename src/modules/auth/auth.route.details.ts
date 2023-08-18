@@ -19,14 +19,14 @@ const routeDetails: IAuthRouteDetails[] = [
     controllerMethodName: "login",
     // auth: "",
   },
-  // {
-  //   key: "ChangePasswordAPI",
-  //   method: "post",
-  //   url: "/change-password",
-  //   validationMethodName: "changePwd",
-  //   controllerMethodName: "changePwd",
-  //   auth: "",
-  // },
+  {
+    key: "ChangePasswordAPI",
+    method: "post",
+    url: "/change-password",
+    validationMethodName: "changePwd",
+    controllerMethodName: "changePwd",
+    auth: "",
+  },
 ];
 
 export default routeDetails;

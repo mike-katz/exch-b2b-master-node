@@ -2,6 +2,9 @@ import httpStatus from "http-status";
 import catchAsync from "@/utils/catchAsync";
 import { ILoginBody } from "./auth.interfaces";
 import * as AuthService from "./auth.service";
+import { Request } from "express";
+import { CustomResponse } from "@/types";
+import prepareResponse from "@/utils/prepareResponse";
 
 const login = catchAsync(
   async (
@@ -27,9 +30,19 @@ const login = catchAsync(
 );
 
 
-
-
+  const changePwd = catchAsync(
+  async (req: Request, res: CustomResponse) => {
+    const { oldPassword,newPassword } = req.body;
+      const data ={}
+        await AuthService.changePwd(oldPassword, newPassword, req.user);
+    const response = prepareResponse({
+      message: "Password change successfully.",
+      data,
+    });
+    res.status(httpStatus.OK).json(response);
+  }
+);
 export {
   login,
-  // changePwd
+  changePwd
 };
