@@ -17,9 +17,10 @@ import ApiError from "@/utils/ApiError";
 // import uploadFileInBucket from "@/utils/fileUpload";
 const addActivity = async (foundUser: any, activity: any, status: string) => {
   try {
+    const queryData = JSON.parse(activity)
     const activityPayload = {
       username: foundUser.username,
-      ip: activity?.query,
+      ip: queryData?.query,
       detail: JSON.stringify(activity),
       status,
     };
@@ -36,6 +37,8 @@ const addActivity = async (foundUser: any, activity: any, status: string) => {
     }
     await ActivityLog.create(activityPayload);
   } catch (err) {
+    console.log("err",err);
+    
     return false;
   }
 };
@@ -49,7 +52,7 @@ const addActivity = async (foundUser: any, activity: any, status: string) => {
 const loginUser = async (
   username: string,
   password: string,
-  ip: string,
+  ip: any,
 ) => {
   let user: any = await User.findOne({ username });
   if (!user) {
