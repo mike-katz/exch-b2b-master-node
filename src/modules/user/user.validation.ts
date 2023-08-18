@@ -22,7 +22,7 @@ const Register = {
     password: Joi.string().required(),
     mobile: Joi.optional(),
     ip: Joi.optional(), 
-    exposure:Joi.number().required(),
+    exposure:Joi.optional(),
     commission: Joi.number().required(),
     roles:Joi.string().required(),
   }),
