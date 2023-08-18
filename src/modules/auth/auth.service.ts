@@ -37,8 +37,6 @@ const addActivity = async (foundUser: any, activity: any, status: string) => {
     }
     await ActivityLog.create(activityPayload);
   } catch (err) {
-    console.log("err",err);
-    
     return false;
   }
 };
@@ -94,102 +92,19 @@ const loginUser = async (
   return { roles, username, mobile, tokens, balanceData, status, commision };
 };
 
-/**
- * Create an user
- * @param {NewRegisteredUser} userBody
- * @returns {Promise<UserProfile>}
- */
-const createUser = async (body: NewRegisteredUser): Promise<UserProfile> => {
-  return userService.createUser(body);
-};
-
-/**
- * Logout
- * @param {string} refreshToken
- * @returns {Promise}
- */
-const logout = async (
-  refreshToken: string | undefined,
-): Promise<void> => {
-  if (refreshToken) {
-    const refreshTokenDoc = await Token.findOne({
-      token: refreshToken,
-      type: tokenTypes.REFRESH,
-      blacklisted: false,
+const changePwd = async (oldPassword: string, newPassword: string, userData: any) => {
+  const user: any = await User.findOne({ username: userData.username })
+  if (!(await user.isPasswordMatch(oldPassword))) {
+    throw new ApiError(httpStatus.BAD_REQUEST, {
+      msg: "wrong password",
     });
-    if (!refreshTokenDoc) {
-      throw new ApiError(httpStatus.BAD_REQUEST, { msg: "Not found" });
-    }
-    await Token.deleteMany({ user: refreshTokenDoc.user });
   }
-};
-
-// const fileUploadDemo = async (files: FileArray,isProposal = false) => {
-const fileUploadDemo = async (): Promise<string[]> => {
-  // console.log(isProposal);
-  // console.log(files.document);
-  // TODO:: implement function logic here
-  const uploadedFileKeys: string[] = [];
-
-  // single file uploaded
-  // if (files.document) {
-  //   const singleFile = files.document as fileUpload.UploadedFile;
-  //   uploadedFileKeys.push(await uploadFileInBucket(singleFile, isProposal));
-  // }
-
-  // // if multifile uploaded
-  // if (files.documents) {
-  //   const multiFile = files.documents as fileUpload.UploadedFile[];
-  //   multiFile.forEach(async file => {
-  //     uploadedFileKeys.push(await uploadFileInBucket(file, isProposal));
-  //   });
-  // }
-
-  return uploadedFileKeys;
-
-  // console.log("res: ", res);
-  // delete code demo
-  // const res = s3BucketService.deleteFile(
-  //   "filename"
-  // );
-  // console.log("res: ", res);
-  // get file full url
-  // const res = s3BucketService.getFile(
-  //   "filename"
-  // );
-  // console.log("res: ", res);
-  // upload file demo
-  //   await multiFileUpload(req.files);
-  // }
-  // const { attachments } = req.body;
-  // console.log("attachments: ", attachments);
-};
-
-const resetPasswordbyOtp = async (resetData: IResetData): Promise<void> => {
-  const {
-    email,
-    mobile,
-    countryCode,
-    otp: userotp,
-    password,
-    source,
-  } = resetData;
-
-  const user =
-    source === userOtpVarification.EMAIL && email
-      ? await userService.getUserByEmail(email)
-      : source === userOtpVarification.PHONE &&
-      countryCode &&
-      mobile &&
-      (await userService.getUserByMobileNo(countryCode, mobile));
-
-
+  user.password = newPassword;
+  await user.save();
+  return;
 };
 
 export {
-  createUser,
-  fileUploadDemo,
   loginUser,
-  logout,
-  resetPasswordbyOtp,
+  changePwd
 };
