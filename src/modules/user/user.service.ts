@@ -209,7 +209,6 @@ const Register = async (body: any, user: any): Promise<void> => {
       msg: "Username already exist",
     });
   }
-  console.log("commission",commission);
   
   if (commission > 100) {
     throw new ApiError(httpStatus.BAD_REQUEST, {
@@ -217,7 +216,7 @@ const Register = async (body: any, user: any): Promise<void> => {
     });
   }
 
-  if (user?.commission > commission) {
+  if (user?.commision > commission) {
     throw new ApiError(httpStatus.BAD_REQUEST, {
       msg: "Please add higher then your commision",
     });
@@ -559,7 +558,7 @@ const updateProfile = async (userId: string, password: string, commission: numbe
       });
     }
 
-    if (user?.commission > commission) {
+    if (user?.commision > commission) {
       throw new ApiError(httpStatus.BAD_REQUEST, {
         msg: "Please add higher then your commision",
       });
