@@ -118,6 +118,15 @@ const routeDetails: IAuthRouteDetails[] = [
     controllerMethodName: "updateProfile",
     auth: "",
   },
+
+  {
+    key: "GetProfileLogAPI",
+    method: "get",
+    url: "/profile-log",
+    validationMethodName: "profileLog",
+    controllerMethodName: "profileLog",
+    auth: "",
+  },
 ];
 
 export default routeDetails;

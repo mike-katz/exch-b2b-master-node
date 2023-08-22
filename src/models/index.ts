@@ -7,3 +7,4 @@ export { default as B2cUser } from "./b2cuser.model";
 export { default as Stake } from "./stake.model";
 export { default as CricketBetPlace } from "./cricketBetPlace.model";
 export { default as Sport } from "./sport.model";
+export { default as ProfileLog } from "./profileLog.model";

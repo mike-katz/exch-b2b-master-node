@@ -21,10 +21,10 @@ const Register = {
     username: Joi.string().required(),
     password: Joi.string().required(),
     mobile: Joi.optional(),
-    ip: Joi.optional(), 
-    exposure:Joi.optional(),
+    ip: Joi.optional(),
+    exposure: Joi.optional(),
     commission: Joi.number().required(),
-    roles:Joi.string().required(),
+    roles: Joi.string().required(),
   }),
 };
 
@@ -42,14 +42,14 @@ const myDownline = {
 const addCreditLog = {
   body: Joi.object().keys({
     password: Joi.string().required(),
-    rate:Joi.number().required(),
-    userId:Joi.string().required(),
+    rate: Joi.number().required(),
+    userId: Joi.string().required(),
   }),
 };
 
 const getCreditLog = {
   query: Joi.object().keys({
-    userId:Joi.string().optional(),
+    userId: Joi.string().optional(),
 
   }),
 };
@@ -59,14 +59,14 @@ const updateStatus = {
     password: Joi.string().required(),
     status: Joi.string(),
     exposure: Joi.number(),
-    userId:Joi.string().required(),
+    userId: Joi.string().required(),
   }),
 };
 
 const search = {
   body: Joi.object().keys({
     username: Joi.string().optional(),
-    status:Joi.string().optional(),    
+    status: Joi.string().optional(),
   }),
 };
 
@@ -76,7 +76,7 @@ const myBalance = {
 
 const getParentUsername = {
   query: Joi.object().keys({
-    userId:Joi.string().optional(),
+    userId: Joi.string().optional(),
   }),
 };
 
@@ -99,4 +99,10 @@ const updateProfile = {
   }),
 };
 
-export default { fetchUserProfile, fetchUserDownline, Register, myDownline, addCreditLog, getCreditLog, updateStatus, search, myBalance, exportCsv,getParentUsername, updateProfile };
+const profileLog = {
+  query: Joi.object().keys({
+    userId: Joi.string().optional(),
+  }),
+};
+
+export default { fetchUserProfile, fetchUserDownline, Register, myDownline, addCreditLog, getCreditLog, updateStatus, search, myBalance, exportCsv, getParentUsername, updateProfile, profileLog };

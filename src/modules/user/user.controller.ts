@@ -153,4 +153,16 @@ const updateProfile = catchAsync(
   }
 );
 
-export default { fetchUserProfile, fetchUserDownline, Register, myDownline, addCreditLog, getCreditLog, updateStatus, updateExposure, myBalance, exportCsv,getParentUsername, updateProfile };
+const profileLog = catchAsync(
+  async (req: any, res: CustomResponse) => {
+    const { userId } = req.query;
+    const data = await UserService.profileLog(userId,req.user);
+    const response = prepareResponse({
+      message: "Get profile log successfully.",
+      data,
+    });
+    res.status(httpStatus.OK).json(response);
+  }
+);
+
+export default { fetchUserProfile, fetchUserDownline, Register, myDownline, addCreditLog, getCreditLog, updateStatus, updateExposure, myBalance, exportCsv,getParentUsername, updateProfile, profileLog };

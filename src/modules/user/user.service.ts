@@ -1,4 +1,4 @@
-import { B2cUser, CreditLog, Stake, User } from "@/models"
+import { B2cUser, CreditLog, ProfileLog, Stake, User } from "@/models"
 import ApiError from "@/utils/ApiError";
 import httpStatus from "http-status";
 import AWS from "aws-sdk";
@@ -209,7 +209,7 @@ const Register = async (body: any, user: any): Promise<void> => {
       msg: "Username already exist",
     });
   }
-  
+
   if (commission > 100) {
     throw new ApiError(httpStatus.BAD_REQUEST, {
       msg: "Please enter lower then 100",
@@ -356,16 +356,20 @@ const updateStatus = async (userData: any, password: string, status: string, use
 
     const found = await checkParent(userId, user._id);
     if (found) {
-      type == "status" ?
-        found.status = status : found.exposureLimit = status
-      await found.save();
+      if (type !== "status") {
+        await saveProfileLog(user?.username, found?.username, "exposure", found.exposureLimit, status)
+        found.exposureLimit = status
+      }
+
       if (type == "status") {
+        found.status = status
         const users: any = await User.distinct("_id", { parentId: { $in: [userId] } });
         await User.updateMany(
           { _id: { $in: users } },
           { $set: { parentStatus: status } }
         );
       }
+      await found.save();
     }
     return found;
   }
@@ -563,21 +567,33 @@ const updateProfile = async (userId: string, password: string, commission: numbe
         msg: "Please add higher then your commision",
       });
     }
-
+    let type: string = "";
+    let old: string = "";
+    let newVal: string = "";
     const found = await checkParent(userId, userData._id);
     if (found) {
       if (password && password != "") {
+        old = ""
         found.password = password
+        type = "password";
+        newVal = password;
       }
 
       if (mobile && mobile != "") {
+        old = found.mobile;
         found.mobile = mobile
+        type = "mobile";
+        newVal = mobile
       }
 
-      if (commission && commission > 0 ) {
+      if (commission && commission > 0) {
+        old = found.commision
         found.commision = commission
+        type = "commission";
+        newVal = commission.toString()
       }
       await found.save();
+      await saveProfileLog(userData?.username, found?.username, type, old, newVal)
     }
   }
   catch (error: any) {
@@ -586,6 +602,32 @@ const updateProfile = async (userId: string, password: string, commission: numbe
     });
   }
 };
+
+const saveProfileLog = async (fromUser: string, toUser: string, type: string, old: string, newVal: string) => {
+  await ProfileLog.create({
+    fromUser,
+    toUser,
+    type,
+    old,
+    new: newVal
+  })
+}
+
+
+const profileLog = async (userId: string, user: any) => {
+  let filter: any = { fromUser: user?.username }
+  if (userId && userId != "") {
+    const datas: any = await User.findOne({ _id: userId });
+    if (!datas) {
+      throw new ApiError(httpStatus.BAD_REQUEST, {
+        msg: "user not found",
+      });
+    }
+    filter = { ...filter, toUser: datas?.username }
+  }
+  const data: any = await ProfileLog.find(filter)
+  return data;
+}
 
 export {
   findDownline,
@@ -599,5 +641,7 @@ export {
   accountDetail,
   checkParent,
   getParentUsername,
-  updateProfile
+  updateProfile,
+  saveProfileLog,
+  profileLog
 }
