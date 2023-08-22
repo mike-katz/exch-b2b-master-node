@@ -356,12 +356,17 @@ const updateStatus = async (userData: any, password: string, status: string, use
 
     const found = await checkParent(userId, user._id);
     if (found) {
+      let types = "";
+      let old = "";
       if (type !== "status") {
-        await saveProfileLog(user?.username, found?.username, "exposure", found.exposureLimit, status)
+        old = found.exposureLimit;
         found.exposureLimit = status
+        types = "exposure";
       }
 
       if (type == "status") {
+        types = "status";
+        old = found.status;
         found.status = status
         const users: any = await User.distinct("_id", { parentId: { $in: [userId] } });
         await User.updateMany(
@@ -369,6 +374,7 @@ const updateStatus = async (userData: any, password: string, status: string, use
           { $set: { parentStatus: status } }
         );
       }
+      await saveProfileLog(user?.username, found?.username, "exposure", old, status)
       await found.save();
     }
     return found;
