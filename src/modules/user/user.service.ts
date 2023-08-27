@@ -137,7 +137,7 @@ const findDownline = async (data: any, filter: any, options: any): Promise<void>
     // ]);
 
     let [results, totalResults] = await Promise.all([
-      User.find(query).sort({ _id: -1 }).skip(skip).limit(limit),
+      User.find(query).sort({ updatedAt: -1 }).skip(skip).limit(limit),
       User.countDocuments(query),
     ]);
 
