@@ -137,7 +137,7 @@ const findDownline = async (data: any, filter: any, options: any): Promise<void>
     // ]);
 
     let [results, totalResults] = await Promise.all([
-      User.find(query).sort({ updatedAt: -1 }).skip(skip).limit(limit),
+      User.find(query).skip(skip).limit(limit),
       User.countDocuments(query),
     ]);
 
@@ -183,6 +183,14 @@ const findDownline = async (data: any, filter: any, options: any): Promise<void>
       }
       finalResult.push(data);
     }));
+
+    finalResult.sort(function (a: any, b: any) {
+      const keyA = new Date(a.createdAt);
+      const keyB = new Date(b.createdAt);
+      if (keyA < keyB) return 1;
+      if (keyA > keyB) return -1;
+      return 0;
+    });
 
     const resData: any = {
       page,
