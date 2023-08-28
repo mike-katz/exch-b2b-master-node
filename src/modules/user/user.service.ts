@@ -143,7 +143,7 @@ const findDownline = async (data: any, filter: any, options: any): Promise<void>
 
     // const idArray = Array.from(results, item => item._id.toString());
 
-    const finalResult: any = [];
+    let finalResult: any = [];
     await Promise.all(results.map(async (item: any) => {
       let balance: number = 0;
       let exposure: number = 0;
@@ -184,7 +184,7 @@ const findDownline = async (data: any, filter: any, options: any): Promise<void>
       finalResult.push(data);
     }));
 
-    finalResult.sort(function (a: any, b: any) {
+    finalResult = finalResult.sort(function (a: any, b: any) {
       const keyA = new Date(a.createdAt);
       const keyB = new Date(b.createdAt);
       if (keyA < keyB) return 1;
