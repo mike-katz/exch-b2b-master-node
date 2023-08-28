@@ -171,10 +171,11 @@ const findDownline = async (data: any, filter: any, options: any): Promise<void>
         exposure = childData[0].totalExposure.toString();
       }
       const data: any = {
+        createdAt: item?.createdAt,
         username: item.username,
         // balance: item.balance > 0 ? parseFloat(item.balance.toString()) : 0,
         balance,
-        exposure,
+        exposure,        
         exposureLimit: item.exposureLimit || 0,
         _id: item._id,
         status: item?.parentStatus == "Active" ? item?.status : item?.parentStatus,
