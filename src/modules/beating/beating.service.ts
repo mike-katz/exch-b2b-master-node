@@ -41,12 +41,11 @@ const bettingHistory = async (data: any, filter: any, options: any): Promise<voi
       delete filter.from
     }
     
-    options.path = [
-      {
-        path: "sportId",
-        select: "sportName",
-      },
-    ]
+    if (filter.status) {
+      filter.status == "settle" ? filter.IsSettle = 1 : (filter.status == "unsettle" ? filter.IsUnsettle = 1 : filter.IsVoid = 0)
+      delete filter.status;
+    }
+   
     let datas: any = await CricketBetPlace.paginate(filter, options)
     const resData: any = [];
     datas?.results.forEach((item: any) => {
@@ -63,7 +62,7 @@ const bettingHistory = async (data: any, filter: any, options: any): Promise<voi
         createdAt: item?.createdAt,
         updatedAt: item?.updatedAt,
         selectionId: item?.selectionId,
-        sportName: item?.sportId?.sportName ||"",
+        sportName: item?.sportName ||"",
       };
 
       resData.push(itemData);

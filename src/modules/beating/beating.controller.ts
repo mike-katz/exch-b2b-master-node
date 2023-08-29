@@ -12,7 +12,7 @@ const bettingHistory = catchAsync(
   async (req: any, res: CustomResponse) => {
     // const { type, from, to, status, userId, sportName } = req.body;
 
-    const filter = pick(req?.query, ["userId", "sportId", "status","type", "from", "to"]);
+    const filter = pick(req?.query, ["userId","marketType","sportName", "status","type", "from", "to"]);
     const options = pick(req?.query, ["sortBy", "limit", "page"]);
 
     // const data = await BettingService.bettingHistory(req.user, type, from, to, status, userId, sportName);
