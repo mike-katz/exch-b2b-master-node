@@ -40,12 +40,12 @@ const bettingHistory = async (data: any, filter: any, options: any): Promise<voi
       filter.createdAt = new Date(filter.from);
       delete filter.from
     }
-    
+
     if (filter.status) {
       filter.status == "settle" ? filter.IsSettle = 1 : (filter.status == "unsettle" ? filter.IsUnsettle = 1 : filter.IsVoid = 0)
       delete filter.status;
     }
-   
+
     let datas: any = await CricketBetPlace.paginate(filter, options)
     const resData: any = [];
     datas?.results.forEach((item: any) => {
@@ -62,12 +62,27 @@ const bettingHistory = async (data: any, filter: any, options: any): Promise<voi
         createdAt: item?.createdAt,
         updatedAt: item?.updatedAt,
         selectionId: item?.selectionId,
-        sportName: item?.sportName ||"",
+        sportName: item?.sportName || "",
       };
 
       resData.push(itemData);
     }),
+      // await CricketBetPlace.find(filter)
       datas.results = resData
+    const sumData: any = await CricketBetPlace.aggregate([
+      {
+        $match: {
+          $and: [filter]
+        }
+      },
+      {
+        $group: {
+          _id: null,
+          totalStake: { $sum: {$toInt: "$stake"} }
+        }
+      }
+    ]);
+    datas.sum = sumData;
     return datas;
   }
   catch (error: any) {
