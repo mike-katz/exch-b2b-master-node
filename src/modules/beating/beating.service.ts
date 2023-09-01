@@ -44,7 +44,7 @@ const bettingHistory = async (data: any, filter: any, options: any): Promise<voi
     }
 
     if (filter.status) {
-      filter.status == "settle" ? filter.IsSettle = 1 : (filter.status == "unsettle" ? filter.IsUnsettle = 1 : filter.IsVoid = 0)
+      filter.status == "settle" ? filter.IsSettle = 1 : (filter.status == "unsettle" ? filter.IsUnsettle = 1 : filter.IsVoid = 1)
       delete filter.status;
     }
 
