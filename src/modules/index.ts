@@ -8,6 +8,7 @@ import userRoute from "./user/user.route";
 import activityRoute from "./activity/activity.route";
 import beatingRoute from "./beating/beating.route";
 import bankingRoute from "./banking/banking.route";
+import marketRoute from "./market/market.route";
 
 const router = express.Router();
 const defaultRoutes = [
@@ -30,6 +31,10 @@ const defaultRoutes = [
   {
     path: "/banking",
     route: bankingRoute,
+  },
+  {
+    path: "/market",
+    route: marketRoute,
   },
   
 ];

@@ -55,4 +55,18 @@ const getSports = catchAsync(
     res.status(httpStatus.OK).json(response);
   }
 );
-export default { bettingHistory, profitLoss, transaction, getSports };
+
+const betList = catchAsync(
+  async (req: any, res: CustomResponse) => {
+    const filter = pick(req?.query, ["marketType", "sportName", "status", "from", "to"]);
+    const options = pick(req?.query, ["sortBy", "limit", "page"]);
+    const data = await BettingService.betList(req.user, filter, options);
+    const response = prepareResponse({
+      message: "Betting success",
+      data,
+    });
+    res.status(httpStatus.OK).json(response);
+  }
+);
+
+export default { bettingHistory, betList, profitLoss, transaction, getSports };

@@ -45,6 +45,15 @@ const routeDetails: IBettingRouteDetails[] = [
     validationMethodName: "getSports",
     controllerMethodName: "getSports",    
   },
+
+  {
+    key: "getBetListAPI",
+    method: "get",
+    url: "/list",
+    validationMethodName: "betList",
+    controllerMethodName: "betList",    
+    auth: "",
+  },
 ];
 
 export default routeDetails;
