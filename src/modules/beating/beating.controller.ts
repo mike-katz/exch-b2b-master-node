@@ -10,13 +10,9 @@ import pick from "@/utils/pick";
 
 const bettingHistory = catchAsync(
   async (req: any, res: CustomResponse) => {
-    // const { type, from, to, status, userId, sportName } = req.body;
-
-    const filter = pick(req?.query, ["userId","marketType","sportName", "status", "from", "to"]);
+    const filter = pick(req?.query, ["userId", "marketType", "sportName", "status", "from", "to"]);
     const options = pick(req?.query, ["sortBy", "limit", "page"]);
-
-    // const data = await BettingService.bettingHistory(req.user, type, from, to, status, userId, sportName);
-    const data = await BettingService.bettingHistory(req.user,filter,options );
+    const data = await BettingService.bettingHistory(req.user, filter, options);
     const response = prepareResponse({
       message: "Betting success",
       data,
@@ -26,9 +22,10 @@ const bettingHistory = catchAsync(
 );
 
 const profitLoss = catchAsync(
-  async (req: Request, res: CustomResponse) => {
-    const { type, from, to } = req.body;
-    const data = BettingService.profitLoss(req.user, type, from, to);
+  async (req: any, res: CustomResponse) => {
+    const filter = pick(req?.query, ["userId", "sportName", "from", "to"]);
+    const options = pick(req?.query, ["sortBy", "limit", "page"]);
+    const data = BettingService.profitLoss(req.user, filter, options);
     const response = prepareResponse({
       message: "Profit loss data success",
       data,

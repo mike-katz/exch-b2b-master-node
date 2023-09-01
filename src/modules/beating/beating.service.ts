@@ -2,7 +2,6 @@ import { CricketBetPlace, Sport } from "@/models"
 import ApiError from "@/utils/ApiError";
 import httpStatus from "http-status";
 import { checkParent } from "@/modules/user/user.service";
-import moment from "moment";
 
 const bettingHistory = async (data: any, filter: any, options: any): Promise<void> => {
   try {
@@ -16,18 +15,21 @@ const bettingHistory = async (data: any, filter: any, options: any): Promise<voi
 
     if (filter?.from && filter?.from != "" && filter?.to && filter?.to != "") {
       delete filter.createdAt
-      const date1 = moment(filter?.from, 'YYYY-MM-DD');
-      const date2 = moment(filter?.to, 'YYYY-MM-DD');
-      const diffInDays = date2.diff(date1, 'days');
-      if (diffInDays >= 15) {
+      const date1: any = new Date(filter?.from);
+      const date2: any = new Date(filter?.to);
+      date2.setHours(23, 59, 59, 999);
+      const timeDifferenceMs = date2 - date1;
+      const millisecondsIn15Days = 1000 * 60 * 60 * 24 * 15;
+      if (timeDifferenceMs >= millisecondsIn15Days) {
         throw new ApiError(httpStatus.BAD_REQUEST, {
           msg: "Please select only 15 days range only.",
         });
       }
       filter.createdAt = {
-        $gte: new Date(filter?.from),
-        $lte: new Date(filter?.to),
-      }
+        $gte: new Date(date1),
+        $lte: new Date(date2),
+      };
+
       delete filter.to
       delete filter.from
     }
@@ -64,10 +66,8 @@ const bettingHistory = async (data: any, filter: any, options: any): Promise<voi
         selectionId: item?.selectionId,
         sportName: item?.sportName || "",
       };
-
       resData.push(itemData);
     }),
-      // await CricketBetPlace.find(filter)
       datas.results = resData
     const sumData: any = await CricketBetPlace.aggregate([
       {
@@ -78,10 +78,11 @@ const bettingHistory = async (data: any, filter: any, options: any): Promise<voi
       {
         $group: {
           _id: null,
-          totalStake: { $sum: {$toInt: "$stake"} }
+          totalStake: { $sum: { $toInt: "$stake" } }
         }
       }
     ]);
+
     datas.sum = sumData;
     return datas;
   }
@@ -92,8 +93,75 @@ const bettingHistory = async (data: any, filter: any, options: any): Promise<voi
   }
 }
 
-const profitLoss = async (data: any, type: string, from: string, to: string): Promise<void> => {
-  return;
+const profitLoss = async (data: any, filter: any, options: any): Promise<void> => {
+  try {
+    let username = data?.username;
+    if (filter?.userId && filter?.userId != "") {
+      const user = await checkParent(filter?.userId, data?._id);
+      username = user?.username
+      delete filter.userId
+    }
+    filter.username = username;
+
+    if (filter?.from && filter?.from != "" && filter?.to && filter?.to != "") {
+      delete filter.createdAt
+      const date1: any = new Date(filter?.from);
+      const date2: any = new Date(filter?.to);
+      date2.setHours(23, 59, 59, 999);
+      const timeDifferenceMs = date2 - date1;
+      const millisecondsIn15Days = 1000 * 60 * 60 * 24 * 15;
+      if (timeDifferenceMs >= millisecondsIn15Days) {
+        throw new ApiError(httpStatus.BAD_REQUEST, {
+          msg: "Please select only 15 days range only.",
+        });
+      }
+      filter.createdAt = {
+        $gte: new Date(date1),
+        $lte: new Date(date2),
+      };
+
+      delete filter.to
+      delete filter.from
+    }
+
+    if (filter?.to) {
+      filter.createdAt = new Date(filter.to);
+      delete filter.to
+    }
+
+    if (filter?.from) {
+      filter.createdAt = new Date(filter.from);
+      delete filter.from
+    }
+    const datas: any = await CricketBetPlace.paginate(filter, options)
+    const resData: any = [];
+    datas?.results.forEach((item: any) => {
+      const itemData = {
+        username: item?.username,
+        odds: item.odds > 0 ? parseFloat(item.odds.toString()) : 0,
+        pl: item.pl > 0 ? parseFloat(item.pl.toString()) : 0,
+        _id: item?._id,
+        stake: item?.stake,
+        type: item?.type,
+        eventName: item?.eventName,
+        selectionName: item?.selectionName,
+        marketType: item?.marketType,
+        createdAt: item?.createdAt,
+        updatedAt: item?.updatedAt,
+        selectionId: item?.selectionId,
+        sportName: item?.sportName || "",
+      };
+
+      resData.push(itemData);
+    }),
+
+      datas.results = resData
+    return datas;
+  } catch (error: any) {
+    throw new ApiError(httpStatus.BAD_REQUEST, {
+      msg: error?.errorData?.msg || "invalid user id.",
+    });
+  }
 }
 
 const transaction = async (data: any): Promise<void> => {
