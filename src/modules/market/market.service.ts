@@ -2,20 +2,18 @@ import ApiError from "@/utils/ApiError";
 import httpStatus from "http-status";
 import { MongoClient } from 'mongodb';
 import configs from "@/config/config";
-
+const client = new MongoClient(configs.mongoose.url);
+        
 const fetchMarket = async (): Promise<void> => {
+  await client.connect();
   try {
-    const client = new MongoClient(configs.mongoose.url);
-    await client.connect();
-    console.log("process.env.EXCH_DB",process.env.EXCH_DB);
-    
     const data: any = await client.db(process.env.EXCH_DB).collection('marketRates').aggregate([
       {
     $group: {
       _id: "$sportName",
       events: {
         $push: {
-          _id: "$_id",
+          exEventId: "$exEventId",
           eventName: "$eventName",
         },
       },
@@ -56,4 +54,13 @@ const fetchMarket = async (): Promise<void> => {
   }
 }
 
-export { fetchMarket }
+const getMarketDetail= async(eventId: string):Promise<void> => {
+  await client.connect();
+    const cursor = await client.db(process.env.EXCH_DB).collection('marketRates')
+      .find({ exEventId: eventId });
+    const result:any = await cursor.toArray();
+  return result;
+  } 
+
+
+export { fetchMarket, getMarketDetail}

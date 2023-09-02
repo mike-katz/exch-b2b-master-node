@@ -25,7 +25,6 @@ const transaction = {
   body: Joi.object().keys({}),
 };
 
-
 const getSports = {
   body: Joi.object().keys({}),
 };

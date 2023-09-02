@@ -1,8 +1,13 @@
 import * as Joi from "joi";
 
 const fetchMarket = {
-  query: Joi.object().keys({
-    userId: Joi.string().optional(),
+  body: Joi.object().keys({
   }),
 };
-export default { fetchMarket };
+
+const getMarketDetail = {
+  query: Joi.object().keys({
+    eventId: Joi.string().optional(),
+  }),
+};
+export default { fetchMarket, getMarketDetail };

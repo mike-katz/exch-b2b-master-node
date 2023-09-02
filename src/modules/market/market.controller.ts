@@ -14,4 +14,14 @@ const fetchMarket = catchAsync(
   }
 );
 
-export default { fetchMarket };
+const getMarketDetail = catchAsync(
+  async (req: any, res: Response) => {
+    const{eventId}= req.query
+    const resp:any = await MarketService.getMarketDetail(eventId);
+    res.status(httpStatus.OK).json({
+      message: "Market success",
+      data: resp      
+    });
+  }
+);
+export default { fetchMarket,getMarketDetail };

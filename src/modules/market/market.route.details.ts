@@ -19,6 +19,15 @@ const routeDetails: IMarketRouteDetails[] = [
     controllerMethodName: "fetchMarket",
     auth: "",
   },
+  
+  {
+    key: "getMarketDetailAPI",
+    method: "get",
+    url: "/detail",
+    validationMethodName: "getMarketDetail",
+    controllerMethodName: "getMarketDetail",
+    auth: "",
+  },
 ];
 
 export default routeDetails;
