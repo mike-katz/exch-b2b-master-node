@@ -10,4 +10,10 @@ const getMarketDetail = {
     eventId: Joi.string().optional(),
   }),
 };
-export default { fetchMarket, getMarketDetail };
+
+const getStream = {
+  query: Joi.object().keys({
+    eventId: Joi.string().optional(),
+  }),
+};
+export default { fetchMarket, getMarketDetail, getStream };

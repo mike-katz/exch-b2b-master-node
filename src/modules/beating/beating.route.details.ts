@@ -3,7 +3,7 @@ import profileValidation from "./beating.validation";
 
 export interface IBettingRouteDetails {
   key: string;
-  method: "post" |"get";
+  method: "post" | "get";
   url: string;
   auth?: string;
   validationMethodName?: keyof typeof profileValidation;
@@ -43,7 +43,7 @@ const routeDetails: IBettingRouteDetails[] = [
     method: "get",
     url: "/get-sports",
     validationMethodName: "getSports",
-    controllerMethodName: "getSports",    
+    controllerMethodName: "getSports",
   },
 
   {
@@ -51,7 +51,25 @@ const routeDetails: IBettingRouteDetails[] = [
     method: "get",
     url: "/list",
     validationMethodName: "betList",
-    controllerMethodName: "betList",    
+    controllerMethodName: "betList",
+    auth: "",
+  },
+
+  {
+    key: "getMatchDropdownAPI",
+    method: "get",
+    url: "/matchDropdown",
+    validationMethodName: "matchDropdown",
+    controllerMethodName: "matchDropdown",
+    auth: "",
+  },
+
+  {
+    key: "getMatchBetAPI",
+    method: "get",
+    url: "/matchBet",
+    validationMethodName: "matchBet",
+    controllerMethodName: "matchBet",
     auth: "",
   },
 ];

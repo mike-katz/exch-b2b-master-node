@@ -28,6 +28,13 @@ const routeDetails: IMarketRouteDetails[] = [
     controllerMethodName: "getMarketDetail",
     auth: "",
   },
+  {
+    key: "getStreamAPI",
+    method: "get",
+    url: "/stream",
+    validationMethodName: "getStream",
+    controllerMethodName: "getStream",    
+  },
 ];
 
 export default routeDetails;

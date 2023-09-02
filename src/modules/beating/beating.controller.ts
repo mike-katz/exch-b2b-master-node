@@ -69,4 +69,27 @@ const betList = catchAsync(
   }
 );
 
-export default { bettingHistory, betList, profitLoss, transaction, getSports };
+const matchDropdown = catchAsync(
+  async (req: Request, res: CustomResponse) => {
+    const data = await BettingService.matchDropdown(req.user);
+    const response = prepareResponse({
+      message: "Match Dropdown success",
+      data,
+    });
+    res.status(httpStatus.OK).json(response);
+  }
+);
+
+const matchBet = catchAsync(
+  async (req: any, res: CustomResponse) => {
+    const { eventId } = req.query
+    const data = await BettingService.matchBet(req.user, eventId);
+    const response = prepareResponse({
+      message: "fetch Bet success",
+      data,
+    });
+    res.status(httpStatus.OK).json(response);
+  }
+);
+
+export default { bettingHistory, betList, profitLoss, transaction, getSports, matchDropdown, matchBet };

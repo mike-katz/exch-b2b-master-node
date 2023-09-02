@@ -180,7 +180,6 @@ const getSports = async (): Promise<void> => {
 
 const betList = async (data: any, filter: any, options: any): Promise<void> => {
   try {
-    console.log("data", data);
     const users = await User.find({
       $and: [
         {
@@ -253,7 +252,7 @@ const betList = async (data: any, filter: any, options: any): Promise<void> => {
       };
       resData.push(itemData);
     }),
-    datas.results = resData
+      datas.results = resData
     return datas;
   }
   catch (error: any) {
@@ -265,10 +264,84 @@ const betList = async (data: any, filter: any, options: any): Promise<void> => {
   }
 }
 
+const matchDropdown = async (data: any): Promise<void> => {
+  const users = await User.find({
+    $and: [
+      {
+        $expr: {
+          $eq: [
+            data?._id.toString(),
+            {
+              $arrayElemAt: ['$parentId', -1]
+            }
+          ]
+        }
+      }
+    ]
+  }).select('username');
+  const usernames = users.map(user => user.username);
+
+  const betData = await CricketBetPlace.aggregate([
+    {
+      $match: {
+        username: { $in: usernames },
+        IsUnsettle: 1,
+      },
+    },
+    {
+      $group: {
+        _id: {
+          eventName: '$eventName',
+          exEventId: '$exEventId',
+        },
+      },
+    },
+    {
+      $project: {
+        _id: 0,
+        eventName: '$_id.eventName',
+        exEventId: '$_id.exEventId',
+      },
+    },
+  ]);
+  return betData;
+}
+
+const matchBet = async (data: any, eventId: string): Promise<void> => {
+
+  const users = await User.find({
+    $and: [
+      {
+        $expr: {
+          $eq: [
+            data?._id.toString(),
+            {
+              $arrayElemAt: ['$parentId', -1]
+            }
+          ]
+        }
+      }
+    ]
+  }).select('username');
+  const usernames = users.map(user => user.username);
+
+  const betData = await CricketBetPlace.find({
+    username: { $in: usernames },
+    IsUnsettle: 1,
+    exEventId: eventId
+  }).sort({ _id: -1 });
+  return betData;
+}
 export {
   bettingHistory,
   profitLoss,
   getSports,
   transaction,
-  betList
+  betList,
+  matchDropdown,
+  matchBet
+}
+
+function _id(_id: any, arg1: number) {
+  throw new Error("Function not implemented.");
 }

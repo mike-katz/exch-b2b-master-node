@@ -2,6 +2,7 @@ import ApiError from "@/utils/ApiError";
 import httpStatus from "http-status";
 import { MongoClient } from 'mongodb';
 import configs from "@/config/config";
+import { StreamShedule } from "@/models";
 const client = new MongoClient(configs.mongoose.url);
         
 const fetchMarket = async (): Promise<void> => {
@@ -62,5 +63,10 @@ const getMarketDetail= async(eventId: string):Promise<void> => {
   return result;
   } 
 
-
-export { fetchMarket, getMarketDetail}
+const getStream= async(eventId: string):Promise<any> => {
+  
+  const profile = await StreamShedule.findOne({ MatchID: eventId }).select('Channel').exec();
+  if (!profile) return { Channel: null };
+  return profile;
+  } 
+export { fetchMarket, getMarketDetail, getStream}

@@ -24,4 +24,15 @@ const getMarketDetail = catchAsync(
     });
   }
 );
-export default { fetchMarket,getMarketDetail };
+
+const getStream = catchAsync(
+  async (req: any, res: Response) => {
+    const{eventId}= req.query
+    const resp:any = await MarketService.getStream(eventId);
+    res.status(httpStatus.OK).json({
+      message: "Market success",
+      data: resp      
+    });
+  }
+);
+export default { fetchMarket,getMarketDetail, getStream };
