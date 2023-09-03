@@ -266,7 +266,28 @@ const users = await User.find({ roles: { $in: ['User'] },parentId:{ $in: [data._
 const betPL = async (data: any, eventId: string): Promise<void> => {
   const users = await User.find({ roles: { $in: ['User'] }, parentId: { $in: [data._id] } }).select('username');
   const usernames = users.map(user => user.username);
-  const result:any = await CricketPL.find({ exEventId: eventId, username: { $in: usernames } });
+  const result: any = await CricketPL.find({
+    exEventId: eventId,
+    username: { $in: usernames }
+  });
+  
+  if (result.length > 0) {
+    let sumData1:number = 0;
+    let sumData2:number = 0;
+    result.map((item:any) => {
+      const ss:any = Object.values(item.selectionId[0])
+      const sss:any = Object.values(item.selectionId[1])
+      sumData1 += parseInt(ss[0]);
+      sumData2 += parseInt(sss[0]);
+    })
+    const dddd = JSON.parse(JSON.stringify(result));
+    const data:any = {
+      ...dddd[0],
+      sum1: sumData1,
+      sum2: sumData2
+    }
+    return data;
+  }
   return result;
 }
 export {
