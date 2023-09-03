@@ -56,15 +56,6 @@ const routeDetails: IBettingRouteDetails[] = [
   },
 
   {
-    key: "getMatchDropdownAPI",
-    method: "get",
-    url: "/matchDropdown",
-    validationMethodName: "matchDropdown",
-    controllerMethodName: "matchDropdown",
-    auth: "",
-  },
-
-  {
     key: "getMatchBetAPI",
     method: "get",
     url: "/matchBet",

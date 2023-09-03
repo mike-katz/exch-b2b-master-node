@@ -4,48 +4,45 @@ import { MongoClient } from 'mongodb';
 import configs from "@/config/config";
 import { StreamShedule } from "@/models";
 const client = new MongoClient(configs.mongoose.url);
-        
+
 const fetchMarket = async (): Promise<void> => {
-  await client.connect();
   try {
-    const data: any = await client.db(process.env.EXCH_DB).collection('marketRates').aggregate([
+    const pipeline = [
       {
-    $group: {
-      _id: "$sportName",
-      events: {
-        $push: {
-          exEventId: "$exEventId",
-          eventName: "$eventName",
-        },
+        $lookup: {
+          from: 'sports',
+          localField: 'sportsId',
+          foreignField: 'sportId',
+          as: 'sportData'
+        }
       },
-    },
-  },
-  {
-    $project: {
-      _id: 0,
-      sportName: "$_id",
-      events: 1,
-    },
-  },
-  {
-    $unwind: "$events",
-  },
-  {
-    $group: {
-      _id: "$sportName",
-      events: {
-        $push: "$events",
+      {
+        $unwind: '$sportData'
       },
-    },
-  },
-  {
-    $sort: {
-      "_id": 1,
-    },
-  },
-    ]);
-    const results = await data.toArray();
-    return results;
+      {
+        $group: {
+          _id: '$sportsId',
+          sportName: { $first: '$sportData.sportName' },
+          iconUrl: { $first: '$sportData.iconUrl' },
+          events: {
+            $push: {
+              exEventId: '$exEventId',
+              eventName: '$eventName'
+            }
+          }
+        }
+      },
+      {
+        $sort: {
+          _id: 1
+        }
+      }
+    ];
+
+    await client.connect();
+    const results: any = await client.db(process.env.EXCH_DB).collection('marketRates').aggregate(pipeline);
+    return results.toArray();
+
   } catch (error: any) {
     console.log("error", error);
 
@@ -55,18 +52,18 @@ const fetchMarket = async (): Promise<void> => {
   }
 }
 
-const getMarketDetail= async(eventId: string):Promise<void> => {
+const getMarketDetail = async (eventId: string): Promise<void> => {
   await client.connect();
-    const cursor = await client.db(process.env.EXCH_DB).collection('marketRates')
-      .find({ exEventId: eventId });
-    const result:any = await cursor.toArray();
+  const cursor = client.db(process.env.EXCH_DB).collection('marketRates')
+    .find({ exEventId: eventId });
+  const result: any = await cursor.toArray();
   return result;
-  } 
+}
 
-const getStream= async(eventId: string):Promise<any> => {
-  
+const getStream = async (eventId: string): Promise<any> => {
+
   const profile = await StreamShedule.findOne({ MatchID: eventId }).select('Channel').exec();
   if (!profile) return { Channel: null };
   return profile;
-  } 
-export { fetchMarket, getMarketDetail, getStream}
+}
+export { fetchMarket, getMarketDetail, getStream }

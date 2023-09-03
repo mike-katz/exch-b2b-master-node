@@ -69,17 +69,6 @@ const betList = catchAsync(
   }
 );
 
-const matchDropdown = catchAsync(
-  async (req: Request, res: CustomResponse) => {
-    const data = await BettingService.matchDropdown(req.user);
-    const response = prepareResponse({
-      message: "Match Dropdown success",
-      data,
-    });
-    res.status(httpStatus.OK).json(response);
-  }
-);
-
 const matchBet = catchAsync(
   async (req: any, res: CustomResponse) => {
     const { eventId } = req.query
@@ -92,4 +81,4 @@ const matchBet = catchAsync(
   }
 );
 
-export default { bettingHistory, betList, profitLoss, transaction, getSports, matchDropdown, matchBet };
+export default { bettingHistory, betList, profitLoss, transaction, getSports, matchBet };

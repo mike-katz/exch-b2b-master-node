@@ -264,49 +264,6 @@ const betList = async (data: any, filter: any, options: any): Promise<void> => {
   }
 }
 
-const matchDropdown = async (data: any): Promise<void> => {
-  const users = await User.find({
-    $and: [
-      {
-        $expr: {
-          $eq: [
-            data?._id.toString(),
-            {
-              $arrayElemAt: ['$parentId', -1]
-            }
-          ]
-        }
-      }
-    ]
-  }).select('username');
-  const usernames = users.map(user => user.username);
-
-  const betData = await CricketBetPlace.aggregate([
-    {
-      $match: {
-        username: { $in: usernames },
-        IsUnsettle: 1,
-      },
-    },
-    {
-      $group: {
-        _id: {
-          eventName: '$eventName',
-          exEventId: '$exEventId',
-        },
-      },
-    },
-    {
-      $project: {
-        _id: 0,
-        eventName: '$_id.eventName',
-        exEventId: '$_id.exEventId',
-      },
-    },
-  ]);
-  return betData;
-}
-
 const matchBet = async (data: any, eventId: string): Promise<void> => {
 
   const users = await User.find({
@@ -338,7 +295,6 @@ export {
   getSports,
   transaction,
   betList,
-  matchDropdown,
   matchBet
 }
 

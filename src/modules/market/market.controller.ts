@@ -8,7 +8,7 @@ const fetchMarket = catchAsync(
   async (req: Request, res: Response) => {
     const resp:any = await MarketService.fetchMarket();
     res.status(httpStatus.OK).json({
-      message: "Market success",
+      message: "Market get success",
       data: resp      
     });
   }
@@ -19,7 +19,7 @@ const getMarketDetail = catchAsync(
     const{eventId}= req.query
     const resp:any = await MarketService.getMarketDetail(eventId);
     res.status(httpStatus.OK).json({
-      message: "Market success",
+      message: "Market Detail success",
       data: resp      
     });
   }
@@ -30,9 +30,10 @@ const getStream = catchAsync(
     const{eventId}= req.query
     const resp:any = await MarketService.getStream(eventId);
     res.status(httpStatus.OK).json({
-      message: "Market success",
+      message: "Stream success",
       data: resp      
     });
   }
 );
+
 export default { fetchMarket,getMarketDetail, getStream };
