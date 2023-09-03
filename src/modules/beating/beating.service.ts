@@ -290,29 +290,40 @@ const betPL = async (data: any, eventId: string): Promise<void> => {
   });
 
   if (result.length > 0) {
-    const sumData: any = {};
+    const outputJson: any = [];
+    const marketIdMap = new Map();
     result.forEach((item: any) => {
-      item.selectionId.forEach((selection: any) => {
-        for (const key in selection) {
-          if (!sumData[key]) {
-            sumData[key] = 0;
+      const { exMarketId, selectionId } = item;
+      if (!marketIdMap.has(exMarketId)) {
+        marketIdMap.set(exMarketId, selectionId);
+      } else {
+        const existingSelection = marketIdMap.get(exMarketId);
+        for (const i in selectionId) {
+          for (const key in selectionId[i]) {
+            existingSelection[i][key] += selectionId[i][key];
           }
-          sumData[key] += parseInt(selection[key]);
         }
-      });
+      }
     });
-    const arrayOfObjects = Object.keys(sumData).map(key => ({
-      [key]: sumData[key]
-    }));
-    const res = JSON.parse(JSON.stringify(result));
-    const data: any = {
-      ...res[0],
-      selectionId: arrayOfObjects
-    }
-    return data;
+
+    marketIdMap.forEach((selectionId, exMarketId) => {
+      const updatedItem = {
+        IsSettle: 0,
+        IsVoid: 0,
+        IsUnsettle: 0,
+        _id: result[0]._id,
+        username: result[0].username,
+        exEventId: result[0].exEventId,
+        exMarketId: exMarketId,
+        selectionId: selectionId
+      };
+      outputJson.push(updatedItem);
+    });
+    return outputJson;
   }
   return result;
 }
+
 export {
   bettingHistory,
   profitLoss,
