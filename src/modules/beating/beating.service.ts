@@ -266,7 +266,7 @@ const matchBet = async (data: any, eventId: string): Promise<void> => {
 const betPL = async (data: any, eventId: string): Promise<void> => {
   const users = await User.find({
     roles: { $in: ['User'] },
-    // parentId: { $in: [data._id] }
+    parentId: { $in: [data._id] }
   }).select('username');
   const usernames = users.map(user => user.username);
   const result: any = await CricketPL.find({
