@@ -180,7 +180,7 @@ const getSports = async (): Promise<void> => {
 
 const betList = async (data: any, filter: any, options: any): Promise<void> => {
   try {
-    const users = await User.find({ roles: { $in: ['User'] },parentId:{ $in: [data._id] } }).select('username');
+    const users = await User.find({ roles: { $in: ['User'] }, parentId: { $in: [data._id] } }).select('username');
     const usernames = users.map(user => user.username);
 
     filter.username = { $in: usernames };
@@ -252,7 +252,7 @@ const betList = async (data: any, filter: any, options: any): Promise<void> => {
 }
 
 const matchBet = async (data: any, eventId: string): Promise<void> => {
-const users = await User.find({ roles: { $in: ['User'] },parentId:{ $in: [data._id] } }).select('username');
+  const users = await User.find({ roles: { $in: ['User'] }, parentId: { $in: [data._id] } }).select('username');
   const usernames = users.map(user => user.username);
 
   const betData = await CricketBetPlace.find({
@@ -264,27 +264,37 @@ const users = await User.find({ roles: { $in: ['User'] },parentId:{ $in: [data._
 }
 
 const betPL = async (data: any, eventId: string): Promise<void> => {
-  const users = await User.find({ roles: { $in: ['User'] }, parentId: { $in: [data._id] } }).select('username');
+  const users = await User.find({
+    roles: { $in: ['User'] },
+    // parentId: { $in: [data._id] }
+  }).select('username');
   const usernames = users.map(user => user.username);
   const result: any = await CricketPL.find({
     exEventId: eventId,
     username: { $in: usernames }
   });
-  
+
   if (result.length > 0) {
-    let sumData1:number = 0;
-    let sumData2:number = 0;
-    result.map((item:any) => {
-      const ss:any = Object.values(item.selectionId[0])
-      const sss:any = Object.values(item.selectionId[1])
-      sumData1 += parseInt(ss[0]);
-      sumData2 += parseInt(sss[0]);
-    })
-    const dddd = JSON.parse(JSON.stringify(result));
-    const data:any = {
-      ...dddd[0],
-      sum1: sumData1,
-      sum2: sumData2
+
+    const sumData: any = {};
+
+    result.forEach((item: any) => {
+      item.selectionId.forEach((selection: any) => {
+        for (const key in selection) {
+          if (!sumData[key]) {
+            sumData[key] = 0;
+          }
+          sumData[key] += parseInt(selection[key]);
+        }
+      });
+    });
+    const arrayOfObjects = Object.keys(sumData).map(key => ({
+      [key]: sumData[key]
+    }));
+    const res = JSON.parse(JSON.stringify(result));
+    const data: any = {
+      ...res[0],
+      selectionId: arrayOfObjects
     }
     return data;
   }
