@@ -254,12 +254,27 @@ const betList = async (data: any, filter: any, options: any): Promise<void> => {
 const matchBet = async (data: any, eventId: string): Promise<void> => {
   const users = await User.find({ roles: { $in: ['User'] }, parentId: { $in: [data._id] } }).select('username');
   const usernames = users.map(user => user.username);
+  const betData = await CricketBetPlace.aggregate([
+    {
+      $match: {
+        $and: [{ username: { $in: usernames } },
+        { IsUnsettle: 1 },
+        { exEventId: eventId }]
+      }
+    },
+    { $sort: { _id: -1 } }
+  ]);
 
-  const betData = await CricketBetPlace.find({
-    username: { $in: usernames },
-    IsUnsettle: 1,
-    exEventId: eventId
-  }).sort({ _id: -1 });
+  if (betData.length > 0) {
+    let data: any = []
+    betData.forEach((item: any) => {
+      const news = { ...item };
+      news.pl = item.pl > 0 ? parseFloat(item.pl.toString()) : 0,
+        news.odds = item.odds > 0 ? parseFloat(item.odds.toString()) : 0,
+        data.push(news)
+    });
+    return data;
+  }
   return betData;
 }
 
@@ -275,9 +290,7 @@ const betPL = async (data: any, eventId: string): Promise<void> => {
   });
 
   if (result.length > 0) {
-
     const sumData: any = {};
-
     result.forEach((item: any) => {
       item.selectionId.forEach((selection: any) => {
         for (const key in selection) {
