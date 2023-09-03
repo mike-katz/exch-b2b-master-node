@@ -308,9 +308,6 @@ const betPL = async (data: any, eventId: string): Promise<void> => {
 
     marketIdMap.forEach((selectionId, exMarketId) => {
       const updatedItem = {
-        IsSettle: 0,
-        IsVoid: 0,
-        IsUnsettle: 0,
         _id: result[0]._id,
         username: result[0].username,
         exEventId: result[0].exEventId,
