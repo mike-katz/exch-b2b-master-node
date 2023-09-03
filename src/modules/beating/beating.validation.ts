@@ -46,4 +46,10 @@ const matchBet = {
     eventId: Joi.required(),
     }),
 };
-export default { bettingHistory, profitLoss, transaction, getSports, betList, matchBet };
+
+const betPL = {
+  query: Joi.object().keys({
+    eventId: Joi.required(),
+    }),
+};
+export default { bettingHistory, profitLoss, transaction, getSports, betList, matchBet, betPL };

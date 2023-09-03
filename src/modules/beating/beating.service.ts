@@ -1,4 +1,4 @@
-import { CricketBetPlace, Sport, User } from "@/models"
+import { CricketBetPlace, CricketPL, Sport, User } from "@/models"
 import ApiError from "@/utils/ApiError";
 import httpStatus from "http-status";
 import { checkParent } from "@/modules/user/user.service";
@@ -180,20 +180,7 @@ const getSports = async (): Promise<void> => {
 
 const betList = async (data: any, filter: any, options: any): Promise<void> => {
   try {
-    const users = await User.find({
-      $and: [
-        {
-          $expr: {
-            $eq: [
-              data?._id.toString(),
-              {
-                $arrayElemAt: ['$parentId', -1]
-              }
-            ]
-          }
-        }
-      ]
-    }).select('username');
+    const users = await User.find({ roles: { $in: ['User'] },parentId:{ $in: [data._id] } }).select('username');
     const usernames = users.map(user => user.username);
 
     filter.username = { $in: usernames };
@@ -265,21 +252,7 @@ const betList = async (data: any, filter: any, options: any): Promise<void> => {
 }
 
 const matchBet = async (data: any, eventId: string): Promise<void> => {
-
-  const users = await User.find({
-    $and: [
-      {
-        $expr: {
-          $eq: [
-            data?._id.toString(),
-            {
-              $arrayElemAt: ['$parentId', -1]
-            }
-          ]
-        }
-      }
-    ]
-  }).select('username');
+const users = await User.find({ roles: { $in: ['User'] },parentId:{ $in: [data._id] } }).select('username');
   const usernames = users.map(user => user.username);
 
   const betData = await CricketBetPlace.find({
@@ -289,15 +262,19 @@ const matchBet = async (data: any, eventId: string): Promise<void> => {
   }).sort({ _id: -1 });
   return betData;
 }
+
+const betPL = async (data: any, eventId: string): Promise<void> => {
+  const users = await User.find({ roles: { $in: ['User'] }, parentId: { $in: [data._id] } }).select('username');
+  const usernames = users.map(user => user.username);
+  const result:any = await CricketPL.find({ exEventId: eventId, username: { $in: usernames } });
+  return result;
+}
 export {
   bettingHistory,
   profitLoss,
   getSports,
   transaction,
   betList,
-  matchBet
-}
-
-function _id(_id: any, arg1: number) {
-  throw new Error("Function not implemented.");
+  matchBet,
+  betPL
 }

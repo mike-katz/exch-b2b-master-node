@@ -63,6 +63,15 @@ const routeDetails: IBettingRouteDetails[] = [
     controllerMethodName: "matchBet",
     auth: "",
   },
+
+  {
+    key: "getBetPLAPI",
+    method: "get",
+    url: "/pl",
+    validationMethodName: "betPL",
+    controllerMethodName: "betPL",
+    auth: "",
+  },
 ];
 
 export default routeDetails;

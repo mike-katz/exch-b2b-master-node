@@ -81,4 +81,16 @@ const matchBet = catchAsync(
   }
 );
 
-export default { bettingHistory, betList, profitLoss, transaction, getSports, matchBet };
+const betPL = catchAsync(
+  async (req: any, res: CustomResponse) => {
+    const { eventId } = req.query
+    const data = await BettingService.betPL(req.user, eventId);
+    const response = prepareResponse({
+      message: "fetch Bet PL success",
+      data,
+    });
+    res.status(httpStatus.OK).json(response);
+  }
+);
+
+export default { bettingHistory, betList, profitLoss, transaction, getSports, matchBet, betPL };
