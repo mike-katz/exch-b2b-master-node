@@ -27,7 +27,8 @@ const fetchMarket = async (): Promise<void> => {
           events: {
             $addToSet: {
               exEventId: '$exEventId',
-              eventName: '$eventName'
+              eventName: '$eventName',
+              marketTime: '$marketTime'
             }
           }
         }
@@ -36,7 +37,34 @@ const fetchMarket = async (): Promise<void> => {
         $sort: {
           _id: 1
         }
-      }
+      },
+
+      {
+        $unwind: '$events',
+      },
+      {
+        $sort: {
+          [`events.marketTime`]: -1,
+        },
+      },
+      {
+        $group: {
+          _id: '$_id',
+          sportName: { $first: '$sportName' },
+          iconUrl: { $first: '$iconUrl' },
+          events: {
+            $push: {
+              exEventId: '$events.exEventId',
+              eventName: '$events.eventName',
+            },
+          },
+        },
+      },
+      {
+        $sort: {
+          _id: 1,
+        },
+      },
     ];
 
     await client.connect();
@@ -66,4 +94,5 @@ const getStream = async (eventId: string): Promise<any> => {
   if (!profile) return { Channel: null };
   return profile;
 }
+
 export { fetchMarket, getMarketDetail, getStream }
