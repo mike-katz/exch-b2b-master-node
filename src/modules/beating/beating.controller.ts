@@ -93,4 +93,26 @@ const betPL = catchAsync(
   }
 );
 
-export default { bettingHistory, betList, profitLoss, transaction, getSports, matchBet, betPL };
+const betLock = catchAsync(
+  async (req: Request, res: CustomResponse) => {
+    const { eventId, type, status } = req.body
+    const data = await BettingService.betLock(req.user, eventId, type, status);
+    const response = prepareResponse({
+      message: "Bet status update success",
+      data,
+    });
+    res.status(httpStatus.OK).json(response);
+  }
+);
+
+const betLockLog = catchAsync(
+  async (req: Request, res: CustomResponse) => {
+    const data = await BettingService.betLockLog(req.user);
+    const response = prepareResponse({
+      message: "Bet log success",
+      data,
+    });
+    res.status(httpStatus.OK).json(response);
+  }
+);
+export default { bettingHistory, betList, profitLoss, transaction, getSports, matchBet, betPL, betLock, betLockLog };

@@ -10,3 +10,5 @@ export { default as Sport } from "./sport.model";
 export { default as ProfileLog } from "./profileLog.model";
 export { default as StreamShedule } from "./streamShedule.model";
 export { default as CricketPL } from "./cricketPL.model";
+export { default as BetLock } from "./betLock.model";
+export { default as BetLockLog } from "./betLockLog.model";

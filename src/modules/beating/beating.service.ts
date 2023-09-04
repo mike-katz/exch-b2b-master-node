@@ -1,4 +1,4 @@
-import { CricketBetPlace, CricketPL, Sport, User } from "@/models"
+import { CricketBetPlace, CricketPL, Sport, User, BetLock, BetLockLog } from "@/models"
 import ApiError from "@/utils/ApiError";
 import httpStatus from "http-status";
 import { checkParent } from "@/modules/user/user.service";
@@ -321,6 +321,34 @@ const betPL = async (data: any, eventId: string): Promise<void> => {
   return result;
 }
 
+const betLock = async (data: any, eventId: string, type: string, status: string): Promise<void> => {
+  
+  if (status == "lock") {
+    await BetLock.create({
+      userId: data?._id,
+      eventId,
+      type
+    })
+  }
+  if (status == "unlock") {
+    const found: any = await BetLock.deleteOne({ eventId, userId: data?._id })
+    if (!found) throw new ApiError(httpStatus.BAD_REQUEST, {
+      msg: "record not found",
+    });
+  }
+  const log: any = await BetLockLog.create({
+    username: data?.username,
+    eventId,
+    type,
+    status
+  })
+  return log;
+}
+
+const betLockLog = async (data: any): Promise<void> => { 
+  const result: any = await BetLockLog.find({username:data?.username})
+  return result
+}
 export {
   bettingHistory,
   profitLoss,
@@ -328,5 +356,7 @@ export {
   transaction,
   betList,
   matchBet,
-  betPL
+  betPL,
+  betLock,
+  betLockLog
 }
