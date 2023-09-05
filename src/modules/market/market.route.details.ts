@@ -19,7 +19,7 @@ const routeDetails: IMarketRouteDetails[] = [
     controllerMethodName: "fetchMarket",
     auth: "",
   },
-  
+
   {
     key: "getMarketDetailAPI",
     method: "get",
@@ -33,15 +33,15 @@ const routeDetails: IMarketRouteDetails[] = [
     method: "get",
     url: "/stream",
     validationMethodName: "getStream",
-    controllerMethodName: "getStream",    
+    controllerMethodName: "getStream",
   },
 
-   {
+  {
     key: "getEventsAPI",
     method: "get",
     url: "/events",
     validationMethodName: "getEvents",
-    controllerMethodName: "getEvents",    
+    controllerMethodName: "getEvents",
   },
 ];
 

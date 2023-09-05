@@ -73,9 +73,8 @@ const fetchMarket = async (): Promise<void> => {
 
   } catch (error: any) {
     console.log("error", error);
-
     throw new ApiError(httpStatus.BAD_REQUEST, {
-      msg: error?.errorData?.msg || "invalid user id.",
+      msg: error?.errorData?.msg || "something want wrong.",
     });
   }
 }
@@ -98,79 +97,93 @@ const getStream = async (eventId: string): Promise<any> => {
 
 const getEvents = async (): Promise<any> => {
 
- const sportsresult = await Sport.aggregate([
-      {
-        $match: {
-          sportId: {
-            $not: {
-              $in: ['home', 'in-play'],
-            },
+  const sportsresult = await Sport.aggregate([
+    {
+      $match: {
+        sportId: {
+          $not: {
+            $in: ['home', 'in-play'],
           },
         },
       },
-      {
-        $project: {
-          sportId: 1,
-          sportName: 1,
-          iconUrl: 1,
-          sequence: 1,
-        },
+    },
+    {
+      $project: {
+        sportId: 1,
+        sportName: 1,
+        iconUrl: 1,
+        sequence: 1,
       },
-      {
-        $addFields: {
-          numericSequence: { $toInt: '$sequence' },
-        },
+    },
+    {
+      $addFields: {
+        numericSequence: { $toInt: '$sequence' },
       },
-      {
-        $sort: { numericSequence: 1 },
+    },
+    {
+      $sort: { numericSequence: 1 },
+    },
+  ]);
+  let sportscopy = JSON.parse(JSON.stringify(sportsresult));
+  // ;
+  for (let key = 0; key < sportsresult.length; key += 1) {
+    const tournaments = await Tournament.aggregate([{
+      $match: {
+        sportId: sportsresult[key].sportId,
       },
-    ]);
-    let sportscopy = JSON.parse(JSON.stringify(sportsresult));
-    for (let key = 0; key < sportsresult.length; key += 1) {
-      const tournaments = await Tournament.aggregate([{
-        $match: {
-          sportId: sportsresult[key].sportId,
-        },
-      }, {
-        $project: {
-          tournamentId: 1,
-          tournamentName: 1,
-        },
-      }]);
-      if (tournaments?.length > 0) {
-        sportscopy[key].tournaments = tournaments;
-      }
+    }, {
+      $project: {
+        tournamentId: 1,
+        tournamentName: 1,
+      },
+    }]);
+    if (tournaments?.length > 0) {
+      sportscopy[key].tournaments = tournaments;
     }
-    sportscopy = sportscopy.filter((value:any) => Object.keys(value).length !== 0);
-    for (let key = 0; key < sportscopy.length; key += 1) {
-      const { tournaments } = sportscopy[key];
-      if (tournaments?.length > 0) {
-        for (let i = 0; i < tournaments.length; i += 1) {
-          const events = await Event.aggregate([{
-            $match: {
-              tournamentsId: tournaments[i].tournamentId,
-            },
-          }, {
-            $project: {
-              exEventId: 1,
-              eventName: 1,
-            },
-          }]);
-          if (events?.length > 0) {
-            sportscopy[key].tournaments[i].events = events;
+  }
+  sportscopy = sportscopy.filter((value: any) => Object.keys(value).length !== 0);
+  for (let key = 0; key < sportscopy.length; key += 1) {
+    const { tournaments } = sportscopy[key];
+    if (tournaments?.length > 0) {
+      for (let i = 0; i < tournaments.length; i += 1) {
+        const events = await Event.aggregate([{
+          $match: {
+            tournamentsId: tournaments[i].tournamentId,
+          },
+        }, {
+          $project: {
+            exEventId: 1,
+            eventName: 1,
+          },
+        },
+        {
+          $lookup: {
+            from: 'marketRates',
+            localField: 'exEventId',
+            foreignField: 'exEventId',
+            as: 'childrenMarket'
           }
+        },
+        ]);
+        if (events?.length > 0) {
+          sportscopy[key].tournaments[i].events = events;
         }
+        console.log("events", events);
       }
     }
-    let json = JSON.parse(JSON.stringify(sportscopy).split('"sportId":').join('"id":'));
-    json = JSON.parse(JSON.stringify(json).split('"sportName":').join('"name":'));
-    json = JSON.parse(JSON.stringify(json).split('"tournaments":').join('"children":'));
-    json = JSON.parse(JSON.stringify(json).split('"tournamentId":').join('"id":'));
-    json = JSON.parse(JSON.stringify(json).split('"tournamentName":').join('"name":'));
-    json = JSON.parse(JSON.stringify(json).split('"events":').join('"children":'));
-    json = JSON.parse(JSON.stringify(json).split('"exEventId":').join('"id":'));
-    json = JSON.parse(JSON.stringify(json).split('"eventName":').join('"name":'));
+  }
+
+
+  let json = JSON.parse(JSON.stringify(sportscopy).split('"sportId":').join('"id":'));
+  json = JSON.parse(JSON.stringify(json).split('"sportName":').join('"name":'));
+  json = JSON.parse(JSON.stringify(json).split('"tournaments":').join('"children":'));
+  json = JSON.parse(JSON.stringify(json).split('"tournamentId":').join('"id":'));
+  json = JSON.parse(JSON.stringify(json).split('"tournamentName":').join('"name":'));
+  json = JSON.parse(JSON.stringify(json).split('"events":').join('"children":'));
+  json = JSON.parse(JSON.stringify(json).split('"exEventId":').join('"id":'));
+  json = JSON.parse(JSON.stringify(json).split('"eventName":').join('"name":'));
   return json;
 }
+
 
 export { fetchMarket, getMarketDetail, getStream, getEvents }

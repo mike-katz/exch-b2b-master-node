@@ -22,4 +22,4 @@ const getEvents = {
   }),
 };
 
-export default { fetchMarket, getMarketDetail, getStream, getEvents};
+export default { fetchMarket, getMarketDetail, getStream, getEvents };
