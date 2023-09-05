@@ -36,4 +36,14 @@ const getStream = catchAsync(
   }
 );
 
-export default { fetchMarket,getMarketDetail, getStream };
+const getEvents = catchAsync(
+  async (req: Request, res: Response) => {
+    const resp:any = await MarketService.getEvents();
+    res.status(httpStatus.OK).json({
+      message: "Get events success",
+      data: resp      
+    });
+  }
+);
+
+export default { fetchMarket,getMarketDetail, getStream, getEvents };

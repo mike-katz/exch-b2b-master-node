@@ -35,6 +35,14 @@ const routeDetails: IMarketRouteDetails[] = [
     validationMethodName: "getStream",
     controllerMethodName: "getStream",    
   },
+
+   {
+    key: "getEventsAPI",
+    method: "get",
+    url: "/events",
+    validationMethodName: "getEvents",
+    controllerMethodName: "getEvents",    
+  },
 ];
 
 export default routeDetails;

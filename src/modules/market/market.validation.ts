@@ -16,4 +16,10 @@ const getStream = {
     eventId: Joi.string().optional(),
   }),
 };
-export default { fetchMarket, getMarketDetail, getStream };
+
+const getEvents = {
+  body: Joi.object().keys({
+  }),
+};
+
+export default { fetchMarket, getMarketDetail, getStream, getEvents};

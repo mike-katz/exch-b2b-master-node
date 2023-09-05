@@ -12,3 +12,5 @@ export { default as StreamShedule } from "./streamShedule.model";
 export { default as CricketPL } from "./cricketPL.model";
 export { default as BetLock } from "./betLock.model";
 export { default as BetLockLog } from "./betLockLog.model";
+export { default as Event } from "./event.model";
+export { default as Tournament } from "./tournament.model";
