@@ -88,15 +88,14 @@ const getMarketDetail = async (eventId: string): Promise<void> => {
 }
 
 const getStream = async (eventId: string): Promise<any> => {
-
   const profile = await StreamShedule.findOne({ MatchID: eventId }).select('Channel').exec();
   if (!profile) return { Channel: null };
   return profile;
 }
 
-
-const getEvents = async (): Promise<any> => {
-
+const getEvents = async (user: any): Promise<any> => {
+  const userIds = [user._id.toString()];
+  if (Array.isArray(user.parentId)) userIds.concat(user.parentId)
   const sportsresult = await Sport.aggregate([
     {
       $match: {
@@ -108,11 +107,31 @@ const getEvents = async (): Promise<any> => {
       },
     },
     {
+      $lookup: {
+        from: 'tournaments',
+        localField: 'sportId',
+        foreignField: 'sportId',
+        as: 'tournament',
+      },
+    },
+
+    {
       $project: {
-        sportId: 1,
-        sportName: 1,
+        id: '$sportId',
+        name: '$sportName',
         iconUrl: 1,
         sequence: 1,
+        children: {
+          $map: {
+            input: '$tournament',
+            as: 'tournament',
+            in: {
+              id: '$$tournament.tournamentId',
+              name: '$$tournament.tournamentName',
+              _id: "$$tournament._id"
+            },
+          },
+        },
       },
     },
     {
@@ -125,37 +144,55 @@ const getEvents = async (): Promise<any> => {
     },
   ]);
   let sportscopy = JSON.parse(JSON.stringify(sportsresult));
-  // ;
-  for (let key = 0; key < sportsresult.length; key += 1) {
-    const tournaments = await Tournament.aggregate([{
-      $match: {
-        sportId: sportsresult[key].sportId,
-      },
-    }, {
-      $project: {
-        tournamentId: 1,
-        tournamentName: 1,
-      },
-    }]);
-    if (tournaments?.length > 0) {
-      sportscopy[key].tournaments = tournaments;
-    }
-  }
   sportscopy = sportscopy.filter((value: any) => Object.keys(value).length !== 0);
   for (let key = 0; key < sportscopy.length; key += 1) {
-    const { tournaments } = sportscopy[key];
-    if (tournaments?.length > 0) {
-      for (let i = 0; i < tournaments.length; i += 1) {
+    const { children } = sportscopy[key];
+    if (children?.length > 0) {
+      for (let i = 0; i < children.length; i += 1) {
         const events = await Event.aggregate([{
           $match: {
-            tournamentsId: tournaments[i].tournamentId,
+            tournamentsId: children[i].id,
           },
-        }, {
+        },
+        {
           $project: {
             exEventId: 1,
             eventName: 1,
           },
         },
+
+        {
+          $lookup: {
+            from: 'betlocks',
+            let: { eventId: '$exEventId' },
+            pipeline: [
+              {
+                $match: {
+                  $expr: {
+                    $and: [
+                      { $eq: ['$eventId', '$$eventId'] },
+                      { $in: ['$userId', userIds] },
+                      { $eq: ['$type', 'event'] }
+                    ],
+                  },
+                },
+              },
+            ],
+            as: 'betLockInfo',
+          },
+        },
+        {
+          $addFields: {
+            status: {
+              $cond: {
+                if: { $eq: [{ $size: '$betLockInfo' }, 0] },
+                then: 'lock',
+                else: 'unlock',
+              },
+            },
+          },
+        },
+        //market rate process start
         {
           $lookup: {
             from: 'marketRates',
@@ -164,25 +201,74 @@ const getEvents = async (): Promise<any> => {
             as: 'childrenMarket'
           }
         },
+        {
+          $unwind: '$childrenMarket',
+        },
+        {
+          $lookup: {
+            from: 'betlocks',
+            let: { eventId: '$childrenMarket.exMarketId' },
+            pipeline: [
+              {
+                $match: {
+                  $expr: {
+                    $and: [
+                      { $eq: ['$eventId', '$$eventId'] },
+                      { $in: ['$userId', userIds] },
+                      { $eq: ['$type', 'market'] }
+                    ],
+                  },
+                },
+              },
+            ],
+            as: 'betLockInfoss',
+          },
+        },
+        {
+          $addFields: {
+            marketStatus: {
+              $cond: {
+                if: { $eq: [{ $size: '$betLockInfoss' }, 0] },
+                then: 'lock',
+                else: 'unlock',
+              },
+            },
+          },
+        },
+        {
+          $group: {
+            _id: '$exEventId',
+            id: { $first: '$exEventId' },
+            name: { $first: '$eventName' },
+            status: { $first: '$status' },
+            childrenMarket: {
+              $push: {
+                _id: '$childrenMarket._id',
+                exMarketId: '$childrenMarket.exMarketId',
+                marketName: '$childrenMarket.marketName',
+                marketStatus: '$marketStatus',
+              },
+            },
+          },
+        },
+        {
+          $project: {
+            _id: 0,
+            id: 1,
+            name: 1,
+            status: 1,
+            childrenMarket: 1,
+          },
+        },
+
         ]);
         if (events?.length > 0) {
-          sportscopy[key].tournaments[i].events = events;
+          sportscopy[key].children[i].children = events;
         }
-        console.log("events", events);
       }
     }
   }
-
-
-  let json = JSON.parse(JSON.stringify(sportscopy).split('"sportId":').join('"id":'));
-  json = JSON.parse(JSON.stringify(json).split('"sportName":').join('"name":'));
-  json = JSON.parse(JSON.stringify(json).split('"tournaments":').join('"children":'));
-  json = JSON.parse(JSON.stringify(json).split('"tournamentId":').join('"id":'));
-  json = JSON.parse(JSON.stringify(json).split('"tournamentName":').join('"name":'));
-  json = JSON.parse(JSON.stringify(json).split('"events":').join('"children":'));
-  json = JSON.parse(JSON.stringify(json).split('"exEventId":').join('"id":'));
-  json = JSON.parse(JSON.stringify(json).split('"eventName":').join('"name":'));
-  return json;
+ return sportscopy;
 }
 
 

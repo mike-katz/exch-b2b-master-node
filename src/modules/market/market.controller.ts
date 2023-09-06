@@ -38,7 +38,7 @@ const getStream = catchAsync(
 
 const getEvents = catchAsync(
   async (req: Request, res: Response) => {
-    const resp: any = await MarketService.getEvents();
+    const resp: any = await MarketService.getEvents(req.user);
     res.status(httpStatus.OK).json({
       message: "Get events success",
       data: resp

@@ -42,6 +42,7 @@ const routeDetails: IMarketRouteDetails[] = [
     url: "/events",
     validationMethodName: "getEvents",
     controllerMethodName: "getEvents",
+    auth: "",
   },
 ];
 
