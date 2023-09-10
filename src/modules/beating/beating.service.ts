@@ -325,7 +325,7 @@ const betPL = async (data: any, eventId: string): Promise<void> => {
 }
 
 const betLock = async (data: any, eventId: string, type: string, status: string): Promise<void> => {
-  
+
   if (status == "lock" && type == "market") {
     await BetLock.create({
       userId: data?._id,
@@ -334,11 +334,11 @@ const betLock = async (data: any, eventId: string, type: string, status: string)
     })
   }
 
-  if (status == "lock" && type == "event") {  
+  if (status == "lock" && type == "event") {
     await client.connect();
-    let markets:any = await client.db(process.env.EXCH_DB).collection('marketRates').find({ 'exEventId': eventId });
+    let markets: any = await client.db(process.env.EXCH_DB).collection('marketRates').find({ 'exEventId': eventId });
     markets = await markets.toArray();
-    
+
     let insArr = [{
       userId: data?._id,
       eventId,
@@ -349,7 +349,7 @@ const betLock = async (data: any, eventId: string, type: string, status: string)
         insArr.push({
           userId: data?._id,
           eventId: item?.exMarketId,
-          type:'market'
+          type: 'market'
         })
       })
     }
@@ -370,8 +370,8 @@ const betLock = async (data: any, eventId: string, type: string, status: string)
   return log;
 }
 
-const betLockLog = async (data: any): Promise<void> => { 
-  const result: any = await BetLockLog.find({username:data?.username})
+const betLockLog = async (data: any): Promise<void> => {
+  const result: any = await BetLockLog.find({ username: data?.username })
   return result
 }
 export {
