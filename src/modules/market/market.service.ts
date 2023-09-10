@@ -186,8 +186,8 @@ const getEvents = async (user: any): Promise<any> => {
             status: {
               $cond: {
                 if: { $eq: [{ $size: '$betLockInfo' }, 0] },
-                then: 'unlock',
-                else: 'lock',
+                then: 0,
+                else: 1,
               },
             },
           },
@@ -229,8 +229,8 @@ const getEvents = async (user: any): Promise<any> => {
             marketStatus: {
               $cond: {
                 if: { $eq: [{ $size: '$betLockInfoss' }, 0] },
-                then: 'unlock',
-                else: 'lock',
+                then: 0,
+                else: 1,
               },
             },
           },
@@ -246,7 +246,7 @@ const getEvents = async (user: any): Promise<any> => {
                 _id: '$childrenMarket._id',
                 exMarketId: '$childrenMarket.exMarketId',
                 marketName: '$childrenMarket.marketName',
-                marketStatus: '$marketStatus',
+                status: '$marketStatus'
               },
             },
           },
