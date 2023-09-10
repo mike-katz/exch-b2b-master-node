@@ -1,7 +1,10 @@
 import { CricketBetPlace, CricketPL, Sport, User, BetLock, BetLockLog } from "@/models"
 import ApiError from "@/utils/ApiError";
 import httpStatus from "http-status";
+import { MongoClient } from 'mongodb';
+import configs from "@/config/config";
 import { checkParent } from "@/modules/user/user.service";
+const client = new MongoClient(configs.mongoose.url);
 
 const bettingHistory = async (data: any, filter: any, options: any): Promise<void> => {
   try {
@@ -323,12 +326,34 @@ const betPL = async (data: any, eventId: string): Promise<void> => {
 
 const betLock = async (data: any, eventId: string, type: string, status: string): Promise<void> => {
   
-  if (status == "lock") {
+  if (status == "lock" && type == "market") {
     await BetLock.create({
       userId: data?._id,
       eventId,
       type
     })
+  }
+
+  if (status == "lock" && type == "event") {  
+    await client.connect();
+    let markets:any = await client.db(process.env.EXCH_DB).collection('marketRates').find({ 'exEventId': eventId });
+    markets = await markets.toArray();
+    
+    let insArr = [{
+      userId: data?._id,
+      eventId,
+      type
+    }];
+    if (markets?.length > 0) {
+      markets?.map((item: any) => {
+        insArr.push({
+          userId: data?._id,
+          eventId: item?.exMarketId,
+          type:'market'
+        })
+      })
+    }
+    await BetLock.insertMany(insArr)
   }
   if (status == "unlock") {
     const found: any = await BetLock.deleteOne({ eventId, userId: data?._id })
