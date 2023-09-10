@@ -112,6 +112,11 @@ const getEvents = async (user: any): Promise<any> => {
         localField: 'sportId',
         foreignField: 'sportId',
         as: 'tournament',
+        pipeline: [{
+          $sort: {
+            createdAt: -1, 
+          },
+        }],
       },
     },
 
@@ -198,7 +203,12 @@ const getEvents = async (user: any): Promise<any> => {
             from: 'marketRates',
             localField: 'exEventId',
             foreignField: 'exEventId',
-            as: 'childrenMarket'
+            as: 'childrenMarket',
+             pipeline: [{
+              $sort: {
+                _id: -1, 
+              },
+            }],
           }
         },
         {
@@ -251,6 +261,11 @@ const getEvents = async (user: any): Promise<any> => {
             },
           },
         },
+        {
+        $sort: {
+          _id: -1
+        }
+      },
         {
           $project: {
             _id: 0,
