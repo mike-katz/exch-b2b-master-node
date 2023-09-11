@@ -251,8 +251,6 @@ const Register = async (body: any, user: any): Promise<void> => {
     })
   }
   await User.create(data);
-
-
   return;
 }
 
@@ -383,7 +381,7 @@ const updateStatus = async (userData: any, password: string, status: string, use
           { $set: { parentStatus: status } }
         );
       }
-      await saveProfileLog(user?.username, found?.username, "exposure", old, status)
+      // await saveProfileLog(user?.username, found?.username, "exposure", old, status)
       await found.save();
     }
     return found;
@@ -582,33 +580,34 @@ const updateProfile = async (userId: string, password: string, commission: numbe
         msg: "Please add higher then your commision",
       });
     }
-    let type: string = "";
-    let old: string = "";
-    let newVal: string = "";
+    // let type: string = "";
+    // let old: string = "";
+    // let newVal: string = "";
     const found = await checkParent(userId, userData._id);
     if (found) {
       if (password && password != "") {
-        old = ""
+        // old = ""
         found.password = password
-        type = "password";
-        newVal = password;
+        // type = "password";
+        // newVal = password;
+        await saveProfileLog(userData?.username, found?.username, "password", "", password)
       }
 
       if (mobile && mobile != "") {
-        old = found.mobile;
+        // old = found.mobile;
         found.mobile = mobile
-        type = "mobile";
-        newVal = mobile
+        // type = "mobile";
+        // newVal = mobile
       }
 
       if (commission && commission > 0) {
-        old = found.commision
+        // old = found.commision
         found.commision = commission
-        type = "commission";
-        newVal = commission.toString()
+        // type = "commission";
+        // newVal = commission.toString()
       }
       await found.save();
-      await saveProfileLog(userData?.username, found?.username, type, old, newVal)
+      
     }
   }
   catch (error: any) {

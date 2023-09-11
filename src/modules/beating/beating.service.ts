@@ -355,7 +355,20 @@ const betLock = async (data: any, eventId: string, type: string, status: string)
     }
     await BetLock.insertMany(insArr)
   }
-  if (status == "unlock") {
+
+  if (status == "unlock" && type == "event") {
+    await client.connect();
+    let markets: any = await client.db(process.env.EXCH_DB).collection('marketRates').find({ 'exEventId': eventId });
+    markets = await markets.toArray();
+
+    let events = [eventId];
+    if (markets?.length > 0) {
+      markets?.map((item: any) => events.push(item?.exMarketId)
+      )
+    }
+    await BetLock.deleteMany({eventId:{$in:events},userId:data?._id})
+  }
+  if (status == "unlock" && type=="market") {
     const found: any = await BetLock.deleteOne({ eventId, userId: data?._id })
     if (!found) throw new ApiError(httpStatus.BAD_REQUEST, {
       msg: "record not found",
