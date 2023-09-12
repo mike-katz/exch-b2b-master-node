@@ -254,9 +254,13 @@ const betList = async (data: any, filter: any, options: any): Promise<void> => {
   }
 }
 
-const matchBet = async (data: any, eventId: string): Promise<void> => {
+const matchBet = async (data: any, eventId: string, options: any): Promise<void> => {
   const users = await User.find({ roles: { $in: ['User'] }, parentId: { $in: [data._id] } }).select('username');
   const usernames = users.map(user => user.username);
+
+  const { limit = 10, page = 1 } = options;
+  const skip = (page - 1) * limit;
+
   const betData = await CricketBetPlace.aggregate([
     {
       $match: {
@@ -265,20 +269,33 @@ const matchBet = async (data: any, eventId: string): Promise<void> => {
         { exEventId: eventId }]
       }
     },
+    {
+      $skip: skip,
+    },
+    {
+      $limit: parseInt(limit),
+    },
     { $sort: { _id: -1 } }
   ]);
-
+  
+  const totalResults = await CricketBetPlace.countDocuments({ username: { $in: usernames }, IsUnsettle: 1, exEventId: eventId });
+  let results: any = []
   if (betData.length > 0) {
-    let data: any = []
     betData.forEach((item: any) => {
       const news = { ...item };
       news.pl = item.pl > 0 ? parseFloat(item.pl.toString()) : 0,
         news.odds = item.odds > 0 ? parseFloat(item.odds.toString()) : 0,
-        data.push(news)
+        results.push(news)
     });
-    return data;
   }
-  return betData;
+  const resData: any = {
+    page,
+    limit,
+    totalPages: Math.ceil(totalResults / limit),
+    totalResults,
+    results
+  };
+  return resData;
 }
 
 const betPL = async (data: any, eventId: string): Promise<void> => {
@@ -366,9 +383,9 @@ const betLock = async (data: any, eventId: string, type: string, status: string)
       markets?.map((item: any) => events.push(item?.exMarketId)
       )
     }
-    await BetLock.deleteMany({eventId:{$in:events},userId:data?._id})
+    await BetLock.deleteMany({ eventId: { $in: events }, userId: data?._id })
   }
-  if (status == "unlock" && type=="market") {
+  if (status == "unlock" && type == "market") {
     const found: any = await BetLock.deleteOne({ eventId, userId: data?._id })
     if (!found) throw new ApiError(httpStatus.BAD_REQUEST, {
       msg: "record not found",
