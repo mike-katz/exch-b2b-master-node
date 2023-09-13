@@ -84,6 +84,7 @@ const userSchema = new mongoose.Schema<UserProfile, UserModel>(
     },  
     creditRef: {
       type: Number,
+      default: 0
     },
     parentStatus:{
       type: String,
