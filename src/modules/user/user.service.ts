@@ -68,7 +68,7 @@ const findDownline = async (data: any, filter: any, options: any): Promise<void>
     let parentId = data?._id
     // let maxRole = await findMaxRole(data.roles);
     if (filter?.userId && filter?.userId !== "") {
-      const user: any = await User.findOne({ _id: filter?.userId });
+      // const user: any = await User.findOne({ _id: filter?.userId });
       // maxRole = await findMaxRole(user.roles);
       parentId = filter?.userId
       delete filter.userId
@@ -145,8 +145,8 @@ const findDownline = async (data: any, filter: any, options: any): Promise<void>
 
     let finalResult: any = [];
     await Promise.all(results.map(async (item: any) => {
-      let balance: number = 0;
-      let exposure: number = 0;
+      let balance: number = item.balance > 0 ? parseFloat(item.balance.toString()) : 0;
+      let exposure: number = parseInt(item.exposure ? item.exposure : 0 );
       const childData: any = await User.aggregate([
         {
           $match: {
@@ -167,8 +167,8 @@ const findDownline = async (data: any, filter: any, options: any): Promise<void>
       ]);
 
       if (childData.length > 0) {
-        balance = childData[0].totalBalance.toString();
-        exposure = childData[0].totalExposure.toString();
+        balance += parseInt(childData[0].totalBalance.toString());
+        exposure += parseInt(childData[0].totalExposure.toString());
       }
       const data: any = {
         createdAt: item?.createdAt,
