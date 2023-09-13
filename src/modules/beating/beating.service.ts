@@ -277,7 +277,7 @@ const matchBet = async (data: any, eventId: string, options: any): Promise<void>
     },
     { $sort: { _id: -1 } }
   ]);
-  
+
   const totalResults = await CricketBetPlace.countDocuments({ username: { $in: usernames }, IsUnsettle: 1, exEventId: eventId });
   let results: any = []
   if (betData.length > 0) {
@@ -343,7 +343,7 @@ const betPL = async (data: any, eventId: string): Promise<void> => {
 
 const betLock = async (data: any, eventId: string, type: string, status: string): Promise<void> => {
 
-  if (status == "lock" && type == "market") {
+  if (status == "lock" && (type == "market" || type == "sport")) {
     await BetLock.create({
       userId: data?._id,
       eventId,
@@ -385,7 +385,8 @@ const betLock = async (data: any, eventId: string, type: string, status: string)
     }
     await BetLock.deleteMany({ eventId: { $in: events }, userId: data?._id })
   }
-  if (status == "unlock" && type == "market") {
+
+  if (status == "unlock" && (type == "market" || type == "sport")) {
     const found: any = await BetLock.deleteOne({ eventId, userId: data?._id })
     if (!found) throw new ApiError(httpStatus.BAD_REQUEST, {
       msg: "record not found",
