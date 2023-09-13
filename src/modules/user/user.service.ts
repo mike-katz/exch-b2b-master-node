@@ -152,7 +152,7 @@ const findDownline = async (data: any, filter: any, options: any): Promise<void>
           $match: {
             $and: [
               { parentId: { $in: [item?._id.toString()] } },
-              { roles: { $in: ['User'] } }
+              // { roles: { $in: ['User'] } }
             ]
           }
         },
@@ -288,7 +288,7 @@ const myDownline = async (filter: any, options: any, userData: any): Promise<voi
     if (userData?.roles.includes('Agent') && userData?.branch && userData?.branch != "") {
       query = {
         branch: userData?.branch,
-       // roles: { $in: ["User"] }
+        roles: { $in: ["User"] }
       }
     }
     const [results, totalResults] = await Promise.all([
