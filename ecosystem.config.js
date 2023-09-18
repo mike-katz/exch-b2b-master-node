@@ -1,7 +1,7 @@
 module.exports = {
     apps: [
       {
-        name: "EXCH_B2B_MASTER_ADMIN",
+        name: "B2B_MASTER_API",
         script: "npm",
         cwd: ".",
         time: true,
