@@ -29,12 +29,14 @@ interface EncryptedOtpPayload {
  */
 const generateToken = (
   userId: mongoose.Types.ObjectId,
+  roles: any,
   expires: Moment,
   type: string,
   secret: string = config.jwt.secret
 ): string => {
   const payload = {
     sub: userId,
+    roles,
     iat: moment().unix(),
     exp: expires.unix(),
     type,
@@ -102,6 +104,7 @@ const generateAuthTokens = async (
   );
   const accessToken = generateToken(
     user.id,
+    user.roles,
     accessTokenExpires,
     tokenTypes.ACCESS
   );
@@ -112,6 +115,7 @@ const generateAuthTokens = async (
   );
   const refreshToken = generateToken(
     user.id,
+    user.roles,
     refreshTokenExpires,
     tokenTypes.REFRESH
   );
@@ -135,6 +139,7 @@ const generateResetPasswordToken = async (email: string): Promise<string> => {
   );
   const resetPasswordToken = generateToken(
     user.id,
+    user.roles,
     expires,
     tokenTypes.RESET_PASSWORD
   );
@@ -159,6 +164,7 @@ const generateVerifyEmailToken = async (user: UserProfile): Promise<string> => {
   );
   const verifyEmailToken = generateToken(
     user.id,
+    user.roles,
     expires,
     tokenTypes.VERIFY_EMAIL
   );
@@ -219,6 +225,7 @@ const refreshTokenService = async (
   );
   const accessToken: string = generateToken(
     user.id,
+    user.roles,
     accessTokenExpires,
     tokenTypes.ACCESS
   );

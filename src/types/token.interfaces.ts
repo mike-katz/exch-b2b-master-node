@@ -27,12 +27,11 @@ export type ITokenModel = Model<ITokenDoc>;
 
 export interface IPayload extends JwtPayload {
   sub: string;
+  roles: string;
   iat: number;
   exp: number;
   type: string;
 }
-
-
 
 export interface AccessAndRefreshTokens {
   accessToken: string;
