@@ -10,11 +10,12 @@ initializeApp({
 });
 
 const saveNewsFirebase = (data: any) => {
-  console.log("data",data);
-  
   try {
     const db = getFirestore();
-    if (data.userId && data.userId !== "") db.collection('news').doc(data.userId).set(data);
+    if (data.origin && data.origin !== "") {
+      var replacedString = data.origin.replace(/[^a-zA-Z0-9]/g, '-');
+      db.collection('news').doc(replacedString).set(data);
+    } 
   }
   catch (error) {
     throw new ApiError(httpStatus.BAD_REQUEST, {
@@ -28,7 +29,7 @@ const saveNews = async (userData: any, origin: any, news: string): Promise<void>
     const timestamp =new Date();
           timestamp.toUTCString();
     if (userData.roles.includes("WhiteLabel")) {
-      saveNewsFirebase({ userId: userData?._id.toString(), origin: userData.origin, news, date:timestamp })
+      saveNewsFirebase({ origin: userData.origin, news, date:timestamp })
     }
     if (userData.roles.includes("Admin")) {
       const filter: any = {
@@ -40,7 +41,7 @@ const saveNews = async (userData: any, origin: any, news: string): Promise<void>
       const users: any = await User.find(filter)
       if (users && users.length > 0) {
         users.map((item: any) => {
-          saveNewsFirebase({userId:item?._id.toString(), origin: item?.origin, news, date:timestamp })
+          saveNewsFirebase({ origin: item?.origin, news, date:timestamp })
         })
       }
     }
