@@ -2,7 +2,7 @@ import * as Joi from "joi";
 
 const saveNews = {
   body: Joi.object().keys({
-  news: Joi.string().required(),
+  news: Joi.optional(),
   origin: Joi.optional(),
   }),
 };

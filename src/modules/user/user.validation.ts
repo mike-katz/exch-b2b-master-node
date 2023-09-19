@@ -25,6 +25,7 @@ const Register = {
     exposure: Joi.optional(),
     commission: Joi.number().required(),
     roles: Joi.string().required(),
+    origin: Joi.optional(),
   }),
 };
 

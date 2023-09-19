@@ -32,11 +32,14 @@ const saveNews = async (userData: any, origin: any, news: string): Promise<void>
       saveNewsFirebase({ origin: userData.origin, news, date:timestamp })
     }
     if (userData.roles.includes("Admin")) {
+      if (origin === "" && news === "") {
+        
+      }
       const filter: any = {
         roles: { $in: ['WhiteLabel'] }
       }
       if (origin && origin.length > 0) {
-        filter.origin = { $in: origin }
+        filter.origin = origin 
       }
       const users: any = await User.find(filter)
       if (users && users.length > 0) {

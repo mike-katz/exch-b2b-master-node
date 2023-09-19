@@ -146,7 +146,7 @@ const findDownline = async (data: any, filter: any, options: any): Promise<void>
     let finalResult: any = [];
     await Promise.all(results.map(async (item: any) => {
       let balance: number = item.balance > 0 ? parseFloat(item.balance.toString()) : 0;
-      let exposure: number = parseInt(item.exposure ? item.exposure : 0 );
+      let exposure: number = parseInt(item.exposure ? item.exposure : 0);
       const childData: any = await User.aggregate([
         {
           $match: {
@@ -175,7 +175,7 @@ const findDownline = async (data: any, filter: any, options: any): Promise<void>
         username: item.username,
         // balance: item.balance > 0 ? parseFloat(item.balance.toString()) : 0,
         balance,
-        exposure,        
+        exposure,
         exposureLimit: item.exposureLimit || 0,
         _id: item._id,
         status: item?.parentStatus == "Active" ? item?.status : item?.parentStatus,
@@ -211,7 +211,7 @@ const findDownline = async (data: any, filter: any, options: any): Promise<void>
 }
 
 const Register = async (body: any, user: any): Promise<void> => {
-  const { username, password, mobile, ip, exposure, commission, roles } = body
+  const { username, password, mobile, ip, exposure, origin, commission, roles } = body
   const duplicate = await User.findOne({ username: username });
   if (duplicate) {
     throw new ApiError(httpStatus.BAD_REQUEST, {
@@ -228,6 +228,12 @@ const Register = async (body: any, user: any): Promise<void> => {
   if (user?.commision > commission) {
     throw new ApiError(httpStatus.BAD_REQUEST, {
       msg: "Please add higher then your commision",
+    });
+  }
+
+  if (roles === "WhiteLabel" && origin === '') {
+    throw new ApiError(httpStatus.BAD_REQUEST, {
+      msg: "origin required.",
     });
   }
   const parentId = [...user?.parentId]
@@ -249,6 +255,9 @@ const Register = async (body: any, user: any): Promise<void> => {
       username: username.toLowerCase().trim(),
       stakes
     })
+  }
+  if (roles === "WhiteLabel") {
+    data = { ...data, origin }
   }
   await User.create(data);
   return;
@@ -607,7 +616,7 @@ const updateProfile = async (userId: string, password: string, commission: numbe
         // newVal = commission.toString()
       }
       await found.save();
-      
+
     }
   }
   catch (error: any) {
