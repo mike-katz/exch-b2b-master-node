@@ -5,19 +5,29 @@ import * as AuthService from "./auth.service";
 import { Request } from "express";
 import { CustomResponse } from "@/types";
 import prepareResponse from "@/utils/prepareResponse";
+import ApiError from "@/utils/ApiError";
 
 const login = catchAsync(
   async (
     req: {
       body: ILoginBody;
+      headers: any;
     },
     res: any
   ) => {
+    const origin = req.headers['origin'];
+    if (!origin) {
+      throw new ApiError(httpStatus.BAD_REQUEST, {
+        msg: "Origin header not found in the request",
+      });
+    }
+  
     const { username, password, ip } = req.body;
     const data: any = await AuthService.loginUser(
       username,
       password,
-      ip
+      ip,
+      origin
     );
 
     const response = {

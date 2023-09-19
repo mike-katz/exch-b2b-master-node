@@ -51,6 +51,7 @@ const loginUser = async (
   username: string,
   password: string,
   ip: any,
+  origin: any
 ) => {
   let user: any = await User.findOne({ username });
   if (!user) {
@@ -70,6 +71,16 @@ const loginUser = async (
     throw new ApiError(httpStatus.BAD_REQUEST, {
       msg: "user not allow to login",
     });
+  }
+
+  //origin check
+  if (!user.roles.includes('Admin')) {
+    if (user.origin !== origin) {
+      await addActivity(user, ip, 'failed');
+      throw new ApiError(httpStatus.BAD_REQUEST, {
+        msg: "user origin not match",
+      });
+    }
   }
 
   if (user.status == "Lock") {
