@@ -245,6 +245,7 @@ const Register = async (body: any, user: any): Promise<void> => {
     ip,
     roles: [roles],
     exposureLimit: exposure,
+    origin,
     commision: commission,
     parentId,
     creditRef: 0

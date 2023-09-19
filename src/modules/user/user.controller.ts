@@ -6,6 +6,7 @@ import prepareResponse from "@/utils/prepareResponse";
 import * as UserService from "./user.service";
 import httpStatus from "http-status";
 import pick from "@/utils/pick";
+import ApiError from "@/utils/ApiError";
 
 const fetchUserProfile = catchAsync(
   async (req: any, res: CustomResponse) => {
@@ -35,6 +36,13 @@ const fetchUserDownline = catchAsync(
 
 const Register = catchAsync(
   async (req: Request, res: CustomResponse) => {
+    const origin = req.get('Origin');
+    if (!origin) {
+      throw new ApiError(httpStatus.BAD_REQUEST, {
+        msg: "Origin header not found in the request",
+      });
+    }
+    req.body.origin=origin
     await UserService.Register(req.body, req?.user);
     const response = prepareResponse({
       message: "User created successful",
