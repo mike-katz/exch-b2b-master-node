@@ -49,5 +49,5 @@ transcationSchema.statics.POPULATED_FIELDS = [
   },
 ];
 
-const Transcation = mongoose.model("Transcation", transcationSchema);
-export default Transcation;
+const B2cBankingLog = mongoose.model("B2cBankingLog", transcationSchema);
+export default B2cBankingLog;
