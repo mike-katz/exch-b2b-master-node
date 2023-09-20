@@ -36,13 +36,14 @@ const fetchUserDownline = catchAsync(
 
 const Register = catchAsync(
   async (req: Request, res: CustomResponse) => {
-    const origin = req.get('Origin');
-    if (!origin) {
+    const headerOrigin = req.get('Origin');
+    if (!headerOrigin) {
       throw new ApiError(httpStatus.BAD_REQUEST, {
         msg: "Origin header not found in the request",
       });
     }
-    req.body.origin=origin
+    const { origin } = req.body;
+    req.body.origin=origin ?origin :headerOrigin
     await UserService.Register(req.body, req?.user);
     const response = prepareResponse({
       message: "User created successful",

@@ -78,7 +78,7 @@ const loginUser = async (
     if (user.origin !== origin) {
       await addActivity(user, ip, 'failed');
       throw new ApiError(httpStatus.BAD_REQUEST, {
-        msg: "user origin not match",
+        msg: "user not allow to login",
       });
     }
   }

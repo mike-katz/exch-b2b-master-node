@@ -15,13 +15,13 @@ const login = catchAsync(
     },
     res: any
   ) => {
-    const origin = req.headers['origin'];
+    const { origin } = req.headers;
     if (!origin) {
       throw new ApiError(httpStatus.BAD_REQUEST, {
         msg: "Origin header not found in the request",
       });
     }
-  
+
     const { username, password, ip } = req.body;
     const data: any = await AuthService.loginUser(
       username,
@@ -40,11 +40,11 @@ const login = catchAsync(
 );
 
 
-  const changePwd = catchAsync(
+const changePwd = catchAsync(
   async (req: Request, res: CustomResponse) => {
-    const { oldPassword,newPassword } = req.body;
-      const data ={}
-        await AuthService.changePwd(oldPassword, newPassword, req.user);
+    const { oldPassword, newPassword } = req.body;
+    const data = {}
+    await AuthService.changePwd(oldPassword, newPassword, req.user);
     const response = prepareResponse({
       message: "Password change successfully.",
       data,

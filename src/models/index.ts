@@ -14,3 +14,4 @@ export { default as BetLock } from "./betLock.model";
 export { default as BetLockLog } from "./betLockLog.model";
 export { default as Event } from "./event.model";
 export { default as Tournament } from "./tournament.model";
+export { default as B2cBankingLog } from "./b2cBankingLog.model";

@@ -1,4 +1,4 @@
-import { CreditLog, Transcation, User } from "@/models"
+import { CreditLog, Transcation, B2cBankingLog, User } from "@/models"
 import ApiError from "@/utils/ApiError";
 import httpStatus from "http-status";
 
@@ -42,13 +42,23 @@ const saveTransaction = async (userData: any, password: string, data: any): Prom
           toUser.balance = toUserBalance + itemBalance;
 
           transcationData.push({
-            fromId: userData._id,
-            toId: item?.userId,
-            balance: itemBalance,
-            type: item?.type,
+            sender_id:userData._id,
+            receiver_id:item?.userId,
+            amount: itemBalance,
+            message:`${userData?.username} send amount to ${toUser?.username}`,
+            method: "Deposit",
+            username: userData?.username,
+            balance:itemBalance,
             remark: item?.remark,
-            newBalance:toUser.balance
-          })
+          });
+          // transcationData.push({
+          //   fromId: userData._id,
+          //   toId: item?.userId,
+          //   balance: itemBalance,
+          //   type: item?.type,
+          //   remark: item?.remark,
+          //   newBalance:toUser.balance
+          // })
 
           if (item?.creditRef > 0) {
             creditLogData.push({
@@ -67,13 +77,23 @@ const saveTransaction = async (userData: any, password: string, data: any): Prom
             userBalance += itemBalance;
             toUser.balance = toUserBalance - itemBalance;
           transcationData.push({
-            fromId: userData._id,
-            toId: item?.userId,
-            balance: itemBalance,
-            type: item?.type,
+            sender_id:userData._id,
+            receiver_id:item?.userId,
+            amount: itemBalance,
+            message:`${userData?.username} send amount to ${toUser?.username}`,
+            method: "Withdraw",
+            username: userData?.username,
+            balance:itemBalance,
             remark: item?.remark,
-            newBalance:toUser.balance
-          })
+          });
+          // transcationData.push({
+          //   fromId: userData._id,
+          //   toId: item?.userId,
+          //   balance: itemBalance,
+          //   type: item?.type,
+          //   remark: item?.remark,
+          //   newBalance:toUser.balance
+          // })
 
           if (item?.creditRef > 0) {
             creditLogData.push({
@@ -104,7 +124,8 @@ const saveTransaction = async (userData: any, password: string, data: any): Prom
   user.balance = userBalance
   await user.save();
   if (transcationData.length > 0) {
-    Transcation.insertMany(transcationData)
+    // Transcation.insertMany(transcationData)
+    B2cBankingLog.insertMany(transcationData)    
   }
 
   if (creditLogData.length > 0) {
@@ -128,11 +149,14 @@ const getTransaction = async (userData: any, userId: string, options: any): Prom
     }
     const optObj = {
       ...options,
-      path: Transcation.POPULATED_FIELDS,
+      // path: Transcation.POPULATED_FIELDS,
+      path: B2cBankingLog.POPULATED_FIELDS,
+      
       sortBy: options.sortBy ? options.sortBy : "createdAt:desc",
     };
 
-    const data = await Transcation.paginate(filter, optObj);
+    // const data = await Transcation.paginate(filter, optObj);
+    const data = await B2cBankingLog.paginate(filter, optObj);    
     const resp: any = { data, username };
     return resp;
 
