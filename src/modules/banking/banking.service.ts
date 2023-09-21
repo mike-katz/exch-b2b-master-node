@@ -48,7 +48,7 @@ const saveTransaction = async (userData: any, password: string, data: any): Prom
             message:`${userData?.username} send amount to ${toUser?.username}`,
             method: "Deposit",
             username: userData?.username,
-            balance:itemBalance,
+            balance:toUserBalance + itemBalance,
             remark: item?.remark,
           });
           // transcationData.push({
@@ -83,7 +83,7 @@ const saveTransaction = async (userData: any, password: string, data: any): Prom
             message:`${userData?.username} send amount to ${toUser?.username}`,
             method: "Withdraw",
             username: userData?.username,
-            balance:itemBalance,
+            balance: toUserBalance - itemBalance,
             remark: item?.remark,
           });
           // transcationData.push({
