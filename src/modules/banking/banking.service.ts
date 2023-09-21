@@ -140,10 +140,10 @@ const getTransaction = async (userData: any, userId: string, options: any): Prom
   try {
     let username = userData?.username;
     let filter: any = {}
-    filter.fromId = userData?._id
+    filter.sender_id = userData?._id
 
     if (userId !== undefined && userId !== "") {
-      filter.toId = userId;
+      filter.receiver_id = userId;
       const getUsername:any = await User.findOne({ _id: userId }).select('username');
       username = getUsername?.username;
     }
