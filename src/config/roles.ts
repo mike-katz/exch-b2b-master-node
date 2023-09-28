@@ -6,10 +6,7 @@ const allRoles = {
   Master: [],
   Agent: [],
   User: [],
-  FTeader: [],
-  FManager: [],
-  Navigation: [],
-  STeader: []
+  SupperSupper:[]
 };
 export const roles: string[] = Object.keys(allRoles);
 export const roleRights: Map<string, string[]> = new Map(

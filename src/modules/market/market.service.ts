@@ -9,6 +9,11 @@ const fetchMarket = async (): Promise<void> => {
   try {
     const pipeline = [
       {
+        $match:{
+          'state.status': { $ne: 'CLOSED' },
+        }
+      },
+      {
         $lookup: {
           from: 'sports',
           localField: 'sportsId',
