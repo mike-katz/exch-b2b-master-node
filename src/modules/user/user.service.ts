@@ -6,6 +6,10 @@ import fs from 'fs';
 import path from 'path';
 import stakes from "@/config/stake";
 
+const findUserByUsername = (username: string) => {
+  const user: any = User.findOne({ username });
+  return user
+}
 const csvWriter = require('csv-writer');
 // const findMaxRole = async (rolesArray: any): Promise<string> => {
 //   const rolesOrder = ['Admin', 'WhiteLabel', 'Super', 'Master', 'Agent', 'User'];
@@ -212,12 +216,14 @@ const findDownline = async (data: any, filter: any, options: any): Promise<void>
 
 const Register = async (body: any, user: any): Promise<void> => {
   const { username, password, mobile, ip, exposure, origin, commission, roles } = body
-  const duplicate = await User.findOne({ username: username });
+  const duplicate = await findUserByUsername(username);
   if (duplicate) {
     throw new ApiError(httpStatus.BAD_REQUEST, {
       msg: "Username already exist",
     });
   }
+  
+  
 
   if (commission > 100) {
     throw new ApiError(httpStatus.BAD_REQUEST, {
@@ -331,7 +337,7 @@ const myDownline = async (filter: any, options: any, userData: any): Promise<voi
 }
 
 const addCreditLog = async (userData: any, password: string, rate: number, userId: string): Promise<void> => {
-  let user: any = await User.findOne({ username: userData.username })
+  let user: any = await findUserByUsername(userData.username);
   if (!(await user.isPasswordMatch(password))) {
     throw new ApiError(httpStatus.BAD_REQUEST, {
       msg: "wrong password",
@@ -364,7 +370,7 @@ const getCreditLog = async (user: any, userId: string): Promise<void> => {
 
 const updateStatus = async (userData: any, password: string, status: string, userId: string, type: string): Promise<void> => {
   try {
-    const user: any = await User.findOne({ username: userData.username })
+    const user: any = await findUserByUsername(userData.username);
     if (!(await user.isPasswordMatch(password))) {
       throw new ApiError(httpStatus.BAD_REQUEST, {
         msg: "wrong password",
@@ -572,7 +578,7 @@ const getParentUsername = async (userId: string) => {
 
 const updateProfile = async (userId: string, password: string, commission: number, mobile: string, myPassword: string, userData: any) => {
   try {
-    const user: any = await User.findOne({ username: userData.username })
+    const user: any = await findUserByUsername(userData.username);    
     if (!(await user.isPasswordMatch(myPassword))) {
       throw new ApiError(httpStatus.BAD_REQUEST, {
         msg: "wrong password",
@@ -653,6 +659,7 @@ const profileLog = async (userId: string, user: any) => {
   return data;
 }
 
+
 export {
   findDownline,
   Register,
@@ -667,5 +674,6 @@ export {
   getParentUsername,
   updateProfile,
   saveProfileLog,
-  profileLog
+  profileLog,
+  findUserByUsername
 }

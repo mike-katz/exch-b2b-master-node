@@ -15,3 +15,8 @@ export { default as BetLockLog } from "./betLockLog.model";
 export { default as Event } from "./event.model";
 export { default as Tournament } from "./tournament.model";
 export { default as B2cBankingLog } from "./b2cBankingLog.model";
+export { default as Reporting } from "./reporting.model";
+export { default as Avplacebet } from "./avplaceBet.model";
+export { default as St8Transaction } from "./st8Transaction.model";
+export { default as AuraCSPlaceBet } from "./auraCSPlaceBet.model";
+export { default as AuraCSResult } from "./auraCSResult.model";

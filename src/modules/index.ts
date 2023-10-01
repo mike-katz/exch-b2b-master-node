@@ -10,6 +10,7 @@ import beatingRoute from "./beating/beating.route";
 import bankingRoute from "./banking/banking.route";
 import marketRoute from "./market/market.route";
 import extraRoute from "./extra/extra.route";
+import plRoute from "./pl/pl.route";
 
 const router = express.Router();
 const defaultRoutes = [
@@ -41,7 +42,10 @@ const defaultRoutes = [
     path: "/extra",
     route: extraRoute,
   },
-  
+  {
+    path: "/pl",
+    route: plRoute,
+  },
 ];
 const devRoutes = [
   // routes available only in development mode
