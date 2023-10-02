@@ -241,7 +241,7 @@ const getUserBetList = async (filters: any, options: any): Promise<void> => {
         msg: "Please select only 30 days range only.",
       });
     }
-    let filter = { username: profile.username, sportId: filters.marketId, exMarketId: filters.marketId };
+    let filter = { username: profile.username, sportId: filters.sportId, exMarketId: filters.marketId };
     if (dateData.filteredData) {
       const filterData = dateData.filteredData;
       filter = { ...filter, ...filterData };
