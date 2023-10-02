@@ -9,7 +9,7 @@ const userSportsProfitloss = {
     category: Joi.optional(),
     eventName: Joi.optional(), 
     roundId: Joi.optional(),
-    username: Joi.string(),
+    userId: Joi.string(),
     from: Joi.string(),
     to: Joi.string(),
     page: Joi.optional(),

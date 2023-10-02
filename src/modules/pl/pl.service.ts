@@ -5,7 +5,7 @@ import configs from "@/config/config";
 import { AuraCSPlaceBet, AuraCSResult, Avplacebet, CricketBetPlace, Reporting, St8Transaction } from "@/models";
 const client = new MongoClient(configs.mongoose.url);
 import moment from 'moment-timezone';
-import { findUserByUsername } from "../user/user.service";
+import { findUserById, findUserByUsername } from "../user/user.service";
 
 const getFilterProfitLoss = (filter: any) => {
   const filteredData: any = {};
@@ -31,7 +31,7 @@ const getFilterProfitLoss = (filter: any) => {
 
 const userSportsProfitloss = async (filters: any): Promise<void> => {
   try {
-    const profile: any = await findUserByUsername(filters.username)
+    const profile: any = await findUserById(filters.userId)
     if (!profile) {
       throw new ApiError(httpStatus.BAD_REQUEST, {
         msg: "User id is incorrect.",

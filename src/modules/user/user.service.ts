@@ -5,9 +5,15 @@ import AWS from "aws-sdk";
 import fs from 'fs';
 import path from 'path';
 import stakes from "@/config/stake";
+import { ObjectId } from "mongodb";
 
 const findUserByUsername = (username: string) => {
   const user: any = User.findOne({ username });
+  return user
+}
+const findUserById = async(userId: string) => {
+  const id  = new ObjectId(userId);
+  const user: any = await User.findById({ _id:id });
   return user
 }
 const csvWriter = require('csv-writer');
@@ -675,5 +681,6 @@ export {
   updateProfile,
   saveProfileLog,
   profileLog,
-  findUserByUsername
+  findUserByUsername,
+  findUserById
 }

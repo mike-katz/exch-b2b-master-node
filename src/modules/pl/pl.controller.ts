@@ -7,7 +7,7 @@ import pick from "@/utils/pick";
 
 const userSportsProfitloss = catchAsync(
   async (req: any, res: Response) => {
-    const filters = pick(req?.query, ['from', 'to', 'timeZone', 'username']);
+    const filters = pick(req?.query, ['from', 'to', 'timeZone', 'userId']);
     const resp: any = await PlService.userSportsProfitloss(filters);
     res.status(httpStatus.OK).json({
       message: "Data get success",
