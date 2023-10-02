@@ -149,7 +149,7 @@ const getUserBetListAura = catchAsync(
   async (req: any, res: Response) => {
     const options = pick(req?.query, ['sortBy', 'limit', 'page']);
     const filters = pick(req?.query, ['from', 'to', 'timeZone','userId', 'roundId']);
-    const resp: any = await PlService.userEventsProfitlossAura(filters, options);
+    const resp: any = await PlService.getUserBetListAura(filters, options);
     res.status(httpStatus.OK).json({
       message: "Data get success",
       data: resp
