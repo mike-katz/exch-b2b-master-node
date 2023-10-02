@@ -5,7 +5,7 @@ import configs from "@/config/config";
 import { AuraCSPlaceBet, AuraCSResult, Avplacebet, CricketBetPlace, Reporting, St8Transaction } from "@/models";
 const client = new MongoClient(configs.mongoose.url);
 import moment from 'moment-timezone';
-import { findUserById, findUserByUsername } from "../user/user.service";
+import { findUserById } from "../user/user.service";
 
 const getFilterProfitLoss = (filter: any) => {
   const filteredData: any = {};
@@ -91,7 +91,7 @@ const userSportsProfitloss = async (filters: any): Promise<void> => {
 
 const userEventsProfitloss = async (filters: any, options: any): Promise<void> => {
   try {
-    const profile: any = await findUserByUsername(filters.username)
+    const profile: any = await findUserById(filters.userId)
     if (!profile) {
       throw new ApiError(httpStatus.BAD_REQUEST, {
         msg: "User id is incorrect.",
@@ -189,7 +189,7 @@ const userEventsProfitloss = async (filters: any, options: any): Promise<void> =
 
 const userMarketsProfitloss = async (filters: any, options: any): Promise<void> => {
   try {
-    const profile: any = await findUserByUsername(filters.username)
+    const profile: any = await findUserById(filters.userId)
     if (!profile) {
       throw new ApiError(httpStatus.BAD_REQUEST, {
         msg: "User id is incorrect.",
@@ -228,7 +228,7 @@ const userMarketsProfitloss = async (filters: any, options: any): Promise<void> 
 
 const getUserBetList = async (filters: any, options: any): Promise<void> => {
   try {
-    const profile: any = await findUserByUsername(filters.username)
+    const profile: any = await findUserById(filters.userId)
     if (!profile) {
       throw new ApiError(httpStatus.BAD_REQUEST, {
         msg: "User id is incorrect.",
@@ -284,7 +284,7 @@ const getUserBetList = async (filters: any, options: any): Promise<void> => {
 
 const aviatorSumOfPl = async (filters: any): Promise<void> => {
   try {
-    const profile: any = await findUserByUsername(filters.username)
+    const profile: any = await findUserById(filters.userId)
     if (!profile) {
       throw new ApiError(httpStatus.BAD_REQUEST, {
         msg: "User id is incorrect.",
@@ -331,7 +331,7 @@ const aviatorSumOfPl = async (filters: any): Promise<void> => {
 
 const aviatorPl = async (filters: any, options: any): Promise<void> => {
   try {
-    const profile: any = await findUserByUsername(filters.username)
+    const profile: any = await findUserById(filters.userId)
     if (!profile) {
       throw new ApiError(httpStatus.BAD_REQUEST, {
         msg: "User id is incorrect.",
@@ -361,7 +361,7 @@ const aviatorPl = async (filters: any, options: any): Promise<void> => {
 
 const getCategoryTotalPL = async (filters: any): Promise<void> => {
   try {
-    const profile: any = await findUserByUsername(filters.username)
+    const profile: any = await findUserById(filters.userId)
     if (!profile) {
       throw new ApiError(httpStatus.BAD_REQUEST, {
         msg: "User id is incorrect.",
@@ -421,7 +421,7 @@ const getCategoryTotalPL = async (filters: any): Promise<void> => {
 
 const getCategoryList = async (filters: any, options: any): Promise<void> => {
   try {
-    const profile: any = await findUserByUsername(filters.username)
+    const profile: any = await findUserById(filters.userId)
     if (!profile) {
       throw new ApiError(httpStatus.BAD_REQUEST, {
         msg: "User id is incorrect.",
@@ -496,7 +496,7 @@ const getCategoryList = async (filters: any, options: any): Promise<void> => {
 
 const getGameList = async (filters: any, options: any): Promise<void> => {
   try {
-    const profile: any = await findUserByUsername(filters.username)
+    const profile: any = await findUserById(filters.userId)
     if (!profile) {
       throw new ApiError(httpStatus.BAD_REQUEST, {
         msg: "User id is incorrect.",
@@ -586,7 +586,7 @@ function transform(acc: any, cur: any) {
 
 const userSportsProfitlossAura = async (filters: any): Promise<void> => {
   try {
-    const profile: any = await findUserByUsername(filters.username)
+    const profile: any = await findUserById(filters.userId)
     if (!profile) {
       throw new ApiError(httpStatus.BAD_REQUEST, {
         msg: "User id is incorrect.",
@@ -670,7 +670,7 @@ const userSportsProfitlossAura = async (filters: any): Promise<void> => {
 
 const userEventsProfitlossAura = async (filters: any, options: any): Promise<void> => {
   try {
-    const profile: any = await findUserByUsername(filters.username)
+    const profile: any = await findUserById(filters.userId)
     if (!profile) {
       throw new ApiError(httpStatus.BAD_REQUEST, {
         msg: "User id is incorrect.",
@@ -756,7 +756,7 @@ const userEventsProfitlossAura = async (filters: any, options: any): Promise<voi
 
 const userMarketsProfitlossAura = async (filters: any, options: any): Promise<void> => {
   try {
-    const profile: any = await findUserByUsername(filters.username)
+    const profile: any = await findUserById(filters.userId)
     if (!profile) {
       throw new ApiError(httpStatus.BAD_REQUEST, {
         msg: "User id is incorrect.",
@@ -845,7 +845,7 @@ const userMarketsProfitlossAura = async (filters: any, options: any): Promise<vo
 
 const getUserBetListAura = async (filters: any, options: any): Promise<void> => {
   try {
-    const profile: any = await findUserByUsername(filters.username)
+    const profile: any = await findUserById(filters.userId)
     if (!profile) {
       throw new ApiError(httpStatus.BAD_REQUEST, {
         msg: "User id is incorrect.",

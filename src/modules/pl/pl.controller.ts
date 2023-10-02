@@ -19,7 +19,7 @@ const userSportsProfitloss = catchAsync(
 const userEventsProfitloss = catchAsync(
   async (req: any, res: Response) => {
     const options = pick(req?.query, ['sortBy', 'limit', 'page']);
-    const filters = pick(req?.query, ['from', 'to', 'timeZone', 'username', 'sportId']);
+    const filters = pick(req?.query, ['from', 'to', 'timeZone', 'userId', 'sportId']);
     const resp: any = await PlService.userEventsProfitloss(filters, options);
     res.status(httpStatus.OK).json({
       message: "Data get success",
@@ -31,7 +31,7 @@ const userEventsProfitloss = catchAsync(
 const userMarketsProfitloss = catchAsync(
   async (req: any, res: Response) => {
     const options = pick(req?.query, ['sortBy', 'limit', 'page']);
-    const filters = pick(req?.query, ['from', 'to', 'timeZone', 'username', 'eventId']);
+    const filters = pick(req?.query, ['from', 'to', 'timeZone', 'userId', 'eventId']);
     const resp: any = await PlService.userMarketsProfitloss(filters, options);
     res.status(httpStatus.OK).json({
       message: "Data get success",
@@ -43,7 +43,7 @@ const userMarketsProfitloss = catchAsync(
 const getUserBetList = catchAsync(
   async (req: any, res: Response) => {
     const options = pick(req?.query, ['sortBy', 'limit', 'page']);
-    const filters = pick(req?.query, ['from', 'to', 'timeZone', 'username', 'sportId', 'marketId']);
+    const filters = pick(req?.query, ['from', 'to', 'timeZone', 'userId', 'sportId', 'marketId']);
     const resp: any = await PlService.getUserBetList(filters, options);
     res.status(httpStatus.OK).json({
       message: "Data get success",
@@ -54,7 +54,7 @@ const getUserBetList = catchAsync(
 
 const aviatorSumOfPl = catchAsync(
   async (req: any, res: Response) => {
-    const filters = pick(req?.query, ['from', 'to', 'timeZone', 'username']);
+    const filters = pick(req?.query, ['from', 'to', 'timeZone', 'userId']);
     const resp: any = await PlService.aviatorSumOfPl(filters);
     res.status(httpStatus.OK).json({
       message: "Data get success",
@@ -66,7 +66,7 @@ const aviatorSumOfPl = catchAsync(
 const aviatorPl = catchAsync(
   async (req: any, res: Response) => {
     const options = pick(req?.query, ['sortBy', 'limit', 'page']);
-    const filters = pick(req?.query, ['from', 'to', 'timeZone', 'username']);
+    const filters = pick(req?.query, ['from', 'to', 'timeZone', 'userId']);
     const resp: any = await PlService.aviatorPl(filters, options);
     res.status(httpStatus.OK).json({
       message: "Data get success",
@@ -77,7 +77,7 @@ const aviatorPl = catchAsync(
 
 const getCategoryTotalPL = catchAsync(
   async (req: any, res: Response) => {
-    const filters = pick(req?.query, ['from', 'to', 'timeZone', 'username']);
+    const filters = pick(req?.query, ['from', 'to', 'timeZone', 'userId']);
     const resp: any = await PlService.getCategoryTotalPL(filters);
     res.status(httpStatus.OK).json({
       message: "Data get success",
@@ -89,7 +89,7 @@ const getCategoryTotalPL = catchAsync(
 const getCategoryList = catchAsync(
   async (req: any, res: Response) => {
     const options = pick(req?.query, ['sortBy', 'limit', 'page']);
-    const filters = pick(req?.query, ['from', 'to', 'timeZone', 'username']);
+    const filters = pick(req?.query, ['from', 'to', 'timeZone', 'userId']);
     const resp: any = await PlService.getCategoryList(filters, options);
     res.status(httpStatus.OK).json({
       message: "Data get success",
@@ -101,7 +101,7 @@ const getCategoryList = catchAsync(
 const getGameList = catchAsync(
   async (req: any, res: Response) => {
     const options = pick(req?.query, ['sortBy', 'limit', 'page']);
-    const filters = pick(req?.query, ['from', 'to', 'timeZone', 'username', 'category']);
+    const filters = pick(req?.query, ['from', 'to', 'timeZone', 'userId', 'category']);
     const resp: any = await PlService.getGameList(filters, options);
     res.status(httpStatus.OK).json({
       message: "Data get success",
@@ -112,7 +112,7 @@ const getGameList = catchAsync(
 
 const userSportsProfitlossAura = catchAsync(
   async (req: any, res: Response) => {
-    const filters = pick(req?.query, ['from', 'to', 'timeZone', 'username']);
+    const filters = pick(req?.query, ['from', 'to', 'timeZone', 'userId']);
     const resp: any = await PlService.userSportsProfitlossAura(filters);
     res.status(httpStatus.OK).json({
       message: "Data get success",
@@ -124,7 +124,7 @@ const userSportsProfitlossAura = catchAsync(
 const userEventsProfitlossAura = catchAsync(
   async (req: any, res: Response) => {
     const options = pick(req?.query, ['sortBy', 'limit', 'page']);
-    const filters = pick(req?.query, ['from', 'to', 'timeZone', 'username']);
+    const filters = pick(req?.query, ['from', 'to', 'timeZone', 'userId']);
     const resp: any = await PlService.userEventsProfitlossAura(filters, options);
     res.status(httpStatus.OK).json({
       message: "Data get success",
@@ -136,7 +136,7 @@ const userEventsProfitlossAura = catchAsync(
 const userMarketsProfitlossAura = catchAsync(
   async (req: any, res: Response) => {
     const options = pick(req?.query, ['sortBy', 'limit', 'page']);
-    const filters = pick(req?.query, ['from', 'to', 'timeZone','username', 'eventName']);
+    const filters = pick(req?.query, ['from', 'to', 'timeZone','userId', 'eventName']);
     const resp: any = await PlService.userMarketsProfitlossAura(filters, options);
     res.status(httpStatus.OK).json({
       message: "Data get success",
@@ -148,7 +148,7 @@ const userMarketsProfitlossAura = catchAsync(
 const getUserBetListAura = catchAsync(
   async (req: any, res: Response) => {
     const options = pick(req?.query, ['sortBy', 'limit', 'page']);
-    const filters = pick(req?.query, ['from', 'to', 'timeZone','username', 'roundId']);
+    const filters = pick(req?.query, ['from', 'to', 'timeZone','userId', 'roundId']);
     const resp: any = await PlService.userEventsProfitlossAura(filters, options);
     res.status(httpStatus.OK).json({
       message: "Data get success",
