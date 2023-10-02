@@ -6,6 +6,7 @@ import { AuraCSPlaceBet, AuraCSResult, Avplacebet, CricketBetPlace, Reporting, S
 const client = new MongoClient(configs.mongoose.url);
 import moment from 'moment-timezone';
 import { findUserById } from "../user/user.service";
+import { ObjectId } from 'mongodb';
 
 const getFilterProfitLoss = (filter: any) => {
   const filteredData: any = {};
@@ -583,7 +584,20 @@ function transform(acc: any, cur: any) {
   }
   return acc;
 }
-
+function transformwithEventId(acc: any, cur: any) {
+  const key = `${cur.sportName}_${cur.eventName}`;
+  if (acc[key]) {
+    acc[key].pl += cur.pl;
+  } else {
+    acc[key] = {
+      sportName: cur.sportName,
+      eventId: cur.eventId,
+      eventName: cur.eventName,
+      pl: cur.pl,
+    };
+  }
+  return acc;
+}
 const userSportsProfitlossAura = async (filters: any): Promise<void> => {
   try {
     const profile: any = await findUserById(filters.userId)
@@ -698,6 +712,7 @@ const userEventsProfitlossAura = async (filters: any, options: any): Promise<voi
         const retres = {
           sportName: 'Aura',
           eventName: result.matchName,
+          eventId: result._id.toString(),
           roundId: result.betInfo.roundId,
           pl: '',
           runners: result.runners,
@@ -740,7 +755,7 @@ const userEventsProfitlossAura = async (filters: any, options: any): Promise<voi
       t.roundId === value.roundId
     )));
     retdata.map((ret: any) => delete ret.roundId);
-    const result = retdata.reduce(transform, {});
+    const result = retdata.reduce(transformwithEventId, {});
     const resultArray = Object.values(result);
     resData.results = resultArray;
     resData.totalResults = resultArray.length;
@@ -769,13 +784,12 @@ const userMarketsProfitlossAura = async (filters: any, options: any): Promise<vo
         msg: "Please select only 30 days range only.",
       });
     }
-    let filter = { userId: profile._id.toString(), matchName: filters.eventName };
+    let filter = { userId: profile._id.toString(), _id: new ObjectId(filters.eventId) };
 
     if (dateData.filteredData) {
       const filterData = dateData.filteredData;
       filter = { ...filter, ...filterData };
     }
-
     const resData = await AuraCSPlaceBet.paginate(filter, options);
     let roundIds: any = [];
     let retdata: any = [];

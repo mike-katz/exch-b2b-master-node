@@ -136,7 +136,7 @@ const userEventsProfitlossAura = catchAsync(
 const userMarketsProfitlossAura = catchAsync(
   async (req: any, res: Response) => {
     const options = pick(req?.query, ['sortBy', 'limit', 'page']);
-    const filters = pick(req?.query, ['from', 'to', 'timeZone','userId', 'eventName']);
+    const filters = pick(req?.query, ['from', 'to', 'timeZone','userId', 'eventId']);
     const resp: any = await PlService.userMarketsProfitlossAura(filters, options);
     res.status(httpStatus.OK).json({
       message: "Data get success",
