@@ -54,6 +54,7 @@ const loginUser = async (
   origin: any
 ) => {
   let user: any = await User.findOne({ username });
+  console.log('user:===> ', user , username);
   if (!user) {
     throw new ApiError(httpStatus.BAD_REQUEST, {
       msg: "username is wrong",
