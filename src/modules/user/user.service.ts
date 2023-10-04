@@ -253,12 +253,13 @@ const Register = async (body: any, user: any): Promise<void> => {
   
   let originStr = origin;
   if (!origin.startsWith('https://')) {
-    originStr = hostUrl('ag.localhost.com');    
+    originStr = hostUrl(origin);    
   }
-  const originArr = originStr.split('.')
-  if (originArr.length === 3) {
-    originStr = hostUrl(originArr[1] +'.'+ originArr[2]);
-  }
+  const parts = originStr.split('.')
+  if (parts.length === 3) {
+        parts.shift();
+        originStr = hostUrl(parts.join('.'));
+      }
   
   let data: any = {
     username: username.toLowerCase().trim(),
