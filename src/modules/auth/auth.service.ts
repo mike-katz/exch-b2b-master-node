@@ -13,6 +13,7 @@ import {
   UserProfile,
 } from "@/types/user.interfaces";
 import ApiError from "@/utils/ApiError";
+import { hostUrl } from "@/utils/utils";
 
 // import uploadFileInBucket from "@/utils/fileUpload";
 const addActivity = async (foundUser: any, activity: any, status: string) => {
@@ -75,7 +76,12 @@ const loginUser = async (
 
   //origin check
   if (!user.roles.includes('Admin')) {
-    if (user.origin !== origin) {
+    let originStr = origin;
+    const originArr = origin.split('.');
+    if (originArr.length === 3) {
+      originStr = hostUrl(originArr[1] +'.'+ originArr[2]);
+    }
+    if (user.origin !== originStr) {
       await addActivity(user, ip, 'failed');
       throw new ApiError(httpStatus.BAD_REQUEST, {
         msg: "user not allow to login",
