@@ -36,7 +36,7 @@ const fetchUserDownline = catchAsync(
 
 const Register = catchAsync(
   async (req: Request, res: CustomResponse) => {
-    const headerOrigin = req.get('Host');
+    const headerOrigin = req.headers.origin;
     if (!headerOrigin) {
       throw new ApiError(httpStatus.BAD_REQUEST, {
         msg: "Origin header not found in the request",

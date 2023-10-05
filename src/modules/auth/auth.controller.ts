@@ -6,7 +6,7 @@ import { Request } from "express";
 import { CustomResponse } from "@/types";
 import prepareResponse from "@/utils/prepareResponse";
 import ApiError from "@/utils/ApiError";
-import { hostUrl } from "@/utils/utils";
+// import { hostUrl } from "@/utils/utils";
 
 const login = catchAsync(
   async (
@@ -16,7 +16,7 @@ const login = catchAsync(
     },
     res: any
   ) => {
-    const origin = hostUrl(req.headers.host)
+    const { origin } = req.headers;
     if (!origin) {
       throw new ApiError(httpStatus.BAD_REQUEST, {
         msg: "Origin header not found in the request",

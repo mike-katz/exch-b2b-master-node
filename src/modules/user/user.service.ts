@@ -253,9 +253,6 @@ const Register = async (body: any, user: any): Promise<void> => {
   console.log('parentId: ', parentId);
   
   let originStr = origin;
-  if (!origin.startsWith('https://')) {
-    originStr = hostUrl(origin);    
-  }
   const parts = originStr.split('.')
   if (parts.length === 3) {
         parts.shift();
