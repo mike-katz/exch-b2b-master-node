@@ -250,6 +250,7 @@ const Register = async (body: any, user: any): Promise<void> => {
   }
   const parentId = [...user?.parentId]
   parentId.push(user?._id);
+  console.log('parentId: ', parentId);
   
   let originStr = origin;
   if (!origin.startsWith('https://')) {
@@ -270,7 +271,7 @@ const Register = async (body: any, user: any): Promise<void> => {
     exposureLimit: exposure,
     origin:originStr,
     commision: commission,
-    // parentId,
+    parentId,
     creditRef: 0
   };
   if (roles == 'User') {
