@@ -28,6 +28,7 @@ const auth = async (
       new mongoose.Types.ObjectId(payload.sub)
     );
     if (user) {
+      console.log('req.user: ', req.user);
       req.user = user.toJSON();
     }
     return next();

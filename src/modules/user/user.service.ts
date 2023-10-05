@@ -250,6 +250,7 @@ const Register = async (body: any, user: any): Promise<void> => {
   }
   const parentId = [...user?.parentId]
   parentId.push(user?._id);
+  console.log('parentId: ', parentId);
   
   let originStr = origin;
   if (!origin.startsWith('https://')) {
@@ -273,6 +274,7 @@ const Register = async (body: any, user: any): Promise<void> => {
     // parentId,
     creditRef: 0
   };
+  console.log('data: ', data);
   if (roles == 'User') {
     data = { ...data, exposure: 0 };
     await Stake.create({
