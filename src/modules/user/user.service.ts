@@ -6,6 +6,7 @@ import fs from 'fs';
 import path from 'path';
 import stakes from "@/config/stake";
 import { ObjectId } from "mongodb";
+import { hostUrl } from '../../utils/utils';
 
 const findUserByUsername = (username: string) => {
   const user: any = User.findOne({ username });
@@ -221,6 +222,7 @@ const findDownline = async (data: any, filter: any, options: any): Promise<void>
 }
 
 const Register = async (body: any, user: any): Promise<void> => {
+
   const { username, password, mobile, ip, exposure, origin, commission, roles } = body
   const duplicate = await findUserByUsername(username);
   if (duplicate) {
@@ -228,8 +230,6 @@ const Register = async (body: any, user: any): Promise<void> => {
       msg: "Username already exist",
     });
   }
-  
-  
 
   if (commission > 100) {
     throw new ApiError(httpStatus.BAD_REQUEST, {
@@ -250,6 +250,17 @@ const Register = async (body: any, user: any): Promise<void> => {
   }
   const parentId = [...user?.parentId]
   parentId.push(user?._id);
+  
+  let originStr = origin;
+  if (!origin.startsWith('https://')) {
+    originStr = hostUrl(origin);    
+  }
+  const parts = originStr.split('.')
+  if (parts.length === 3) {
+        parts.shift();
+        originStr = hostUrl(parts.join('.'));
+      }
+  
   let data: any = {
     username: username.toLowerCase().trim(),
     password: password,
@@ -257,9 +268,9 @@ const Register = async (body: any, user: any): Promise<void> => {
     ip,
     roles: [roles],
     exposureLimit: exposure,
-    origin,
+    origin:originStr,
     commision: commission,
-    parentId,
+    // parentId,
     creditRef: 0
   };
   if (roles == 'User') {

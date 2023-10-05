@@ -3,7 +3,7 @@ import ApiError from "@/utils/ApiError";
 import httpStatus from "http-status";
 import { initializeApp, cert } from "firebase-admin/app";
 import { getFirestore } from "firebase-admin/firestore";
-const serviceAccount = require('@/config/test-pro-e8d5a-2ebe09c66097.json');
+const serviceAccount = require('@/config/others-67243-firebase-adminsdk-d1ydj-a6b1560d2a.json');
 
 initializeApp({
   credential: cert(serviceAccount),
