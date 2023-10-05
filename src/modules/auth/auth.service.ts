@@ -18,10 +18,9 @@ import { hostUrl } from "@/utils/utils";
 // import uploadFileInBucket from "@/utils/fileUpload";
 const addActivity = async (foundUser: any, activity: any, status: string) => {
   try {
-    const queryData = JSON.parse(activity)
     const activityPayload = {
       username: foundUser.username,
-      ip: queryData?.query,
+      ip: activity?.query,
       detail: JSON.stringify(activity),
       status,
     };
@@ -79,8 +78,8 @@ const loginUser = async (
     let originStr = origin;
     const originArr = origin.split('.');
     if (originArr.length === 3) {
-      originStr = hostUrl(originArr[1] +'.'+ originArr[2]);
-    }
+      originStr = hostUrl(originArr[1] + '.' + originArr[2]);
+    }    
     if (user.origin !== originStr) {
       await addActivity(user, ip, 'failed');
       throw new ApiError(httpStatus.BAD_REQUEST, {
