@@ -271,10 +271,9 @@ const Register = async (body: any, user: any): Promise<void> => {
     exposureLimit: exposure,
     origin:originStr,
     commision: commission,
-    // parentId,
+    parentId,
     creditRef: 0
   };
-  console.log('data: ', data);
   if (roles == 'User') {
     data = { ...data, exposure: 0 };
     await Stake.create({
