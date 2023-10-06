@@ -18,7 +18,7 @@ const fetchMarket = async (): Promise<void> => {
       {
         $match: {
           'state.status': { $ne: 'CLOSED' },
-          exEventId: { $in, marketIds }
+          exEventId: { $in: marketIds }
         }
       },
       {
