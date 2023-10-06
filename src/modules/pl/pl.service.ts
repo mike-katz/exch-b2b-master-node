@@ -345,7 +345,7 @@ const aviatorPl = async (filters: any, options: any): Promise<void> => {
         msg: "Please select only 30 days range only.",
       });
     }
-    let filter = { username: profile.username };
+    let filter = { user: profile.username };
     if (dateData.filteredData) {
       const filterData = dateData.filteredData;
       filter = { ...filter, ...filterData };

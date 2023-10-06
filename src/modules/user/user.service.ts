@@ -12,9 +12,9 @@ const findUserByUsername = (username: string) => {
   const user: any = User.findOne({ username });
   return user
 }
-const findUserById = async(userId: string) => {
-  const id  = new ObjectId(userId);
-  const user: any = await User.findById({ _id:id });
+const findUserById = async (userId: string) => {
+  const id = new ObjectId(userId);
+  const user: any = await User.findById({ _id: id });
   return user
 }
 const csvWriter = require('csv-writer');
@@ -251,14 +251,14 @@ const Register = async (body: any, user: any): Promise<void> => {
   const parentId = [...user?.parentId]
   parentId.push(user?._id);
   console.log('parentId: ', parentId);
-  
+
   let originStr = origin;
   const parts = originStr.split('.')
   if (parts.length === 3) {
-        parts.shift();
-        originStr = hostUrl(parts.join('.'));
-      }
-  
+    parts.shift();
+    originStr = hostUrl(parts.join('.'));
+  }
+
   let data: any = {
     username: username.toLowerCase().trim(),
     password: password,
@@ -266,7 +266,7 @@ const Register = async (body: any, user: any): Promise<void> => {
     ip,
     roles: [roles],
     exposureLimit: exposure,
-    origin:originStr,
+    origin: originStr,
     commision: commission,
     parentId,
     creditRef: 0
@@ -427,16 +427,16 @@ const updateStatus = async (userData: any, password: string, status: string, use
 const myBalance = async (userData: any): Promise<void> => {
 
   const users = await User.find({ parentId: userData._id });
-  const balanceSum = users.reduce((total, currentUser) => total + parseFloat(currentUser.balance.toString()), 0);
+  const balanceSum = users.reduce((totalBel, currentUser) => totalBel + parseFloat(currentUser.balance.toString()), 0);
 
-  const exposureLimitSum = users.reduce((total, currentUser) => total + parseFloat(currentUser.exposureLimit.toString()), 0);
+  const exposureSum = users.reduce((total, currentUser) => total + parseFloat(currentUser.exposure.toString()), 0);
 
   const res: any = {
     balance: parseFloat(userData.balance.toString()),
     exposureLimit: userData.exposureLimit,
     totalUser: users.length,
     totalBalance: balanceSum,
-    totalExposure: exposureLimitSum
+    totalExposure: exposureSum
   }
   return res;
 }
@@ -593,7 +593,7 @@ const getParentUsername = async (userId: string) => {
 
 const updateProfile = async (userId: string, password: string, commission: number, mobile: string, myPassword: string, userData: any) => {
   try {
-    const user: any = await findUserByUsername(userData.username);    
+    const user: any = await findUserByUsername(userData.username);
     if (!(await user.isPasswordMatch(myPassword))) {
       throw new ApiError(httpStatus.BAD_REQUEST, {
         msg: "wrong password",
