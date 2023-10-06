@@ -9,7 +9,6 @@ const fetchMarket = async (): Promise<void> => {
   try {
     let exposures: any = await client.db(process.env.EXCH_DB).collection('exposuremanages').find();
     exposures = await exposures.toArray();
-    console.log("exposures", exposures);
     let marketIds: any = [];
     exposures.map((item: any) => {
       marketIds.push(item?.exEventId)
