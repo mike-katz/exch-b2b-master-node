@@ -7,10 +7,18 @@ const client = new MongoClient(configs.mongoose.url);
 
 const fetchMarket = async (): Promise<void> => {
   try {
+    let exposures: any = await client.db(process.env.EXCH_DB).collection('exposuremanages').find();
+    exposures = await exposures.toArray();
+    console.log("exposures", exposures);
+    let marketIds: any = [];
+    exposures.map((item: any) => {
+      marketIds.push(item?.exEventId)
+    })
     const pipeline = [
       {
-        $match:{
+        $match: {
           'state.status': { $ne: 'CLOSED' },
+          exEventId: { $in, marketIds }
         }
       },
       {
@@ -119,7 +127,7 @@ const getEvents = async (user: any): Promise<any> => {
         as: 'tournament',
         pipeline: [{
           $sort: {
-            createdAt: -1, 
+            createdAt: -1,
           },
         }],
       },
@@ -209,9 +217,9 @@ const getEvents = async (user: any): Promise<any> => {
             localField: 'exEventId',
             foreignField: 'exEventId',
             as: 'childrenMarket',
-             pipeline: [{
+            pipeline: [{
               $sort: {
-                _id: -1, 
+                _id: -1,
               },
             }],
           }
@@ -267,10 +275,10 @@ const getEvents = async (user: any): Promise<any> => {
           },
         },
         {
-        $sort: {
-          _id: -1
-        }
-      },
+          $sort: {
+            _id: -1
+          }
+        },
         {
           $project: {
             _id: 0,
@@ -288,7 +296,7 @@ const getEvents = async (user: any): Promise<any> => {
       }
     }
   }
- return sportscopy;
+  return sportscopy;
 }
 
 
