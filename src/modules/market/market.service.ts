@@ -65,7 +65,7 @@ const fetchMarket = async (): Promise<void> => {
           sportName: { $first: '$sportName' },
           iconUrl: { $first: '$iconUrl' },
           events: {
-            $push: {
+            $addToSet: {
               exEventId: '$events.exEventId',
               eventName: '$events.eventName',
             },
