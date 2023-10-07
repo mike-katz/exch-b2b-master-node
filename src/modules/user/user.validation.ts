@@ -26,6 +26,9 @@ const Register = {
     commission: Joi.number().required(),
     roles: Joi.string().required(),
     origin: Joi.optional(),
+    isSportBook: Joi.optional(),
+    isIntCasino: Joi.optional(),
+    isCasino: Joi.optional(),
   }),
 };
 
