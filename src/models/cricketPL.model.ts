@@ -23,6 +23,9 @@ const cricketPLSchema = new Schema({
     type: Number,
     default: 0,
   },
+  type: {
+    type: String,    
+  }
 }, { timestamps: true });
 
 const CricketPL = mongoose.model("CricketPL", cricketPLSchema);
