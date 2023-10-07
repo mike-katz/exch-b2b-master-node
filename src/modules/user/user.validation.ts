@@ -29,6 +29,7 @@ const Register = {
     isSportBook: Joi.optional(),
     isIntCasino: Joi.optional(),
     isCasino: Joi.optional(),
+    isAviator: Joi.optional(),    
   }),
 };
 

@@ -82,28 +82,31 @@ const userSchema = new mongoose.Schema<UserProfile, UserModel>(
     exposure: {
       type: Number,
       default: 0
-    },  
+    },
     creditRef: {
       type: Number,
       default: 0
     },
-    parentStatus:{
+    parentStatus: {
       type: String,
       enum: userStatus,
       default: userStatus.active,
     },
     managerId: {
-      type: Types.ObjectId,      
+      type: Types.ObjectId,
     },
     isCasino: {
       type: Boolean,
     },
     isIntCasino: {
-      type: Boolean,      
+      type: Boolean,
     },
     isSportBook: {
-      type: Boolean,      
-    },    
+      type: Boolean,
+    },
+    isAviator: {
+      type: Boolean,
+    },
   },
   { timestamps: true }
 );

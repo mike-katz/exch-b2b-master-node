@@ -223,7 +223,7 @@ const findDownline = async (data: any, filter: any, options: any): Promise<void>
 
 const Register = async (body: any, user: any): Promise<void> => {
 
-  const { username, password, mobile, ip, exposure, origin, commission, roles, isSportBook, isIntCasino, isCasino } = body
+  const { username, password, mobile, ip, exposure, origin, commission, roles, isSportBook, isIntCasino, isCasino, isAviator } = body
   const duplicate = await findUserByUsername(username);
   if (duplicate) {
     throw new ApiError(httpStatus.BAD_REQUEST, {
@@ -279,7 +279,7 @@ const Register = async (body: any, user: any): Promise<void> => {
     })
   }
   if (roles === "WhiteLabel") {
-    data = { ...data, origin, isSportBook, isIntCasino, isCasino }
+    data = { ...data, origin, isSportBook, isIntCasino, isCasino, isAviator }
   }
   await User.create(data);
   return;
