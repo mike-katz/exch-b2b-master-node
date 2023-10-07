@@ -331,6 +331,7 @@ const betPL = async (data: any, eventId: string): Promise<void> => {
         _id: result[0]._id,
         username: result[0].username,
         exEventId: result[0].exEventId,
+        type: result[0].type,
         exMarketId: exMarketId,
         selectionId: selectionId
       };
