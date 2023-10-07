@@ -325,16 +325,17 @@ const betPL = async (data: any, eventId: string): Promise<void> => {
         }
       }
     });
-    const market = result[0];
+    let index = 0;
     marketIdMap.forEach((selectionId, exMarketId) => {
       const updatedItem = {
-        _id: market?._id,
-        username: market?.username,
-        exEventId: market?.exEventId,
-        type: market?.type,
+        _id: result[index]?._id,
+        username: result[index]?.username,
+        exEventId: result[index]?.exEventId,
+        type: result[index]?.type,
         exMarketId,
         selectionId
       };
+      index++;
       outputJson.push(updatedItem);
     });
     return outputJson;
