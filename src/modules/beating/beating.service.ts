@@ -337,12 +337,8 @@ const betPL = async (data: any, eventId: string): Promise<void> => {
       };
       outputJson.push(updatedItem);
     });
-    console.log("outputJson",outputJson);
-    
     return outputJson;
   }
-    console.log("result",result);
-
   return result;
 }
 

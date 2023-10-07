@@ -23,6 +23,9 @@ interface User {
   managerId: Schema.Types.ObjectId;  
   isLocked: boolean;
   isActive: boolean;
+  isCasino: boolean;
+  isIntCasino: boolean;
+  isSportBook: boolean;
 }
 
 interface UserProfile extends User, Document {

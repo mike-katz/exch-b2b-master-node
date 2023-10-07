@@ -94,7 +94,16 @@ const userSchema = new mongoose.Schema<UserProfile, UserModel>(
     },
     managerId: {
       type: Types.ObjectId,      
-    }, 
+    },
+    isCasino: {
+      type: Boolean,
+    },
+    isIntCasino: {
+      type: Boolean,      
+    },
+    isSportBook: {
+      type: Boolean,      
+    },    
   },
   { timestamps: true }
 );
