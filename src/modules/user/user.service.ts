@@ -599,7 +599,6 @@ const getParentUsername = async (userId: string) => {
 const updateProfile = async (body: any, userData: any) => {
 
   const { userId, password, commission, mobile, myPassword, isSportBook, isIntCasino, isCasino, isAviator } = body;
-
   try {
     if (!userData.roles.some((role: any) => ['WhiteLabel', 'Admin'].includes(role))) {
       throw new ApiError(httpStatus.BAD_REQUEST, {
@@ -635,20 +634,22 @@ const updateProfile = async (body: any, userData: any) => {
       if (mobile && mobile != "") {
         found.mobile = mobile
       }
+      if (commission && commission > 0) {
+        found.commision = commission
+      }
+     
       if (found.roles.includes('WhiteLabel')) {
-        if (commission && commission > 0) {
-          found.commision = commission
-        }
-        if (isSportBook && isSportBook > 0) {
+        console.log("if found")
+        if (isSportBook !== undefined) {
           found.isSportBook = isSportBook
         }
-        if (isIntCasino && isIntCasino > 0) {
+        if (isIntCasino !== undefined) {
           found.isIntCasino = isIntCasino
         }
-        if (isCasino && isCasino > 0) {
+        if (isCasino !== undefined) {
           found.isCasino = isCasino
         }
-        if (isAviator && isAviator > 0) {
+        if (isAviator !== undefined) {
           found.isAviator = isAviator
         }
       }
