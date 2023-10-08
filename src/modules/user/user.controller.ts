@@ -43,7 +43,7 @@ const Register = catchAsync(
       });
     }
     const { origin } = req.body;
-    req.body.origin=origin ?origin :headerOrigin
+    req.body.origin = origin ? origin : headerOrigin
     await UserService.Register(req.body, req?.user);
     const response = prepareResponse({
       message: "User created successful",
@@ -151,8 +151,7 @@ const getParentUsername = catchAsync(
 
 const updateProfile = catchAsync(
   async (req: Request, res: CustomResponse) => {
-    const { userId,password,commission,mobile,myPassword } = req.body;
-    const data = await UserService.updateProfile(userId,password,commission,mobile,myPassword,req.user);
+    const data = await UserService.updateProfile(req.body, req.user);
     const response = prepareResponse({
       message: "profile update successfully.",
       data,
@@ -164,7 +163,7 @@ const updateProfile = catchAsync(
 const profileLog = catchAsync(
   async (req: any, res: CustomResponse) => {
     const { userId } = req.query;
-    const data = await UserService.profileLog(userId,req.user);
+    const data = await UserService.profileLog(userId, req.user);
     const response = prepareResponse({
       message: "Get profile log successfully.",
       data,
@@ -173,4 +172,4 @@ const profileLog = catchAsync(
   }
 );
 
-export default { fetchUserProfile, fetchUserDownline, Register, myDownline, addCreditLog, getCreditLog, updateStatus, updateExposure, myBalance, exportCsv,getParentUsername, updateProfile, profileLog };
+export default { fetchUserProfile, fetchUserDownline, Register, myDownline, addCreditLog, getCreditLog, updateStatus, updateExposure, myBalance, exportCsv, getParentUsername, updateProfile, profileLog };

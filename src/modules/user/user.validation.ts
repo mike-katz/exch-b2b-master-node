@@ -101,6 +101,10 @@ const updateProfile = {
     myPassword: Joi.string().required(),
     commission: Joi.number().optional(),
     mobile: Joi.string().optional(),
+    isSportBook: Joi.optional(),
+    isIntCasino: Joi.optional(),
+    isCasino: Joi.optional(),
+    isAviator: Joi.optional(),
   }),
 };
 

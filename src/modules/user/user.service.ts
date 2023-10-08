@@ -557,7 +557,11 @@ const accountDetail = async (userId: string, userData: any): Promise<void> => {
       commission: data.commision,
       _id: data._id,
       timeZone: "IST",
-      username: data.username
+      username: data.username,
+      isSportBook: data.isSportBook,
+      isIntCasino: data.isIntCasino,
+      isCasino: data.isCasino,
+      isAviator: data.isAviator,
     }
     return dataNew;
   } catch (error: any) {
@@ -591,7 +595,10 @@ const getParentUsername = async (userId: string) => {
   return userData;
 };
 
-const updateProfile = async (userId: string, password: string, commission: number, mobile: string, myPassword: string, userData: any) => {
+const updateProfile = async (body: any, userData: any) => {
+
+  const { userId, password, commission, mobile, myPassword, isSportBook, isIntCasino, isCasino, isAviator } = body;
+
   try {
     const user: any = await findUserByUsername(userData.username);
     if (!(await user.isPasswordMatch(myPassword))) {
@@ -611,34 +618,33 @@ const updateProfile = async (userId: string, password: string, commission: numbe
         msg: "Please add higher then your commision",
       });
     }
-    // let type: string = "";
-    // let old: string = "";
-    // let newVal: string = "";
     const found = await checkParent(userId, userData._id);
     if (found) {
       if (password && password != "") {
-        // old = ""
         found.password = password
-        // type = "password";
-        // newVal = password;
         await saveProfileLog(userData?.username, found?.username, "password", "", password)
       }
 
       if (mobile && mobile != "") {
-        // old = found.mobile;
         found.mobile = mobile
-        // type = "mobile";
-        // newVal = mobile
       }
 
       if (commission && commission > 0) {
-        // old = found.commision
         found.commision = commission
-        // type = "commission";
-        // newVal = commission.toString()
+      }
+      if (isSportBook && isSportBook > 0) {
+        found.isSportBook = isSportBook
+      }
+      if (isIntCasino && isIntCasino > 0) {
+        found.isIntCasino = isIntCasino
+      }
+      if (isCasino && isCasino > 0) {
+        found.isCasino = isCasino
+      }
+      if (isAviator && isAviator > 0) {
+        found.isAviator = isAviator
       }
       await found.save();
-
     }
   }
   catch (error: any) {
