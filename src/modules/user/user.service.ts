@@ -628,21 +628,22 @@ const updateProfile = async (body: any, userData: any) => {
       if (mobile && mobile != "") {
         found.mobile = mobile
       }
-
-      if (commission && commission > 0) {
-        found.commision = commission
-      }
-      if (isSportBook && isSportBook > 0) {
-        found.isSportBook = isSportBook
-      }
-      if (isIntCasino && isIntCasino > 0) {
-        found.isIntCasino = isIntCasino
-      }
-      if (isCasino && isCasino > 0) {
-        found.isCasino = isCasino
-      }
-      if (isAviator && isAviator > 0) {
-        found.isAviator = isAviator
+      if (found.roles.includes('WhiteLabel')) {
+        if (commission && commission > 0) {
+          found.commision = commission
+        }
+        if (isSportBook && isSportBook > 0) {
+          found.isSportBook = isSportBook
+        }
+        if (isIntCasino && isIntCasino > 0) {
+          found.isIntCasino = isIntCasino
+        }
+        if (isCasino && isCasino > 0) {
+          found.isCasino = isCasino
+        }
+        if (isAviator && isAviator > 0) {
+          found.isAviator = isAviator
+        }
       }
       await found.save();
     }
