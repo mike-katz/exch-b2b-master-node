@@ -562,6 +562,7 @@ const accountDetail = async (userId: string, userData: any): Promise<void> => {
       isIntCasino: data.isIntCasino,
       isCasino: data.isCasino,
       isAviator: data.isAviator,
+      roles: data.roles,
     }
     return dataNew;
   } catch (error: any) {
@@ -600,6 +601,12 @@ const updateProfile = async (body: any, userData: any) => {
   const { userId, password, commission, mobile, myPassword, isSportBook, isIntCasino, isCasino, isAviator } = body;
 
   try {
+    if (!userData.roles.some((role: any) => ['WhiteLabel', 'Admin'].includes(role))) {
+      throw new ApiError(httpStatus.BAD_REQUEST, {
+        msg: "you are not admin or whitelabel",
+      });
+    }
+
     const user: any = await findUserByUsername(userData.username);
     if (!(await user.isPasswordMatch(myPassword))) {
       throw new ApiError(httpStatus.BAD_REQUEST, {
