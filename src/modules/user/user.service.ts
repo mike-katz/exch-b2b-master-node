@@ -156,8 +156,9 @@ const findDownline = async (data: any, filter: any, options: any): Promise<void>
 
     let finalResult: any = [];
     await Promise.all(results.map(async (item: any) => {
-      let balance: number = item.balance > 0 ? parseFloat(item.balance.toString()) : 0;
-      let exposure: number = parseInt(item.exposure ? item.exposure : 0);
+      
+      let balance: number = (Number(item?.balance) || 0);
+      let exposure: number = (Number(item?.exposure) || 0);
       const childData: any = await User.aggregate([
         {
           $match: {
@@ -178,8 +179,8 @@ const findDownline = async (data: any, filter: any, options: any): Promise<void>
       ]);
 
       if (childData.length > 0) {
-        balance += parseInt(childData[0].totalBalance.toString());
-        exposure += parseInt(childData[0].totalExposure.toString());
+        balance += (Number(childData[0].totalBalance) || 0)
+        exposure += (Number(childData[0].totalExposure) || 0)
       }
       const data: any = {
         createdAt: item?.createdAt,
@@ -330,7 +331,7 @@ const myDownline = async (filter: any, options: any, userData: any): Promise<voi
     const resData: any = {
       results: results.map((item: any) => ({
         username: item.username,
-        balance: item.balance > 0 ? parseFloat(item.balance.toString()) : 0,
+        balance: (Number(item?.balance) || 0),        
         exposure: item.exposure || 0,
         exposureLimit: item.exposureLimit || 0,
         _id: item._id,
@@ -432,7 +433,7 @@ const myBalance = async (userData: any): Promise<void> => {
   const exposureSum = users.reduce((totalBel, currentUser) => totalBel + (Number(currentUser?.exposure) || 0), 0).toFixed(2);
 
   const res: any = {
-    balance: parseFloat(userData?.balance?.toString()),
+    balance: (Number(userData?.balance) || 0),
     exposureLimit: userData?.exposureLimit,
     totalUser: users.length,
     totalBalance: balanceSum,
