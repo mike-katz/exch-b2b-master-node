@@ -427,11 +427,9 @@ const updateStatus = async (userData: any, password: string, status: string, use
 const myBalance = async (userData: any): Promise<void> => {
 
   const users = await User.find({ parentId: userData._id });
-  const balanceSum = users.reduce((totalBel, currentUser) => totalBel + parseFloat(currentUser?.balance?.toString()), 0);
-  console.log("v",balanceSum);
-  console.log("vdsas",userData?.balance);
-  
-  const exposureSum = users.reduce((total, currentUser) => total + parseFloat(currentUser?.exposure?.toString()), 0);
+  const balanceSum = users.reduce((totalBel, currentUser) => totalBel + (Number(currentUser?.balance) || 0), 0).toFixed(2);
+
+  const exposureSum = users.reduce((totalBel, currentUser) => totalBel + (Number(currentUser?.exposure) || 0), 0).toFixed(2);
 
   const res: any = {
     balance: parseFloat(userData?.balance?.toString()),
