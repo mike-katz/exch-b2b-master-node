@@ -94,7 +94,7 @@ const fetchMarket = async (): Promise<void> => {
 const getMarketDetail = async (eventId: string): Promise<void> => {
   await client.connect();
   const cursor = client.db(process.env.EXCH_DB).collection('marketRates')
-    .find({ exEventId: eventId, 'state.status': {$ne: "SUPERCLOSED"} });
+    .find({ exEventId: eventId, 'state.status': {$nin: ["SUPERCLOSED","CLOSED"]} });
   const result: any = await cursor.toArray();
   return result;
 }
