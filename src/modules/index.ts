@@ -11,6 +11,7 @@ import bankingRoute from "./banking/banking.route";
 import marketRoute from "./market/market.route";
 import extraRoute from "./extra/extra.route";
 import plRoute from "./pl/pl.route";
+import reportRoute from "./report/report.route";
 
 const router = express.Router();
 const defaultRoutes = [
@@ -45,6 +46,10 @@ const defaultRoutes = [
   {
     path: "/pl",
     route: plRoute,
+  },
+  {
+    path: "/report",
+    route: reportRoute,
   },
 ];
 const devRoutes = [

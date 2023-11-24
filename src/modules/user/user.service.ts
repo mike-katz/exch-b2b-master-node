@@ -640,8 +640,14 @@ const updateProfile = async (body: any, userData: any) => {
         msg: "Please add higher then your commision",
       });
     }
-    const found = await checkParent(userId, userData._id);
+    const found = await findUserById(userId);
     if (found) {
+      const lastParent = found?.parentId[found?.parentId?.length - 1];
+      if (lastParent !== userData?._id) {
+         throw new ApiError(httpStatus.BAD_REQUEST, {
+          msg: "You can not update details",
+        });
+      }
       if (password && password != "") {
         found.password = password
         await saveProfileLog(userData?.username, found?.username, "password", "-", "-")
@@ -708,6 +714,22 @@ const profileLog = async (userId: string, user: any, options:any) => {
 }
 
 
+const getMyUsersData = async (userId: string) => {
+      const userData: any = await User.find({
+          $expr: {
+            $eq: [
+              userId.toString(),
+              {
+                $arrayElemAt: ['$parentId', -1]
+              }
+            ]
+          }
+      }).select('username');
+    
+  const usernames = userData.map((item: any) => item?.username)
+  return usernames
+}
+
 export {
   findDownline,
   Register,
@@ -724,5 +746,6 @@ export {
   saveProfileLog,
   profileLog,
   findUserByUsername,
-  findUserById
+  findUserById,
+  getMyUsersData
 }
