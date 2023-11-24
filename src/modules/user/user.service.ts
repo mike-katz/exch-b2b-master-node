@@ -724,10 +724,8 @@ const getMyUsersData = async (userId: string) => {
               }
             ]
           }
-      }).select('username');
-    
-  const usernames = userData.map((item: any) => item?.username)
-  return usernames
+      }).select('username');    
+  return userData;
 }
 
 export {

@@ -19,6 +19,33 @@ const routeDetails: IReportRouteDetails[] = [
     controllerMethodName: "fetchSportTotalPL",
     auth: "",
   },
+
+  {
+    key: "fetchCasinoTotalPLAPI",
+    method: "get",
+    url: "/casino/total-pl",
+    validationMethodName: "fetchSportTotalPL",
+    controllerMethodName: "fetchCasinoTotalPL",
+    auth: "",
+  },
+
+  {
+    key: "fetchIntCasinoTotalPLAPI",
+    method: "get",
+    url: "/intCasino/total-pl",
+    validationMethodName: "fetchSportTotalPL",
+    controllerMethodName: "fetchIntCasinoTotalPL",
+    auth: "",
+  },
+
+  {
+    key: "fetchAviatorTotalPLAPI",
+    method: "get",
+    url: "/aviator/total-pl",
+    validationMethodName: "fetchSportTotalPL",
+    controllerMethodName: "fetchAviatorTotalPL",
+    auth: "",
+  }
 ];
 
 export default routeDetails;
