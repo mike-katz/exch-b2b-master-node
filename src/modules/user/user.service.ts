@@ -222,6 +222,18 @@ const findDownline = async (data: any, filter: any, options: any): Promise<void>
   }
 }
 
+function generateRandomString(length: number) {
+    const characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+    let result = '';
+
+    for (let i = 0; i < length; i++) {
+      const randomIndex = Math.floor(Math.random() * characters.length);
+      result += characters.charAt(randomIndex);
+    }
+
+    return result;
+  }
+  
 const Register = async (body: any, user: any): Promise<void> => {
 
   const { username, password, mobile, ip, exposure, origin, commission, roles, isSportBook, isIntCasino, isCasino, isAviator } = body
@@ -259,7 +271,7 @@ const Register = async (body: any, user: any): Promise<void> => {
     parts.shift();
     originStr = hostUrl(parts.join('.'));
   }
-
+const selfReferral =generateRandomString(6)
   let data: any = {
     username: username.toLowerCase().trim(),
     password: password,
@@ -270,7 +282,8 @@ const Register = async (body: any, user: any): Promise<void> => {
     origin: originStr,
     commision: commission,
     parentId,
-    creditRef: 0
+    creditRef: 0,
+    selfReferral
   };
   if (roles == 'User') {
     data = { ...data, exposure: 0 };
@@ -285,6 +298,8 @@ const Register = async (body: any, user: any): Promise<void> => {
   await User.create(data);
   return;
 }
+
+ 
 
 const myDownline = async (filter: any, options: any, userData: any): Promise<void> => {
   try {

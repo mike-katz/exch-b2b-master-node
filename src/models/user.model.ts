@@ -107,6 +107,9 @@ const userSchema = new mongoose.Schema<UserProfile, UserModel>(
     isAviator: {
       type: Boolean,
     },
+    selfReferral: {
+      type: String,
+    },
   },
   { timestamps: true }
 );

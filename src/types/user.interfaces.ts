@@ -27,6 +27,7 @@ interface User {
   isIntCasino: boolean;
   isSportBook: boolean;
   isAviator: boolean;
+  selfReferral: string;
 }
 
 interface UserProfile extends User, Document {
