@@ -677,6 +677,7 @@ const saveProfileLog = async (fromUser: string, toUser: string, type: string, ol
 
 const profileLog = async (userId: string, user: any, options:any) => {
   let filter: any = { fromUser: user?.username }
+  let username = user?.username;
   if (userId && userId != "") {
     const datas: any = await User.findOne({ _id: userId });
     if (!datas) {
@@ -684,10 +685,11 @@ const profileLog = async (userId: string, user: any, options:any) => {
         msg: "user not found",
       });
     }
+    username = datas?.username;
     filter = { ...filter, toUser: datas?.username }
   }
   const data: any = await ProfileLog.paginate(filter, options)
-  return data;
+  return {data, username};
 }
 
 

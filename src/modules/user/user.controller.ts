@@ -165,12 +165,11 @@ const profileLog = catchAsync(
   async (req: any, res: CustomResponse) => {
     const { userId } = req.query;
     const options = pick(req?.query, ["sortBy", "limit", "page"]);
-
     const data = await UserService.profileLog(userId, req.user, options);
-    const response = prepareResponse({
+    const response = {
       message: "Get profile log successfully.",
-      data,
-    });
+      ...data,
+    };
     res.status(httpStatus.OK).json(response);
   }
 );
