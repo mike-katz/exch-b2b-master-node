@@ -52,6 +52,7 @@ const Register = catchAsync(
     res.status(httpStatus.CREATED).json(response);
   }
 );
+
 const myDownline = catchAsync(
   async (req: any, res: CustomResponse) => {
     const filter = pick(req?.query, ["search", "status"]);
@@ -163,7 +164,9 @@ const updateProfile = catchAsync(
 const profileLog = catchAsync(
   async (req: any, res: CustomResponse) => {
     const { userId } = req.query;
-    const data = await UserService.profileLog(userId, req.user);
+    const options = pick(req?.query, ["sortBy", "limit", "page"]);
+
+    const data = await UserService.profileLog(userId, req.user, options);
     const response = prepareResponse({
       message: "Get profile log successfully.",
       data,

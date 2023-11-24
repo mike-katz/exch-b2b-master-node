@@ -629,7 +629,7 @@ const updateProfile = async (body: any, userData: any) => {
     if (found) {
       if (password && password != "") {
         found.password = password
-        await saveProfileLog(userData?.username, found?.username, "password", "", password)
+        await saveProfileLog(userData?.username, found?.username, "password", "-", "-")
       }
 
       if (mobile && mobile != "") {
@@ -675,7 +675,7 @@ const saveProfileLog = async (fromUser: string, toUser: string, type: string, ol
 }
 
 
-const profileLog = async (userId: string, user: any) => {
+const profileLog = async (userId: string, user: any, options:any) => {
   let filter: any = { fromUser: user?.username }
   if (userId && userId != "") {
     const datas: any = await User.findOne({ _id: userId });
@@ -686,7 +686,7 @@ const profileLog = async (userId: string, user: any) => {
     }
     filter = { ...filter, toUser: datas?.username }
   }
-  const data: any = await ProfileLog.find(filter)
+  const data: any = await ProfileLog.paginate(filter, options)
   return data;
 }
 
