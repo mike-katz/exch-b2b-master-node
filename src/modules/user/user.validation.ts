@@ -111,6 +111,8 @@ const updateProfile = {
 const profileLog = {
   query: Joi.object().keys({
     userId: Joi.string().optional(),
+    page: Joi.number().required(),
+    limit: Joi.number().required(),
   }),
 };
 
