@@ -77,6 +77,7 @@ const userSportsProfitloss = async (filters: any): Promise<void> => {
     results.map((result: any) => {
       const data: any = {};
       data.pl = result.pl;
+      data.commission = result.commission;
       data.sportId = result._id.sportId;
       data.sportName = result._id.sportName;
       retresult.push(data);
@@ -167,6 +168,7 @@ const userEventsProfitloss = async (filters: any, options: any): Promise<void> =
     results.map((result: any) => {
       const data: any = {};
       data.pl = result.pl;
+      data.commission = result.commission;
       data.eventId = result._id.eventId;
       data.eventName = result._id.eventName;
       data.sportName = result._id.sportName;
