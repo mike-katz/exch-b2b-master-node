@@ -28,6 +28,9 @@ const reportingBetSchema = new Schema({
   pl: {
     type: Number,
   },
+  commission: {
+    type: Number,
+  },
   marketName: {
     type: String,
   },
