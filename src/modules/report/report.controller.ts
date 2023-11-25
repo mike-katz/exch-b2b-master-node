@@ -49,7 +49,10 @@ const fetchIntCasinoTotalPL = catchAsync(
 
 const fetchSportEventList = catchAsync(
   async (req: any, res: Response) => {
-    const data:any = await ReportService.fetchSportEventList(req.user);
+    const options = pick(req?.query, ['sortBy', 'limit', 'page']);
+    const filter = pick(req?.query, ['exEventId', 'sportName']);
+
+    const data:any = await ReportService.fetchSportEventList(req.user, filter, options);
     res.status(httpStatus.OK).json({
       message: "Sport Event List success",
       data,      

@@ -11,15 +11,7 @@ export interface IReportRouteDetails {
 }
 
 const routeDetails: IReportRouteDetails[] = [
-  {
-    key: "fetchSportTotalPLAPI",
-    method: "get",
-    url: "/sport/total-pl",
-    validationMethodName: "fetchSportTotalPL",
-    controllerMethodName: "fetchSportTotalPL",
-    auth: "",
-  },
-
+ 
   {
     key: "fetchCasinoTotalPLAPI",
     method: "get",
@@ -35,6 +27,16 @@ const routeDetails: IReportRouteDetails[] = [
     url: "/intCasino/total-pl",
     validationMethodName: "fetchSportTotalPL",
     controllerMethodName: "fetchIntCasinoTotalPL",
+    auth: "",
+  },
+
+  //sport
+  {
+    key: "fetchSportTotalPLAPI",
+    method: "get",
+    url: "/sport/total-pl",
+    validationMethodName: "fetchSportTotalPL",
+    controllerMethodName: "fetchSportTotalPL",
     auth: "",
   },
 

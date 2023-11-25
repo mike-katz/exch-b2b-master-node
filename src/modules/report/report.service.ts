@@ -17,8 +17,11 @@ const fetchSportTotalPL = async (data: any): Promise<void> => {
 
       {
         $group: {
-          _id: 'cricket',
-          totalSum: { $sum: "$pl" }
+          _id: null,
+          name: { $first: "$sportName" },
+          sportId: { $first: "$sportId" },
+          totalSum: { $sum: "$pl" },
+          totalStack: { $sum: "$stake" }
         }
       }
     ]);
@@ -32,8 +35,11 @@ const fetchSportTotalPL = async (data: any): Promise<void> => {
 
       {
         $group: {
-          _id: 'tennis',
+          _id: null,
+          name: { $first: "$sportName" },
+          sportId: { $first: "$sportId" },
           totalSum: { $sum: "$pl" },
+          totalStack: { $sum: "$stake" }
         }
       }
     ]);
@@ -47,22 +53,34 @@ const fetchSportTotalPL = async (data: any): Promise<void> => {
 
       {
         $group: {
-          _id: 'soccer',
-          totalSum: { $sum: "$pl" }
+          _id: null,
+          name: { $first: "$sportName" },
+          sportId: { $first: "$sportId" },
+          totalSum: { $sum: "$pl" },
+          totalStack: { $sum: "$stake" }
         }
       }
     ]);
     const resp: any = [{
-      _id: 'Cricket',
-      totalPl: cricketData[0]?.totalSum
+      id: cricketData[0]?.sportId,
+      name: cricketData[0]?.name,
+      stack: cricketData[0]?.totalStack,
+      pl: cricketData[0]?.totalSum,
+      commission:0
     },
     {
-      _id: 'Tennis',
-      totalPl: tennisData[0]?.totalSum
+      id: tennisData[0]?.sportId,
+      name: tennisData[0]?.name,
+      stack: tennisData[0]?.totalStack,
+      pl: tennisData[0]?.totalSum,
+      commission:0
     },
     {
-      _id: 'Soccer',
-      totalPl: soccerData[0]?.totalSum
+      id: soccerData[0]?.sportId,
+      name: soccerData[0]?.name,
+      stack: soccerData[0]?.totalStack,
+      pl: soccerData[0]?.totalSum,
+      commission:0
     }]
     return resp;
 
@@ -87,8 +105,12 @@ const fetchCasinoTotalPL = async (data: any): Promise<void> => {
 
       {
         $group: {
-          _id: 'Casino',
-          totalPl: { $sum: "$betInfo.pnl" }
+          _id: null,
+          name: 'Casino',
+          id: '10',
+          pl: { $sum: "$betInfo.pnl" },
+          stack: { $sum: "$betInfo.reqStake" },
+          commission: 0
         }
       }
     ]);
@@ -114,8 +136,12 @@ const fetchIntCasinoTotalPL = async (data: any): Promise<void> => {
 
       {
         $group: {
-          _id: 'Int Casino',
-          totalPl: { $sum: "$pl" }
+          _id:null,
+          name: 'Int Casino',
+          id: '12',
+          pl: { $sum: "$pl" },
+          stack: { $sum: "$amount" },
+          commission: 0
         }
       }
     ]);
@@ -141,8 +167,12 @@ const fetchAviatorTotalPL = async (data: any): Promise<void> => {
 
       {
         $group: {
-          _id: 'Aviator',
-          totalPl: { $sum: "$pl" }
+          _id: null,
+          id: { $first: "$sportId" },          
+          name: 'Aviator',
+          pl: { $sum: "$pl" },
+          stack: { $sum: "$stack" },
+          commission:0
         }
       }
     ]);
@@ -155,25 +185,28 @@ const fetchAviatorTotalPL = async (data: any): Promise<void> => {
   }
 }
 
-const fetchSportEventList = async (data: any): Promise<void> => {
+const fetchSportEventList = async (data: any, filter:any, options:any): Promise<void> => {
   try {
     const userData = await userService.getMyUsersData(data?._id);
     const usernames = userData.map((item: any) => item?.username)
-    const cricket = await CricketBetPlace.aggregate([
-      {
-        $match: {
-          username: { $in: usernames }
-        }
-      },
+    let result: any = [];
+    // if (filter.sportName === 'Cricket') {
+      const cricket = await CricketBetPlace.aggregate([
+        {
+          $match: {
+            username: { $in: usernames }
+          }
+        },
 
-      {
-        $group: {
-          _id: "$exEventId",
-          eventName: { $first: "$eventName" },
-          totalPl: { $sum: "$pl" }
+        {
+          $group: {
+            _id: "$exEventId",
+            eventName: { $first: "$eventName" },
+            totalPl: { $sum: "$pl" }
+          }
         }
-      }
-    ]);
+      ]);
+    // }
 
     const tennis = await TennisBetPlace.aggregate([
       {

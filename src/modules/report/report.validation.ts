@@ -7,7 +7,9 @@ const fetchSportTotalPL = {
 };
 
 const fetchSportEventList = {
-  query: Joi.object().keys({    
+  query: Joi.object().keys({ 
+    sportName: Joi.string().optional(),
+    exEventId: Joi.string().optional(),
   }),
 };
 
