@@ -8,6 +8,7 @@ const bettingHistory = {
     to: Joi.optional(),
     marketType: Joi.optional(),
     sportName: Joi.optional(),
+    sportId: Joi.optional(),
     limit: Joi.required(),
     page: Joi.required()
   }),
