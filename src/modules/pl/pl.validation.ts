@@ -14,6 +14,7 @@ const userSportsProfitloss = {
     to: Joi.string(),
     page: Joi.optional(),
     limit: Joi.optional(),
+    matchName: Joi.optional(), 
   }),
 };
 
