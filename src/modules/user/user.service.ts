@@ -639,7 +639,7 @@ const updateProfile = async (body: any, userData: any) => {
     if (found) {
       if (password !== "" || mobile !== "" || commission > 0) {
         const lastParent = found?.parentId[found?.parentId?.length - 1];
-        if (lastParent !== userData?._id) {
+        if (lastParent !== userData?._id.toString()) {
           throw new ApiError(httpStatus.BAD_REQUEST, {
             msg: "You can not update details",
           });
