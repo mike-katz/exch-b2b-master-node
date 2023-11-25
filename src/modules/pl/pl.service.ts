@@ -404,7 +404,7 @@ const getCategoryTotalPL = async (filters: any): Promise<void> => {
           username: '$_id',
           totalPL: '$totalPL',
           createdAt: { $first: '$data.createdAt' },
-          sportName: 'St8',
+          sportName: 'Int Casino',
         },
       },
       { $sort: { updatedAt: -1 } },
@@ -468,7 +468,7 @@ const getCategoryList = async (filters: any, options: any): Promise<void> => {
           totalPL: '$totalPL',
           createdAt: { $first: '$data.createdAt' },
           categoryName: { $first: '$data.categoryName' },
-          sportName: 'St8',
+          sportName: 'Int Casino',
         },
       },
       { $sort: { updatedAt: -1 } },
@@ -546,7 +546,7 @@ const getGameList = async (filters: any, options: any): Promise<void> => {
           createdAt: { $first: '$data.createdAt' },
           categoryName: { $first: '$data.categoryName' },
           gameName: { $first: '$data.gameName' },
-          sportName: 'St8',
+          sportName: 'Int Casino',
         },
       },
       { $sort: { updatedAt: -1 } },
@@ -626,7 +626,7 @@ const userSportsProfitlossAura = async (filters: any): Promise<void> => {
     if (resData.length > 0) {
       retdata = resData.map((result: any) => {
         const retres = {
-          sportName: 'Aura',
+          sportName: 'Casino',
           roundId: result.betInfo.roundId,
           pl: '',
           runners: result.runners,
@@ -710,7 +710,7 @@ const userEventsProfitlossAura = async (filters: any, options: any): Promise<voi
     if (resData.results.length > 0) {
       retdata = resData.results.map((result: any) => {
         const retres = {
-          sportName: 'Aura',
+          sportName: 'Casino',
           eventName: result.matchName,
           eventId: result._id.toString(),
           roundId: result.betInfo.roundId,
@@ -797,9 +797,9 @@ const userMarketsProfitlossAura = async (filters: any, options: any): Promise<vo
     if (resData.results.length > 0) {
       retdata = resData.results.map((result: any) => {
         const retres = {
+          eventName: filters.matchName,
           sportId: '10',
-          sportName: 'Aura',
-          eventName: filters.eventName,
+          sportName: 'Casino',          
           marketName: result.marketName,
           roundId: result.betInfo.roundId,
           result: '',
@@ -888,7 +888,7 @@ const getUserBetListAura = async (filters: any, options: any): Promise<void> => 
           pl1: Number(data.betInfo.pnl),
           pl2: Number(-data.betInfo.reqStake),
           type: data.betInfo.isBack ? 'back' : 'lay',
-          sportName: 'Aura',
+          sportName: 'Casino',
           eventName: data.matchName,
           marketName: data.marketName,
           oddsPrice: data.betInfo.requestedOdds,
