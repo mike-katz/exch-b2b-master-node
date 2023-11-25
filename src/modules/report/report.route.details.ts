@@ -39,11 +39,30 @@ const routeDetails: IReportRouteDetails[] = [
   },
 
   {
+    key: "fetchEventTotalPLAPI",
+    method: "get",
+    url: "/sport/event/list",
+    validationMethodName: "fetchSportEventList",
+    controllerMethodName: "fetchSportEventList",
+    auth: "",
+  },
+
+  //aviator
+  {
     key: "fetchAviatorTotalPLAPI",
     method: "get",
     url: "/aviator/total-pl",
     validationMethodName: "fetchSportTotalPL",
     controllerMethodName: "fetchAviatorTotalPL",
+    auth: "",
+  },
+
+  {
+    key: "fetchAviatorListAPI",
+    method: "get",
+    url: "/aviator/list",
+    validationMethodName: "fetchAviatorList",
+    controllerMethodName: "fetchAviatorList",
     auth: "",
   }
 ];

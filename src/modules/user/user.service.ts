@@ -616,12 +616,7 @@ const updateProfile = async (body: any, userData: any) => {
 
   const { userId, password, commission, mobile, myPassword, isSportBook, isIntCasino, isCasino, isAviator } = body;
   try {
-    if (!userData.roles.some((role: any) => ['WhiteLabel', 'Admin'].includes(role))) {
-      throw new ApiError(httpStatus.BAD_REQUEST, {
-        msg: "you are not admin or whitelabel",
-      });
-    }
-
+    
     const user: any = await findUserByUsername(userData.username);
     if (!(await user.isPasswordMatch(myPassword))) {
       throw new ApiError(httpStatus.BAD_REQUEST, {
@@ -642,25 +637,35 @@ const updateProfile = async (body: any, userData: any) => {
     }
     const found = await findUserById(userId);
     if (found) {
-      const lastParent = found?.parentId[found?.parentId?.length - 1];
-      if (lastParent !== userData?._id) {
-         throw new ApiError(httpStatus.BAD_REQUEST, {
-          msg: "You can not update details",
-        });
-      }
-      if (password && password != "") {
-        found.password = password
-        await saveProfileLog(userData?.username, found?.username, "password", "-", "-")
-      }
+      if (password !== "" || mobile !== "" || commission > 0) {
+        const lastParent = found?.parentId[found?.parentId?.length - 1];
+        if (lastParent !== userData?._id) {
+          throw new ApiError(httpStatus.BAD_REQUEST, {
+            msg: "You can not update details",
+          });
+        }
 
-      if (mobile && mobile != "") {
-        found.mobile = mobile
-      }
-      if (commission && commission > 0) {
-        found.commision = commission
+        if (password && password != "") {
+          found.password = password
+          await saveProfileLog(userData?.username, found?.username, "password", "-", "-")
+        }
+
+        if (mobile && mobile != "") {
+          found.mobile = mobile
+        }
+
+        if (commission && commission > 0) {
+          found.commision = commission
+        }
       }
      
-      if (found.roles.includes('WhiteLabel')) {
+      // if (found.roles.includes('WhiteLabel')) {
+      if (isSportBook !== undefined || isIntCasino !== undefined || isCasino !== undefined || isAviator !== undefined) {
+        if (!userData.roles.some((role: any) => ['WhiteLabel', 'Admin'].includes(role))) {
+          throw new ApiError(httpStatus.BAD_REQUEST, {
+            msg: "you are not admin or whitelabel",
+          });
+        }
         console.log("if found")
         if (isSportBook !== undefined) {
           found.isSportBook = isSportBook

@@ -5,6 +5,7 @@ import catchAsync from "@/utils/catchAsync";
 import * as ReportService from "./report.service";
 import httpStatus from "http-status";
 import { Response } from "express";
+import pick from "@/utils/pick";
 
 const fetchSportTotalPL = catchAsync(
   async (req: any, res: Response) => {
@@ -46,4 +47,27 @@ const fetchIntCasinoTotalPL = catchAsync(
   }
 );
 
-export default { fetchSportTotalPL, fetchAviatorTotalPL, fetchCasinoTotalPL, fetchIntCasinoTotalPL };
+const fetchSportEventList = catchAsync(
+  async (req: any, res: Response) => {
+    const data:any = await ReportService.fetchSportEventList(req.user);
+    res.status(httpStatus.OK).json({
+      message: "Sport Event List success",
+      data,      
+    });
+  }
+);
+
+const fetchAviatorList = catchAsync(
+  async (req: any, res: Response) => {
+    const options = pick(req?.query, ['sortBy', 'limit', 'page']);
+    const data:any = await ReportService.fetchAviatorList(req.user, options);
+    res.status(httpStatus.OK).json({
+      message: "Aviator List success",
+      data,      
+    });
+  }
+);
+
+
+
+export default { fetchSportTotalPL, fetchAviatorTotalPL, fetchCasinoTotalPL, fetchIntCasinoTotalPL, fetchSportEventList, fetchAviatorList };

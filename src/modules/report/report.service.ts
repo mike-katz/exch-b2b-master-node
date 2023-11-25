@@ -155,4 +155,79 @@ const fetchAviatorTotalPL = async (data: any): Promise<void> => {
   }
 }
 
-export { fetchSportTotalPL, fetchCasinoTotalPL, fetchIntCasinoTotalPL, fetchAviatorTotalPL }
+const fetchSportEventList = async (data: any): Promise<void> => {
+  try {
+    const userData = await userService.getMyUsersData(data?._id);
+    const usernames = userData.map((item: any) => item?.username)
+    const cricket = await CricketBetPlace.aggregate([
+      {
+        $match: {
+          username: { $in: usernames }
+        }
+      },
+
+      {
+        $group: {
+          _id: "$exEventId",
+          eventName: { $first: "$eventName" },
+          totalPl: { $sum: "$pl" }
+        }
+      }
+    ]);
+
+    const tennis = await TennisBetPlace.aggregate([
+      {
+        $match: {
+          username: { $in: usernames }
+        }
+      },
+
+      {
+        $group: {
+          _id: "$exEventId",
+          eventName: { $first: "$eventName" },
+          totalPl: { $sum: "$pl" }
+        }
+      }
+    ]);
+
+    const soccer = await SoccerBetPlace.aggregate([
+      {
+        $match: {
+          username: { $in: usernames }
+        }
+      },
+
+      {
+        $group: {
+          _id: "$exEventId",
+          eventName: { $first: "$eventName" },
+          totalPl: { $sum: "$pl" }
+        }
+      }
+    ]);
+    const resp:any ={cricket, tennis, soccer }
+    return resp;
+
+  } catch (error: any) {
+    throw new ApiError(httpStatus.BAD_REQUEST, {
+      msg: error?.errorData?.msg || "invalid user id.",
+    });
+  }
+}
+
+const fetchAviatorList = async (data: any, options:any): Promise<void> => {
+  try {
+    const userData = await userService.getMyUsersData(data?._id);
+    const usernames = userData.map((item: any) => item?.username)
+    const resp = await Avplacebet.paginate({user: { $in: usernames }},options);
+    return resp;
+
+  } catch (error: any) {
+    throw new ApiError(httpStatus.BAD_REQUEST, {
+      msg: error?.errorData?.msg || "invalid user id.",
+    });
+  }
+}
+
+export { fetchSportTotalPL, fetchCasinoTotalPL, fetchIntCasinoTotalPL, fetchAviatorTotalPL, fetchSportEventList, fetchAviatorList }
