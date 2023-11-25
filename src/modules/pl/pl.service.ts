@@ -65,6 +65,9 @@ const userSportsProfitloss = async (filters: any): Promise<void> => {
             pl: {
               $sum: '$pl',
             },
+            commission: {
+              $sum: '$commission',
+            },
           },
         },
         {
@@ -129,6 +132,9 @@ const userEventsProfitloss = async (filters: any, options: any): Promise<void> =
             },
             pl: {
               $sum: '$pl',
+            },
+            commission: {
+              $sum: '$commission',
             },
           },
         },
