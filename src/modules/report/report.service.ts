@@ -158,6 +158,19 @@ const fetchSportEventList = async (data: any, filter:any, options:any): Promise<
     } else if (filter.exEventId) {
       pipeline.push({
         $group: {
+          _id: "$exMarketId",
+           eventName: { $first: "$eventName" },
+          sportName: { $first: "$sportName" },
+          exEventId: { $first: "$exEventId" },
+          exMarketId: { $first: "$exMarketId" },
+          pl: { $sum: "$pl" },
+          commission: { $sum: "$commission" }
+        }
+      });
+    }
+     else if (filter.sportName) {
+      pipeline.push({
+        $group: {
           _id: "$exEventId",
            eventName: { $first: "$eventName" },
           sportName: { $first: "$sportName" },
@@ -167,7 +180,8 @@ const fetchSportEventList = async (data: any, filter:any, options:any): Promise<
           commission: { $sum: "$commission" }
         }
       });
-    } else{
+    }
+    else {
       pipeline.push({
         $group: {
           _id: "$sportName",
