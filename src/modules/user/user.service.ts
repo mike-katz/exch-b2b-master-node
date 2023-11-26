@@ -721,17 +721,8 @@ const profileLog = async (userId: string, user: any, options:any) => {
 }
 
 
-const getMyUsersData = async (userId: string) => {
-      const userData: any = await User.find({
-          $expr: {
-            $eq: [
-              userId.toString(),
-              {
-                $arrayElemAt: ['$parentId', -1]
-              }
-            ]
-          }
-      }).select('username');    
+const getAllUsersDownlineUser = async (userId: string) => {
+      const userData: any = await User.find({ parentId: {$in: [userId]} }).select('username');    
   return userData;
 }
 
@@ -752,5 +743,5 @@ export {
   profileLog,
   findUserByUsername,
   findUserById,
-  getMyUsersData
+  getAllUsersDownlineUser
 }
