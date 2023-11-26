@@ -148,6 +148,9 @@ const fetchSportEventList = async (data: any, filter:any, options:any): Promise<
         $group: {
           _id: "$sportName",
           eventName: { $first: "$eventName" },
+          sportName: { $first: "$sportName" },
+          exEventId: { $first: "$exEventId" },
+          exMarketId: { $first: "$exMarketId" },
           pl: { $sum: "$pl" },
           commission: { $sum: "$commission" }
         }
@@ -156,7 +159,10 @@ const fetchSportEventList = async (data: any, filter:any, options:any): Promise<
       pipeline.push({
         $group: {
           _id: "$exEventId",
-          eventName: { $first: "$eventName" },
+           eventName: { $first: "$eventName" },
+          sportName: { $first: "$sportName" },
+          exEventId: { $first: "$exEventId" },
+          exMarketId: { $first: "$exMarketId" },
           pl: { $sum: "$pl" },
           commission: { $sum: "$commission" }
         }
@@ -166,6 +172,9 @@ const fetchSportEventList = async (data: any, filter:any, options:any): Promise<
         $group: {
           _id: "$exMarketId",
           eventName: { $first: "$eventName" },
+          sportName: { $first: "$sportName" },
+          exEventId: { $first: "$exEventId" },
+          exMarketId: { $first: "$exMarketId" },
           pl: { $sum: "$pl" },
           commission: { $sum: "$commission" }
         }
