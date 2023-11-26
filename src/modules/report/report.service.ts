@@ -40,7 +40,7 @@ const fetchCasinoTotalPL = async (data: any): Promise<void> => {
     const userData = await userService.getAllUsersDownlineUser(data?._id);
     const userIds = userData.map((item: any) => item?._id.toString())
 
-    const resp = await AuraCSPlaceBet.aggregate([
+    let resp = await AuraCSPlaceBet.aggregate([
       {
         $match: {
           userId: { $in: userIds }
@@ -50,14 +50,14 @@ const fetchCasinoTotalPL = async (data: any): Promise<void> => {
       {
         $group: {
           _id: null,
-          name: 'Casino',
-          id: '10',
           pl: { $sum: "$betInfo.pnl" },
           stack: { $sum: "$betInfo.reqStake" },
-          // commission: 0
         }
       }
     ]);
+    let datas = resp[0];
+    datas = {...datas,name: 'Casino',id: '10'}
+    resp[0]=datas
     return resp;
 
   } catch (error: any) {
@@ -71,7 +71,7 @@ const fetchIntCasinoTotalPL = async (data: any): Promise<void> => {
   try {
     const userData = await userService.getAllUsersDownlineUser(data?._id);
     const usernames = userData.map((item: any) => item?.username)
-    const resp = await St8Transaction.aggregate([
+    let resp = await St8Transaction.aggregate([
       {
         $match: {
           username: { $in: usernames }
@@ -81,14 +81,15 @@ const fetchIntCasinoTotalPL = async (data: any): Promise<void> => {
       {
         $group: {
           _id:null,
-          name: 'Int Casino',
-          id: '12',
           pl: { $sum: "$pl" },
           stack: { $sum: "$amount" },
-          // commission: 0
         }
       }
     ]);
+
+    let datas = resp[0];
+    datas = {...datas,name: 'Int Casino',id: '12'}
+    resp[0]=datas
     return resp;
 
   } catch (error: any) {
