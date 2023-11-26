@@ -143,10 +143,10 @@ const fetchSportEventList = async (data: any, filter:any, options:any): Promise<
       }
     ];
 
-    if (filter.sportName) {
+    if (filter.exMarketId) {
       pipeline.push({
         $group: {
-          _id: "$sportName",
+          _id: "$exMarketId",
           eventName: { $first: "$eventName" },
           sportName: { $first: "$sportName" },
           exEventId: { $first: "$exEventId" },
@@ -170,7 +170,7 @@ const fetchSportEventList = async (data: any, filter:any, options:any): Promise<
     } else{
       pipeline.push({
         $group: {
-          _id: "$exMarketId",
+          _id: "$sportName",
           eventName: { $first: "$eventName" },
           sportName: { $first: "$sportName" },
           exEventId: { $first: "$exEventId" },
