@@ -923,4 +923,4 @@ const getUserBetListAura = async (filters: any, options: any): Promise<void> => 
   }
 }
 
-export { userSportsProfitloss, userEventsProfitloss, userMarketsProfitloss, getUserBetList, aviatorSumOfPl, aviatorPl, getCategoryTotalPL, getCategoryList, getGameList, userSportsProfitlossAura, userEventsProfitlossAura, userMarketsProfitlossAura, getUserBetListAura }
+export { userSportsProfitloss, userEventsProfitloss, userMarketsProfitloss, getUserBetList, aviatorSumOfPl, aviatorPl, getCategoryTotalPL, getCategoryList, getGameList, userSportsProfitlossAura, userEventsProfitlossAura, userMarketsProfitlossAura, getUserBetListAura, getFilterProfitLoss }

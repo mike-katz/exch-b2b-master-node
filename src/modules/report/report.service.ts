@@ -1,19 +1,31 @@
-import { CricketBetPlace, AuraCSPlaceBet, TennisBetPlace, SoccerBetPlace, Avplacebet, St8Transaction, Reporting } from "@/models"
+import { AuraCSPlaceBet, Avplacebet, St8Transaction, Reporting } from "@/models"
 import ApiError from "@/utils/ApiError";
 import httpStatus from "http-status";
 import * as userService from "@/modules/user/user.service";
+import { getFilterProfitLoss } from "../pl/pl.service";
 
-const fetchSportTotalPL = async (data: any): Promise<void> => {
+const fetchSportTotalPL = async (data: any, filter:any): Promise<void> => {
   try {
 
     const userData = await userService.getAllUsersDownlineUser(data?._id);
     const usernames = userData.map((item: any) => item?.username)
-    
+    const dateData = getFilterProfitLoss(filter);
+    if (dateData.error === 1) {
+      throw new ApiError(httpStatus.BAD_REQUEST, {
+        msg: "Please select only 30 days range only.",
+      });
+    }
+    if (dateData.filteredData) {
+      const filterData = dateData.filteredData;
+      filter = { ...filter, ...filterData };
+      delete filter.to
+      delete filter.from
+      delete filter.timeZone
+    }
+    filter.username= { $in: usernames }
     const response = await Reporting.aggregate([
       {
-        $match: {
-          username: { $in: usernames }
-        }
+        $match: filter
       },
       {
         $group: {
@@ -35,16 +47,27 @@ const fetchSportTotalPL = async (data: any): Promise<void> => {
   }
 }
 
-const fetchCasinoTotalPL = async (data: any): Promise<void> => {
+const fetchCasinoTotalPL = async (data: any, filter: any): Promise<void> => {
   try {
     const userData = await userService.getAllUsersDownlineUser(data?._id);
     const userIds = userData.map((item: any) => item?._id.toString())
-
+    const dateData = getFilterProfitLoss(filter);
+    if (dateData.error === 1) {
+      throw new ApiError(httpStatus.BAD_REQUEST, {
+        msg: "Please select only 30 days range only.",
+      });
+    }
+    if (dateData.filteredData) {
+      const filterData = dateData.filteredData;
+      filter = { ...filter, ...filterData };
+      delete filter.to
+      delete filter.from
+      delete filter.timeZone
+    }
+    filter.userId= { $in: userIds }
     let resp = await AuraCSPlaceBet.aggregate([
       {
-        $match: {
-          userId: { $in: userIds }
-        }
+        $match: filter
       },
 
       {
@@ -67,15 +90,27 @@ const fetchCasinoTotalPL = async (data: any): Promise<void> => {
   }
 }
 
-const fetchIntCasinoTotalPL = async (data: any): Promise<void> => {
+const fetchIntCasinoTotalPL = async (data: any, filter:any): Promise<void> => {
   try {
     const userData = await userService.getAllUsersDownlineUser(data?._id);
     const usernames = userData.map((item: any) => item?.username)
+    const dateData = getFilterProfitLoss(filter);
+    if (dateData.error === 1) {
+      throw new ApiError(httpStatus.BAD_REQUEST, {
+        msg: "Please select only 30 days range only.",
+      });
+    }
+    if (dateData.filteredData) {
+      const filterData = dateData.filteredData;
+      filter = { ...filter, ...filterData };
+      delete filter.to
+      delete filter.from
+      delete filter.timeZone
+    }
+    filter.username= { $in: usernames }
     let resp = await St8Transaction.aggregate([
       {
-        $match: {
-          username: { $in: usernames }
-        }
+        $match: filter
       },
 
       {
@@ -99,15 +134,27 @@ const fetchIntCasinoTotalPL = async (data: any): Promise<void> => {
   }
 }
 
-const fetchAviatorTotalPL = async (data: any): Promise<void> => {
+const fetchAviatorTotalPL = async (data: any, filter: any): Promise<void> => {
   try {
     const userData = await userService.getAllUsersDownlineUser(data?._id);
     const usernames = userData.map((item: any) => item?.username)
+    const dateData = getFilterProfitLoss(filter);
+    if (dateData.error === 1) {
+      throw new ApiError(httpStatus.BAD_REQUEST, {
+        msg: "Please select only 30 days range only.",
+      });
+    }
+    if (dateData.filteredData) {
+      const filterData = dateData.filteredData;
+      filter = { ...filter, ...filterData };
+      delete filter.to
+      delete filter.from
+      delete filter.timeZone
+    }
+    filter.user = { $in: usernames }
     const resp = await Avplacebet.aggregate([
       {
-        $match: {
-          user: { $in: usernames }
-        }
+        $match: filter
       },
 
       {
@@ -124,8 +171,6 @@ const fetchAviatorTotalPL = async (data: any): Promise<void> => {
     return resp;
 
   } catch (error: any) {
-    console.log("error",error);
-    
     throw new ApiError(httpStatus.BAD_REQUEST, {
       msg: error?.errorData?.msg || "invalid user id.",
     });
@@ -137,34 +182,19 @@ const fetchSportEventList = async (data: any, filter:any, options:any): Promise<
     const userData = await userService.getAllUsersDownlineUser(data?._id);
     const usernames = userData.map((item: any) => item?.username)
     filter.username = { $in: usernames }
-    if (filter?.from && filter?.from != "" && filter?.to && filter?.to != "") {
-      delete filter.createdAt
-      const date1: any = new Date(filter?.from);
-      const date2: any = new Date(filter?.to);
-      date2.setHours(23, 59, 59, 999);
-      const timeDifferenceMs = date2 - date1;
-      const millisecondsIn30Days = 1000 * 60 * 60 * 24 * 30;
-      if (timeDifferenceMs >= millisecondsIn30Days) {
-        throw new ApiError(httpStatus.BAD_REQUEST, {
-          msg: "Please select only 30 days range only.",
-        });
-      }
-      filter.createdAt = {
-        $gte: new Date(date1),
-        $lte: new Date(date2),
-      };
-
-      delete filter.to
-      delete filter.from
-    }
-    if (filter?.to) {
-      filter.createdAt = new Date(filter.to);
-      delete filter.to
+    const dateData = getFilterProfitLoss(filter);
+    if (dateData.error === 1) {
+      throw new ApiError(httpStatus.BAD_REQUEST, {
+        msg: "Please select only 30 days range only.",
+      });
     }
 
-    if (filter?.from) {
-      filter.createdAt = new Date(filter.from);
+    if (dateData.filteredData) {
+      const filterData = dateData.filteredData;
+      filter = { ...filter, ...filterData };
+      delete filter.to
       delete filter.from
+      delete filter.timeZone
     }
 
     const pipeline: any[] = [
@@ -261,36 +291,20 @@ const fetchSportEventList = async (data: any, filter:any, options:any): Promise<
 
 const fetchAviatorList = async (data: any, filter: any, options:any): Promise<void> => {
   try {
-    if (filter?.from && filter?.from != "" && filter?.to && filter?.to != "") {
-      delete filter.createdAt
-      const date1: any = new Date(filter?.from);
-      const date2: any = new Date(filter?.to);
-      date2.setHours(23, 59, 59, 999);
-      const timeDifferenceMs = date2 - date1;
-      const millisecondsIn30Days = 1000 * 60 * 60 * 24 * 30;
-      if (timeDifferenceMs >= millisecondsIn30Days) {
-        throw new ApiError(httpStatus.BAD_REQUEST, {
-          msg: "Please select only 30 days range only.",
-        });
-      }
-      filter.createdAt = {
-        $gte: new Date(date1),
-        $lte: new Date(date2),
-      };
 
+    const dateData = getFilterProfitLoss(filter);
+    if (dateData.error === 1) {
+      throw new ApiError(httpStatus.BAD_REQUEST, {
+        msg: "Please select only 30 days range only.",
+      });
+    }
+    if (dateData.filteredData) {
+      const filterData = dateData.filteredData;
+      filter = { ...filter, ...filterData };
       delete filter.to
       delete filter.from
+      delete filter.timeZone
     }
-    if (filter?.to) {
-      filter.createdAt = new Date(filter.to);
-      delete filter.to
-    }
-
-    if (filter?.from) {
-      filter.createdAt = new Date(filter.from);
-      delete filter.from
-    }
-    
     const userData = await userService.getAllUsersDownlineUser(data?._id);
     const usernames = userData.map((item: any) => item?.username)
     filter.user= { $in: usernames }
