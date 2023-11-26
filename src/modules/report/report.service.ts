@@ -137,6 +137,36 @@ const fetchSportEventList = async (data: any, filter:any, options:any): Promise<
     const userData = await userService.getAllUsersDownlineUser(data?._id);
     const usernames = userData.map((item: any) => item?.username)
     filter.username = { $in: usernames }
+    if (filter?.from && filter?.from != "" && filter?.to && filter?.to != "") {
+      delete filter.createdAt
+      const date1: any = new Date(filter?.from);
+      const date2: any = new Date(filter?.to);
+      date2.setHours(23, 59, 59, 999);
+      const timeDifferenceMs = date2 - date1;
+      const millisecondsIn30Days = 1000 * 60 * 60 * 24 * 30;
+      if (timeDifferenceMs >= millisecondsIn30Days) {
+        throw new ApiError(httpStatus.BAD_REQUEST, {
+          msg: "Please select only 30 days range only.",
+        });
+      }
+      filter.createdAt = {
+        $gte: new Date(date1),
+        $lte: new Date(date2),
+      };
+
+      delete filter.to
+      delete filter.from
+    }
+    if (filter?.to) {
+      filter.createdAt = new Date(filter.to);
+      delete filter.to
+    }
+
+    if (filter?.from) {
+      filter.createdAt = new Date(filter.from);
+      delete filter.from
+    }
+
     const pipeline: any[] = [
       {
         $match: filter
@@ -229,11 +259,42 @@ const fetchSportEventList = async (data: any, filter:any, options:any): Promise<
   }
 }
 
-const fetchAviatorList = async (data: any, options:any): Promise<void> => {
+const fetchAviatorList = async (data: any, filter: any, options:any): Promise<void> => {
   try {
+    if (filter?.from && filter?.from != "" && filter?.to && filter?.to != "") {
+      delete filter.createdAt
+      const date1: any = new Date(filter?.from);
+      const date2: any = new Date(filter?.to);
+      date2.setHours(23, 59, 59, 999);
+      const timeDifferenceMs = date2 - date1;
+      const millisecondsIn30Days = 1000 * 60 * 60 * 24 * 30;
+      if (timeDifferenceMs >= millisecondsIn30Days) {
+        throw new ApiError(httpStatus.BAD_REQUEST, {
+          msg: "Please select only 30 days range only.",
+        });
+      }
+      filter.createdAt = {
+        $gte: new Date(date1),
+        $lte: new Date(date2),
+      };
+
+      delete filter.to
+      delete filter.from
+    }
+    if (filter?.to) {
+      filter.createdAt = new Date(filter.to);
+      delete filter.to
+    }
+
+    if (filter?.from) {
+      filter.createdAt = new Date(filter.from);
+      delete filter.from
+    }
+    
     const userData = await userService.getAllUsersDownlineUser(data?._id);
     const usernames = userData.map((item: any) => item?.username)
-    const resp = await Avplacebet.paginate({user: { $in: usernames }},options);
+    filter.user= { $in: usernames }
+    const resp = await Avplacebet.paginate(filter, options);
     return resp;
 
   } catch (error: any) {

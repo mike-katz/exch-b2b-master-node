@@ -50,7 +50,7 @@ const fetchIntCasinoTotalPL = catchAsync(
 const fetchSportEventList = catchAsync(
   async (req: any, res: Response) => {
     const options = pick(req?.query, ['sortBy', 'limit', 'page']);
-    const filter = pick(req?.query, ['exEventId','exMarketId', 'sportName']);
+    const filter = pick(req?.query, ['exEventId','exMarketId', 'sportName', 'from', 'to']);
 
     const data:any = await ReportService.fetchSportEventList(req.user, filter, options);
     res.status(httpStatus.OK).json({
@@ -63,7 +63,9 @@ const fetchSportEventList = catchAsync(
 const fetchAviatorList = catchAsync(
   async (req: any, res: Response) => {
     const options = pick(req?.query, ['sortBy', 'limit', 'page']);
-    const data:any = await ReportService.fetchAviatorList(req.user, options);
+    const filter = pick(req?.query, ['from', 'to']);
+    
+    const data:any = await ReportService.fetchAviatorList(req.user, filter, options);
     res.status(httpStatus.OK).json({
       message: "Aviator List success",
       data,      

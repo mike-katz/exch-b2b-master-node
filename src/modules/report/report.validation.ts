@@ -11,6 +11,8 @@ const fetchSportEventList = {
     sportName: Joi.string().optional(),
     exEventId: Joi.string().optional(),
     exMarketId: Joi.string().optional(),
+    from: Joi.string().optional(),
+    to: Joi.string().optional(),
     page: Joi.number().required(),
     limit: Joi.number().required(),
   }),
@@ -18,6 +20,8 @@ const fetchSportEventList = {
 
 const fetchAviatorList = {
   query: Joi.object().keys({    
+    from: Joi.string().optional(),
+    to: Joi.string().optional(),
     page: Joi.number().required(),
     limit: Joi.number().required(),
   }),
