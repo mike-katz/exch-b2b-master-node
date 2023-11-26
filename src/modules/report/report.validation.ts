@@ -10,6 +10,9 @@ const fetchSportEventList = {
   query: Joi.object().keys({ 
     sportName: Joi.string().optional(),
     exEventId: Joi.string().optional(),
+    exMarketId: Joi.string().optional(),
+    page: Joi.number().required(),
+    limit: Joi.number().required(),
   }),
 };
 

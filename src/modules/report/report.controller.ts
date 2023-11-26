@@ -50,7 +50,7 @@ const fetchIntCasinoTotalPL = catchAsync(
 const fetchSportEventList = catchAsync(
   async (req: any, res: Response) => {
     const options = pick(req?.query, ['sortBy', 'limit', 'page']);
-    const filter = pick(req?.query, ['exEventId', 'sportName']);
+    const filter = pick(req?.query, ['exEventId','exMarketId', 'sportName']);
 
     const data:any = await ReportService.fetchSportEventList(req.user, filter, options);
     res.status(httpStatus.OK).json({
@@ -70,7 +70,5 @@ const fetchAviatorList = catchAsync(
     });
   }
 );
-
-
 
 export default { fetchSportTotalPL, fetchAviatorTotalPL, fetchCasinoTotalPL, fetchIntCasinoTotalPL, fetchSportEventList, fetchAviatorList };

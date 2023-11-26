@@ -136,60 +136,62 @@ const fetchSportEventList = async (data: any, filter:any, options:any): Promise<
   try {
     const userData = await userService.getAllUsersDownlineUser(data?._id);
     const usernames = userData.map((item: any) => item?.username)
-    let result: any = [];
-    // if (filter.sportName === 'Cricket') {
-      const cricket = await CricketBetPlace.aggregate([
-        {
-          $match: {
-            username: { $in: usernames }
-          }
-        },
-
-        {
-          $group: {
-            _id: "$exEventId",
-            eventName: { $first: "$eventName" },
-            totalPl: { $sum: "$pl" }
-          }
-        }
-      ]);
-    // }
-
-    const tennis = await TennisBetPlace.aggregate([
+    filter.username = { $in: usernames }
+    const pipeline: any[] = [
       {
-        $match: {
-          username: { $in: usernames }
-        }
-      },
+        $match: filter
+      }
+    ];
 
-      {
+    if (filter.sportName) {
+      pipeline.push({
+        $group: {
+          _id: "$sportName",
+          eventName: { $first: "$eventName" },
+          pl: { $sum: "$pl" },
+          commission: { $sum: "$commission" }
+        }
+      });
+    } else if (filter.exEventId) {
+      pipeline.push({
         $group: {
           _id: "$exEventId",
           eventName: { $first: "$eventName" },
-          totalPl: { $sum: "$pl" }
+          pl: { $sum: "$pl" },
+          commission: { $sum: "$commission" }
         }
-      }
-    ]);
-
-    const soccer = await SoccerBetPlace.aggregate([
-      {
-        $match: {
-          username: { $in: usernames }
-        }
-      },
-
-      {
+      });
+    } else{
+      pipeline.push({
         $group: {
-          _id: "$exEventId",
+          _id: "$exMarketId",
           eventName: { $first: "$eventName" },
-          totalPl: { $sum: "$pl" }
+          pl: { $sum: "$pl" },
+          commission: { $sum: "$commission" }
         }
-      }
-    ]);
-    const resp:any ={cricket, tennis, soccer }
-    return resp;
+      });
+    }
+  
+    const totalResults = await Reporting.aggregate(pipeline);
+    const { limit = 10, page = 1 } = options;
+    const skip = (page - 1) * limit;
+    pipeline.push({ $skip: skip }, { $limit: parseInt(limit) }, { $sort: { _id: -1 } })
+
+    const results = await Reporting.aggregate(pipeline);
+    // totalResults = await totalResults.toArray();
+
+    const result: any = {
+      page,
+      limit,
+      totalPages: Math.ceil(totalResults.length / limit),
+      totalResults: totalResults.length,
+      results
+    };
+    return result;
 
   } catch (error: any) {
+    console.log("error",error);
+    
     throw new ApiError(httpStatus.BAD_REQUEST, {
       msg: error?.errorData?.msg || "invalid user id.",
     });
