@@ -365,8 +365,9 @@ const betPL = async (data: any, eventId: string): Promise<void> => {
         }
       }
     });
-    let index = 0;
+    
     marketIdMap.forEach((selectionId, exMarketId) => {
+      const index = result.findIndex((entry: any) => entry.exMarketId === exMarketId);
       const updatedItem = {
         _id: result[index]?._id,
         username: result[index]?.username,
@@ -375,7 +376,6 @@ const betPL = async (data: any, eventId: string): Promise<void> => {
         exMarketId,
         selectionId
       };
-      index++;
       outputJson.push(updatedItem);
     });
     return outputJson;
