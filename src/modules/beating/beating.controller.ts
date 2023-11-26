@@ -10,7 +10,7 @@ import pick from "@/utils/pick";
 
 const bettingHistory = catchAsync(
   async (req: any, res: CustomResponse) => {
-    const filter = pick(req?.query, ['marketType', 'sportName', 'status', 'from', 'to']);
+    const filter = pick(req?.query, ['marketType','userId', 'sportName', 'status', 'from', 'to']);
     const options = pick(req?.query, ["sortBy", "limit", "page"]);
     const data = await BettingService.bettingHistory(req.user, filter, options);
     const response = prepareResponse({

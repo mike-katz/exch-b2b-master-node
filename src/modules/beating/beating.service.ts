@@ -80,7 +80,7 @@ const bettingHistory = async (data: any, filter: any, options: any): Promise<voi
     // delete filter.IsVoid;
     delete filter.sportName;
     resData = await St8Transaction.paginate(filter, options);
-  } else {
+    } else {
     resData = await CricketBetPlace.paginate(filter, options);
     if (resData.results.length === 0) {
       resData = await TennisBetPlace.paginate(filter, options);
