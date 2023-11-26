@@ -43,7 +43,7 @@ const routeDetails: IReportRouteDetails[] = [
   {
     key: "fetchEventTotalPLAPI",
     method: "get",
-    url: "/sport/event/list",
+    url: "/sport/list",
     validationMethodName: "fetchSportEventList",
     controllerMethodName: "fetchSportEventList",
     auth: "",
