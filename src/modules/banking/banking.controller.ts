@@ -9,8 +9,8 @@ import { Response } from "express";
 const saveTransaction = catchAsync(
   async (req: any, res: CustomResponse) => {
     const { password, data } = req.body
-    const response = await ActivityService.saveTransaction(req.user, password, data);
-    res.status(httpStatus.OK).json({ message: response,data:null });
+    const response:any = await ActivityService.saveTransaction(req.user, password, data);
+    res.status(response.status).json({ message: response.data,data:null });
   }
 );
 

@@ -3,7 +3,7 @@ import ApiError from "@/utils/ApiError";
 import httpStatus from "http-status";
 
 
-const saveTransaction = async (userData: any, password: string, data: any): Promise<string> => {
+const saveTransaction = async (userData: any, password: string, data: any): Promise<void> => {
   const user: any = await User.findOne({ username: userData.username })
   if (!(await user.isPasswordMatch(password))) {
     throw new ApiError(httpStatus.BAD_REQUEST, {
@@ -15,19 +15,21 @@ const saveTransaction = async (userData: any, password: string, data: any): Prom
   let creditLogData: any = [];
   let successfulTransactions = "";
   let failedTransactions = "";
-
+  let status = 200
 
   if (data.length > 0) {
     await Promise.all(data.map(async (item: any) => {
       const toUser: any = await User.findOne({ _id: item?.userId })
       if (!toUser) {
         failedTransactions += `, ${item.userId} not found.`;
+        status = 400
         return; // Skip transactions with invalid toUser
       }
 
       if (item.type != "") {
         if (item.balance <= 0) {
           failedTransactions += `, balance 0 not allow for ${item.userId}`;
+          status = 400
           return; // Skip transactions with non-positive balances
         }
 
@@ -36,6 +38,7 @@ const saveTransaction = async (userData: any, password: string, data: any): Prom
         if (item.type === "deposit") {
           if (userBalance < itemBalance) {
             failedTransactions += `, insuficinant balance for ${toUser?.username}`;
+            status = 400
             return; // Skip transactions with insufficient balance for deposit
           }
           userBalance -= itemBalance;
@@ -72,6 +75,7 @@ const saveTransaction = async (userData: any, password: string, data: any): Prom
         } else if (item.type === "withdraw") {
           if (itemBalance > toUserBalance) {
             failedTransactions += `, insuficinant balance for withdraw ${toUser?.username}`;
+            status = 400
             return; // Skip transactions with insufficient balance for withdrawal
           }
             userBalance += itemBalance;
@@ -132,8 +136,9 @@ const saveTransaction = async (userData: any, password: string, data: any): Prom
     CreditLog.insertMany(creditLogData)
   }
 
-  const resp = successfulTransactions + failedTransactions;
-  return resp.slice(1);
+  const strings:string= successfulTransactions + failedTransactions;
+  const resp:any={ data: strings.slice(1), status }
+  return resp;
 }
 
 const getTransaction = async (userData: any, userId: string, options: any): Promise<void> => {
