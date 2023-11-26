@@ -579,6 +579,8 @@ const accountDetail = async (userId: string, userData: any): Promise<void> => {
       isCasino: data.isCasino,
       isAviator: data.isAviator,
       roles: data.roles,
+      selfReferral: data.selfReferral,
+      registeredReferral: data.registeredReferral,
     }
     return dataNew;
   } catch (error: any) {

@@ -110,6 +110,9 @@ const userSchema = new mongoose.Schema<UserProfile, UserModel>(
     selfReferral: {
       type: String,
     },
+    registeredReferral: {
+      type: String,
+    },
   },
   { timestamps: true }
 );

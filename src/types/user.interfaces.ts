@@ -28,6 +28,7 @@ interface User {
   isSportBook: boolean;
   isAviator: boolean;
   selfReferral: string;
+  registeredReferral:string;
 }
 
 interface UserProfile extends User, Document {
