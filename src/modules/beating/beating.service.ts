@@ -9,8 +9,9 @@ const client = new MongoClient(configs.mongoose.url);
 const bettingHistory = async (data: any, filter: any, options: any): Promise<void> => {
   try {
     let username = data?.username;
-    if (filter?.userId && filter?.userId != "") {
-      const user = await checkParent(filter?.userId, data?._id);
+    let userId = filter?.userId;
+    if (userId && userId != "") {
+      const user = await checkParent(userId, data?._id);
       username = user?.username
       delete filter.userId
     }
@@ -71,7 +72,7 @@ const bettingHistory = async (data: any, filter: any, options: any): Promise<voi
     // delete filter.mrktType;
     delete filter.username;
     delete filter.sportName;
-    filter.userId = data?._id.toString();
+    filter.userId = userId.toString();
     resData = await AuraCSPlaceBet.paginate(filter, options);
   } else if (filter.sportName === 'Int Casino') {
     // delete filter.mrktType;
