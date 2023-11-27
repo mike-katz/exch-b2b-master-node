@@ -68,8 +68,8 @@ const saveNews = async (userData: any, origin: any, news: string): Promise<void>
 const getThemes = async (origin: any): Promise<void> => {
   const uri = process.env.MONGODB_URL;
   const client:any = new MongoClient(uri);
-  const cursor = await client.db(process.env.EXCH_DB).collection(process.env.THEME_COLLECTION)
-      .find({ origin });
+  const cursor = await client.db(process.env.EXCH_DB).collection('themes')
+      .find({ origin, type:'master' });
   const results = await cursor.toArray();
   return results
 }
