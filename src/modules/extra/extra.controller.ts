@@ -13,4 +13,13 @@ const saveNews = catchAsync(
   }
 );
 
-export default { saveNews};
+const getThemes = catchAsync(
+  async (req: any, res: any) => {
+    const { origin } = req.headers;
+    
+    await ActivityService.getThemes(origin);
+    res.status(httpStatus.OK).json( {message: "Theme get success"});
+  }
+);
+
+export default { saveNews, getThemes };

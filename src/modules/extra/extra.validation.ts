@@ -7,4 +7,9 @@ const saveNews = {
   }),
 };
 
-export default { saveNews };
+const getThemes = {
+  body: Joi.object().keys({
+  
+  }),
+};
+export default { saveNews, getThemes };

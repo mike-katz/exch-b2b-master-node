@@ -19,6 +19,14 @@ const routeDetails: IExtraRouteDetails[] = [
     controllerMethodName: "saveNews",
     auth: "",
   }, 
+  {
+    key: "getThemeAPI",
+    method: "get",
+    url: "/theme",
+    validationMethodName: "getThemes",
+    controllerMethodName: "getThemes",
+    auth: "",
+  }, 
 ];
 
 export default routeDetails;

@@ -4,6 +4,7 @@ import httpStatus from "http-status";
 import { initializeApp, cert } from "firebase-admin/app";
 import { getFirestore } from "firebase-admin/firestore";
 const serviceAccount = require('@/config/others-67243-firebase-adminsdk-d1ydj-a6b1560d2a.json');
+const { MongoClient } = require('mongodb');
 
 initializeApp({
   credential: cert(serviceAccount),
@@ -64,4 +65,12 @@ const saveNews = async (userData: any, origin: any, news: string): Promise<void>
 }
 
 
-export { saveNews }
+const getThemes = async (origin: any): Promise<void> => {
+  const uri = process.env.MONGODB_URL;
+  const client:any = new MongoClient(uri);
+  const cursor = await client.db(process.env.EXCH_DB).collection(process.env.THEME_COLLECTION)
+      .find({ origin });
+  const results = await cursor.toArray();
+  return results
+}
+export { saveNews, getThemes }
