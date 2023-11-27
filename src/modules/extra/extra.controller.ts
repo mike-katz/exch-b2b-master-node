@@ -17,8 +17,8 @@ const getThemes = catchAsync(
   async (req: any, res: any) => {
     const { origin } = req.headers;
     
-    await ActivityService.getThemes(origin);
-    res.status(httpStatus.OK).json( {message: "Theme get success"});
+    const data:any = await ActivityService.getThemes(origin);
+    res.status(httpStatus.OK).json( {message: "Theme get success",data});
   }
 );
 
