@@ -25,7 +25,7 @@ const routeDetails: IExtraRouteDetails[] = [
     url: "/theme",
     validationMethodName: "getThemes",
     controllerMethodName: "getThemes",
-    auth: "",
+    // auth: "",
   }, 
 ];
 
