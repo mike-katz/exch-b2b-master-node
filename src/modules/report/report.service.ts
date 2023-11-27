@@ -80,7 +80,7 @@ const fetchCasinoTotalPL = async (data: any, filter: any): Promise<void> => {
       }
     ]);
     let datas = resp[0];
-    datas = { ...datas, name: 'Casino', id: '10' }
+    datas = { ...datas, pl: datas?.pl ? datas?.pl : 0, stack: datas?.stack ? datas?.stack : 0, name: 'Casino', id: '10' }
     resp[0] = datas
     return resp;
 
@@ -121,11 +121,11 @@ const fetchIntCasinoTotalPL = async (data: any, filter: any): Promise<void> => {
           pl: { $sum: "$pl" },
           stack: { $sum: "$amount" },
         }
-      }
+      },
     ]);
 
     let datas = resp[0];
-    datas = { ...datas, name: 'Int Casino', id: '12' }
+    datas = { ...datas, pl: datas?.pl ? datas?.pl : 0, stack: datas?.stack ? datas?.stack : 0, name: 'Int Casino', id: '12' }
     resp[0] = datas
     return resp;
 
@@ -385,7 +385,7 @@ const fetchIntCasinoList = async (data: any, filter: any, options: any): Promise
     pipeline.push({ $skip: skip }, { $limit: parseInt(limit) }, { $sort: { _id: -1 } })
     const results = await St8Transaction.aggregate(pipeline);
 
-     const result: any = {
+    const result: any = {
       page,
       limit,
       totalPages: Math.ceil(totalResults.length / limit),
