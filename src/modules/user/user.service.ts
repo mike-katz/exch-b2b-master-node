@@ -126,13 +126,13 @@ const findDownline = async (data: any, filter: any, options: any): Promise<void>
     //         }
     //       },
     //     {
-    //       $lookup: {
-    //         from: 'users',
-    //         localField: '_id',
-    //         foreignField: 'parentId',
-    //         as: 'children'
-    //       }
-    //     },
+        //   $lookup: {
+        //     from: 'users',
+        //     localField: '_id',
+        //     foreignField: 'parentId',
+        //     as: 'children'
+        //   }
+        // },
 
     //     {
     //       $group: {
