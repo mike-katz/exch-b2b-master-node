@@ -74,8 +74,15 @@ const routeDetails: IReportRouteDetails[] = [
     validationMethodName: "fetchIntCasinoList",
     controllerMethodName: "fetchIntCasinoList",
     auth: "",
+  },
+  {
+    key: "fetchUserWiseListAPI",
+    method: "get",
+    url: "/user/list",
+    validationMethodName: "fetchuserPLList",
+    controllerMethodName: "fetchuserPLList",
+    auth: "",
   }
-  
 ];
 
 export default routeDetails;

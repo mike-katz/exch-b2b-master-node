@@ -42,4 +42,15 @@ const fetchIntCasinoList = {
   }),
 };
 
-export default { fetchSportTotalPL, fetchSportEventList, fetchAviatorList, fetchIntCasinoList };
+const fetchuserPLList = {
+  query: Joi.object().keys({    
+    from: Joi.string().optional(),
+    to: Joi.string().optional(),
+    timeZone: Joi.string().optional(),
+    userName: Joi.string().optional(),    
+    page: Joi.number().required(),
+    limit: Joi.number().required(),
+  }),
+};
+
+export default { fetchSportTotalPL, fetchSportEventList, fetchAviatorList, fetchIntCasinoList, fetchuserPLList };

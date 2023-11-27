@@ -89,4 +89,16 @@ const fetchIntCasinoList = catchAsync(
   }
 );
 
-export default { fetchSportTotalPL, fetchAviatorTotalPL, fetchCasinoTotalPL, fetchIntCasinoTotalPL, fetchSportEventList, fetchAviatorList, fetchIntCasinoList };
+const fetchuserPLList = catchAsync(
+  async (req: any, res: Response) => {
+    const options = pick(req?.query, ['sortBy', 'limit', 'page']);
+    const filter = pick(req?.query, ['from', 'to', 'timeZone', 'userName']);    
+    const data:any = await ReportService.fetchuserPLList(req.user, filter, options);
+    res.status(httpStatus.OK).json({
+      message: "User PL List success",
+      data,      
+    });
+  }
+);
+
+export default { fetchSportTotalPL, fetchAviatorTotalPL, fetchCasinoTotalPL, fetchIntCasinoTotalPL, fetchSportEventList, fetchAviatorList, fetchIntCasinoList, fetchuserPLList };
