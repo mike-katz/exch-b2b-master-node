@@ -4,7 +4,7 @@ import httpStatus from "http-status";
 import * as userService from "@/modules/user/user.service";
 import { getFilterProfitLoss } from "../pl/pl.service";
 
-const fetchSportTotalPL = async (data: any, filter:any): Promise<void> => {
+const fetchSportTotalPL = async (data: any, filter: any): Promise<void> => {
   try {
 
     const userData = await userService.getAllUsersDownlineUser(data?._id);
@@ -22,7 +22,7 @@ const fetchSportTotalPL = async (data: any, filter:any): Promise<void> => {
       delete filter.from
       delete filter.timeZone
     }
-    filter.username= { $in: usernames }
+    filter.username = { $in: usernames }
     const response = await Reporting.aggregate([
       {
         $match: filter
@@ -37,7 +37,7 @@ const fetchSportTotalPL = async (data: any, filter:any): Promise<void> => {
         }
       }
     ]);
-    
+
     return response;
 
   } catch (error: any) {
@@ -64,7 +64,8 @@ const fetchCasinoTotalPL = async (data: any, filter: any): Promise<void> => {
       delete filter.from
       delete filter.timeZone
     }
-    filter.userId= { $in: userIds }
+    filter.userId = { $in: userIds }
+    filter.IsSettle = 1
     let resp = await AuraCSPlaceBet.aggregate([
       {
         $match: filter
@@ -79,8 +80,8 @@ const fetchCasinoTotalPL = async (data: any, filter: any): Promise<void> => {
       }
     ]);
     let datas = resp[0];
-    datas = {...datas,name: 'Casino',id: '10'}
-    resp[0]=datas
+    datas = { ...datas, name: 'Casino', id: '10' }
+    resp[0] = datas
     return resp;
 
   } catch (error: any) {
@@ -90,7 +91,7 @@ const fetchCasinoTotalPL = async (data: any, filter: any): Promise<void> => {
   }
 }
 
-const fetchIntCasinoTotalPL = async (data: any, filter:any): Promise<void> => {
+const fetchIntCasinoTotalPL = async (data: any, filter: any): Promise<void> => {
   try {
     const userData = await userService.getAllUsersDownlineUser(data?._id);
     const usernames = userData.map((item: any) => item?.username)
@@ -107,7 +108,8 @@ const fetchIntCasinoTotalPL = async (data: any, filter:any): Promise<void> => {
       delete filter.from
       delete filter.timeZone
     }
-    filter.username= { $in: usernames }
+    filter.username = { $in: usernames }
+    filter.IsSettle = 1
     let resp = await St8Transaction.aggregate([
       {
         $match: filter
@@ -115,7 +117,7 @@ const fetchIntCasinoTotalPL = async (data: any, filter:any): Promise<void> => {
 
       {
         $group: {
-          _id:null,
+          _id: null,
           pl: { $sum: "$pl" },
           stack: { $sum: "$amount" },
         }
@@ -123,8 +125,8 @@ const fetchIntCasinoTotalPL = async (data: any, filter:any): Promise<void> => {
     ]);
 
     let datas = resp[0];
-    datas = {...datas,name: 'Int Casino',id: '12'}
-    resp[0]=datas
+    datas = { ...datas, name: 'Int Casino', id: '12' }
+    resp[0] = datas
     return resp;
 
   } catch (error: any) {
@@ -152,6 +154,7 @@ const fetchAviatorTotalPL = async (data: any, filter: any): Promise<void> => {
       delete filter.timeZone
     }
     filter.user = { $in: usernames }
+    filter.IsSettle = 1
     const resp = await Avplacebet.aggregate([
       {
         $match: filter
@@ -160,8 +163,8 @@ const fetchAviatorTotalPL = async (data: any, filter: any): Promise<void> => {
       {
         $group: {
           _id: null,
-          id: { $first: "$sportId" },          
-          name: { $first: "$sportName" },          
+          id: { $first: "$sportId" },
+          name: { $first: "$sportName" },
           pl: { $sum: "$pl" },
           stack: { $sum: "$stack" },
           // commission: 0
@@ -177,7 +180,7 @@ const fetchAviatorTotalPL = async (data: any, filter: any): Promise<void> => {
   }
 }
 
-const fetchSportEventList = async (data: any, filter:any, options:any): Promise<void> => {
+const fetchSportEventList = async (data: any, filter: any, options: any): Promise<void> => {
   try {
     const userData = await userService.getAllUsersDownlineUser(data?._id);
     const usernames = userData.map((item: any) => item?.username)
@@ -221,7 +224,7 @@ const fetchSportEventList = async (data: any, filter:any, options:any): Promise<
       pipeline.push({
         $group: {
           _id: "$exMarketId",
-           eventName: { $first: "$eventName" },
+          eventName: { $first: "$eventName" },
           sportName: { $first: "$sportName" },
           marketName: { $first: "$marketName" },
           exEventId: { $first: "$exEventId" },
@@ -232,11 +235,11 @@ const fetchSportEventList = async (data: any, filter:any, options:any): Promise<
         }
       });
     }
-     else if (filter.sportName) {
+    else if (filter.sportName) {
       pipeline.push({
         $group: {
           _id: "$exEventId",
-           eventName: { $first: "$eventName" },
+          eventName: { $first: "$eventName" },
           sportName: { $first: "$sportName" },
           marketName: { $first: "$marketName" },
           exEventId: { $first: "$exEventId" },
@@ -262,7 +265,7 @@ const fetchSportEventList = async (data: any, filter:any, options:any): Promise<
         }
       });
     }
-  
+
     const totalResults = await Reporting.aggregate(pipeline);
     const { limit = 10, page = 1 } = options;
     const skip = (page - 1) * limit;
@@ -281,15 +284,15 @@ const fetchSportEventList = async (data: any, filter:any, options:any): Promise<
     return result;
 
   } catch (error: any) {
-    console.log("error",error);
-    
+    console.log("error", error);
+
     throw new ApiError(httpStatus.BAD_REQUEST, {
       msg: error?.errorData?.msg || "invalid user id.",
     });
   }
 }
 
-const fetchAviatorList = async (data: any, filter: any, options:any): Promise<void> => {
+const fetchAviatorList = async (data: any, filter: any, options: any): Promise<void> => {
   try {
 
     const dateData = getFilterProfitLoss(filter);
@@ -307,7 +310,8 @@ const fetchAviatorList = async (data: any, filter: any, options:any): Promise<vo
     }
     const userData = await userService.getAllUsersDownlineUser(data?._id);
     const usernames = userData.map((item: any) => item?.username)
-    filter.user= { $in: usernames }
+    filter.user = { $in: usernames }
+    filter.IsSettle = 1
     const resp = await Avplacebet.paginate(filter, options);
     return resp;
 
@@ -318,4 +322,83 @@ const fetchAviatorList = async (data: any, filter: any, options:any): Promise<vo
   }
 }
 
-export { fetchSportTotalPL, fetchCasinoTotalPL, fetchIntCasinoTotalPL, fetchAviatorTotalPL, fetchSportEventList, fetchAviatorList }
+const fetchIntCasinoList = async (data: any, filter: any, options: any): Promise<void> => {
+  try {
+
+    const dateData = getFilterProfitLoss(filter);
+    if (dateData.error === 1) {
+      throw new ApiError(httpStatus.BAD_REQUEST, {
+        msg: "Please select only 30 days range only.",
+      });
+    }
+    if (dateData.filteredData) {
+      const filterData = dateData.filteredData;
+      filter = { ...filter, ...filterData };
+      delete filter.to
+      delete filter.from
+      delete filter.timeZone
+    }
+    const userData = await userService.getAllUsersDownlineUser(data?._id);
+    const usernames = userData.map((item: any) => item?.username)
+    filter.username = { $in: usernames }
+    filter.IsSettle = 1
+
+    if (filter.developerCode) {
+      filter.developer_code = filter.developerCode
+      delete filter.developerCode;
+    }
+    const pipeline: any[] = [
+      {
+        $match: filter
+      }
+    ];
+    if (filter.developer_code) {
+      pipeline.push({
+        $group: {
+          _id: "$game_code",
+          developer_code: { $first: "$developer_code" },
+          game_code: { $first: "$game_code" },
+          gameName: { $first: "$gameName" },
+          categoryName: { $first: "$categoryName" },
+          pl: { $sum: "$pl" },
+          stack: { $sum: "$amount" },
+        }
+      });
+    }
+    else {
+      pipeline.push({
+        $group: {
+          _id: "$developer_code",
+          developer_code: { $first: "$developer_code" },
+          game_code: { $first: "$game_code" },
+          gameName: { $first: "$gameName" },
+          categoryName: { $first: "$categoryName" },
+          pl: { $sum: "$pl" },
+          stack: { $sum: "$amount" },
+        }
+      });
+    }
+
+    const totalResults = await St8Transaction.aggregate(pipeline);
+    const { limit = 10, page = 1 } = options;
+    const skip = (page - 1) * limit;
+    pipeline.push({ $skip: skip }, { $limit: parseInt(limit) }, { $sort: { _id: -1 } })
+    const results = await St8Transaction.aggregate(pipeline);
+
+     const result: any = {
+      page,
+      limit,
+      totalPages: Math.ceil(totalResults.length / limit),
+      totalResults: totalResults.length,
+      results
+    };
+    return result;
+
+  } catch (error: any) {
+    throw new ApiError(httpStatus.BAD_REQUEST, {
+      msg: error?.errorData?.msg || "invalid user id.",
+    });
+  }
+}
+
+export { fetchSportTotalPL, fetchCasinoTotalPL, fetchIntCasinoTotalPL, fetchAviatorTotalPL, fetchSportEventList, fetchAviatorList, fetchIntCasinoList }
