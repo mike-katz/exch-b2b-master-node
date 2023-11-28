@@ -417,7 +417,7 @@ const fetchuserPLList = async (data: any, filter: any, options: any): Promise<vo
       delete filter.from
       delete filter.timeZone
     }
-    const userFliter:any={}
+    const userFliter: any = {}
     if (filter.userName) {
       userFliter.username = filter.userName
     }
@@ -436,19 +436,18 @@ const fetchuserPLList = async (data: any, filter: any, options: any): Promise<vo
         userFliter
       ]
     }
-     
+
     const { limit = 10, page = 1 } = options;
     const skip = (page - 1) * limit;
-    const userData: any = await User.find(query)
-      // .skip(skip).limit(limit).sort({ _id: 1 })
-    const totalResults:any = await User.find(query).countDocuments()   
-    // pipeline.push({ $skip: skip }, { $limit: parseInt(limit) }, { $sort: { _id: -1 } })
+    const userData: any = await User.find(query).skip(skip).limit(limit).sort({ _id: 1 })
+
+    const totalResults: any = await User.find(query).countDocuments().lean();
     const usernames = userData.map((item: any) => item?.username)
     const userIds = userData.map((item: any) => item?._id.toString())
-    
+
     filter.username = { $in: usernames }
     filter.IsSettle = 1
-    let results:any = [];
+    let results: any = [];
 
     results = await Reporting.aggregate([
       {
@@ -465,10 +464,9 @@ const fetchuserPLList = async (data: any, filter: any, options: any): Promise<vo
         }
       }
     ]);
-console.log("results",results);
 
     //st8
-     const st8Data = await Reporting.aggregate([
+    const st8Data = await Reporting.aggregate([
       {
         $match: filter
       },
@@ -484,9 +482,8 @@ console.log("results",results);
           stack: { $sum: "$amount" },
         }
       }
-     ]);
-    console.log("st8Data",st8Data);
-    
+    ]);
+
     //casino 
     delete filter.username
     filter.userId = { $in: userIds }
@@ -494,33 +491,52 @@ console.log("results",results);
       {
         $match: filter
       },
-  //     {
-  //   $lookup: {
-  //     from: 'users',
-  //     localField: 'userId',
-  //     foreignField: '_id',
-  //     as: 'userinfo'
-  //   }
-  // },
-  // {
-  //   $unwind: '$userinfo'
-  // },
 
       {
         $group: {
           _id: "$userId",
           userId: { $first: '$userId' },
-          // username: { $first: '$userinfo.username' },
           pl: { $sum: "$winnerpl" },
           stack: { $sum: "$betInfo.reqStake" },
         }
       },
+      {
+        $lookup: {
+          from: 'users',
+          let: { auraUserId: "$_id" },
+          pipeline: [
+            {
+              $match: {
+                $expr: {
+                  $eq: [{ $toString: "$_id" }, "$$auraUserId"]
+                }
+              }
+            },
+            {
+              $project: {
+                username: 1
+              }
+            }
+          ],
+          as: 'user'
+        }
+      },
+      {
+        $unwind: '$user'
+      },
+      {
+        $project: {
+          _id: 1,
+          pl: 1,
+          stack: 1,
+          username: '$user.username'
+        }
+      }
     ]);
-    console.log("casinoData", casinoData);
-    
+
     //Aviator
     delete filter.userId;
-    filter.user = {$in:usernames}
+    filter.user = { $in: usernames }
     const aviatorData = await Avplacebet.aggregate([
       {
         $match: filter
@@ -537,44 +553,24 @@ console.log("results",results);
         }
       }
     ]);
-    console.log("aviatorData",aviatorData);
-    
+
     results = results.concat(st8Data, casinoData, aviatorData)
-    // console.log("results",results);
-    
-//     const groupedResults = results.reduce((acc:any, obj:any) => {
-//   const userId = obj.userId;
+    const userMap: any = new Map(results.map((user: any) => [user.username, user]));
 
-//   if (!acc[userId]) {
-//     acc[userId] = {
-//       userId,
-//       totalPl: 0,
-//       totalStack: 0
-//     };
-//   }
+    results = usernames.map((username: any) => ({
+      pl: 0,
+      stack: 0,
+      commission: 0,
+      username,
 
-//   acc[userId].totalPl += obj.pl;
-//   acc[userId].totalStack += obj.stack;
+      ...(userMap.get(username) || {})
+    }));
 
-//   return acc;
-// }, {});
-
-// // Compare the sums with each individual record
-// const finalResult = results.map((obj: any) => ({
-//   userId: obj.userId,
-//   pl: obj.pl,
-//   stack: obj.stack,
-//   isSumGreaterThanPl: groupedResults[obj.userId].totalPl > obj.pl,
-//   isSumGreaterThanStack: groupedResults[obj.userId].totalStack > obj.stack
-// }));
-
-//     console.log(finalResult);
-    
     const result: any = {
       page,
       limit,
-      totalPages: Math.ceil(totalResults.length / limit),
-      totalResults: totalResults.length,
+      totalPages: Math.ceil(totalResults / limit),
+      totalResults: totalResults,
       results
     };
     return result;
