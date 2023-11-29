@@ -21,7 +21,7 @@ const routeDetails: IExtraRouteDetails[] = [
   }, 
   {
     key: "getThemeAPI",
-    method: "get",
+    method: "post",
     url: "/theme",
     validationMethodName: "getThemes",
     controllerMethodName: "getThemes",
