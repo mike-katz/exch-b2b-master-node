@@ -71,7 +71,7 @@ const addCreditLog = catchAsync(
     const { password, rate, userId } = req.body;
     const data = await UserService.addCreditLog(req?.user, password, rate, userId);
     const response = prepareResponse({
-      message: "balance added successfully.",
+      message: "credit Ref. updated successfully.",
       data: null,
     });
     res.status(httpStatus.CREATED).json(response);
