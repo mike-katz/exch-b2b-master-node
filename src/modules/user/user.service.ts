@@ -159,29 +159,29 @@ const findDownline = async (data: any, filter: any, options: any): Promise<void>
       
       let balance: number = (Number(item?.balance) || 0);
       let exposure: number = (Number(item?.exposure) || 0);
-      const childData: any = await User.aggregate([
-        {
-          $match: {
-            $and: [
-              { parentId: { $in: [item?._id.toString()] } },
-              // { roles: { $in: ['User'] } }
-            ]
-          }
-        },
-        {
-          $group:
-          {
-            _id: null,
-            totalBalance: { $sum: '$balance' },
-            totalExposure: { $sum: '$exposure' }
-          }
-        },
-      ]);
+      // const childData: any = await User.aggregate([
+      //   {
+      //     $match: {
+      //       $and: [
+      //         { parentId: { $in: [item?._id.toString()] } },
+      //         // { roles: { $in: ['User'] } }
+      //       ]
+      //     }
+      //   },
+      //   {
+      //     $group:
+      //     {
+      //       _id: null,
+      //       totalBalance: { $sum: '$balance' },
+      //       totalExposure: { $sum: '$exposure' }
+      //     }
+      //   },
+      // ]);
 
-      if (childData.length > 0) {
-        balance += (Number(childData[0].totalBalance) || 0)
-        exposure += (Number(childData[0].totalExposure) || 0)
-      }
+      // if (childData.length > 0) {
+      //   balance += (Number(childData[0].totalBalance) || 0)
+      //   exposure += (Number(childData[0].totalExposure) || 0)
+      // }
       const data: any = {
         createdAt: item?.createdAt,
         username: item.username,
