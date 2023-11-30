@@ -451,8 +451,8 @@ const myBalance = async (userData: any): Promise<void> => {
     balance: (Number(userData?.balance) || 0),
     exposureLimit: userData?.exposureLimit,
     totalUser: users.length,
-    totalBalance: balanceSum,
-    totalExposure: exposureSum
+    totalBalance: Number(balanceSum),
+    totalExposure: Number(exposureSum)
   }
   return res;
 }
