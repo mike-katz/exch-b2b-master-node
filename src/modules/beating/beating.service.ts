@@ -267,7 +267,16 @@ const betList = async (data: any, filter: any, options: any): Promise<void> => {
       delete filter.marketType
     }
 
-    let datas: any = await CricketBetPlace.paginate(filter, options)
+    let datas:any = await CricketBetPlace.paginate(filter, options);
+    if (datas.results.length === 0) {
+      datas = await TennisBetPlace.paginate(filter, options);
+    }
+    if (datas.results.length === 0) {
+      datas = await SoccerBetPlace.paginate(filter, options);
+    }
+
+
+    // let datas: any = await CricketBetPlace.paginate(filter, options)
     const resData: any = [];
     datas?.results.forEach((item: any) => {
       const itemData = {
@@ -280,6 +289,7 @@ const betList = async (data: any, filter: any, options: any): Promise<void> => {
         eventName: item?.eventName,
         selectionName: item?.selectionName,
         marketType: item?.marketType,
+        mrktType: item?.mrktType,
         createdAt: item?.createdAt,
         updatedAt: item?.updatedAt,
         selectionId: item?.selectionId,
