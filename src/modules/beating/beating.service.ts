@@ -262,6 +262,11 @@ const betList = async (data: any, filter: any, options: any): Promise<void> => {
       delete filter.status;
     }
 
+    if (filter?.marketType) {
+      filter.mrktType = filter.marketType;
+      delete filter.marketType
+    }
+
     let datas: any = await CricketBetPlace.paginate(filter, options)
     const resData: any = [];
     datas?.results.forEach((item: any) => {
