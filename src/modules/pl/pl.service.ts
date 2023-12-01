@@ -320,7 +320,7 @@ const aviatorSumOfPl = async (filters: any): Promise<void> => {
         $group: {
           _id: profile.username,
           total: {
-            $sum: { $subtract: ['$pl', '$stack'] },
+            $sum: { $subtract: ['$stack', '$pl'] },
           },
         },
       },
