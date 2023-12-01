@@ -627,61 +627,87 @@ const userSportsProfitlossAura = async (filters: any): Promise<void> => {
       filter = { ...filter, ...filterData };
     }
 
-    const resData = await AuraCSPlaceBet.find(filter);
-    let roundIds: any = [];
-    let retdata: any = [];
-    const winnerIds: any = [];
-    if (resData.length > 0) {
-      retdata = resData.map((result: any) => {
-        const retres = {
-          sportName: 'Casino',
-          roundId: result.betInfo.roundId,
-          pl: '',
-          runners: result.runners,
-        };
-        roundIds.push(result.betInfo.roundId);
-        return retres;
-      });
-    }
-    roundIds = [...new Set(roundIds)];
-    const winnerData = await AuraCSResult.find({ roundId: { $in: roundIds } });
-    winnerData.map((win: any) => {
-      const key = win.roundId;
-      const marketdata = win.market.marketRunner;
-      let value;
-      marketdata.map((md: any) => {
-        if (md.status === 'WINNER') {
-          value = md.name;
-        }
-      });
-      winnerIds.push({ [key]: value });
-    });
-    retdata.map((ret: any) => {
-      let winner: string;
-      let pl;
-      winnerIds.map((el: any) => {
-        const key = Object.keys(el)[0];
-        if (key === ret.roundId) {
-          winner = el[key];
-        }
-      });
-      ret.runners.map((runner: any) => {
-        if (runner.name === winner) {
-          pl = runner.pl;
-        }
-      });
-      ret.pl = pl;
-      delete ret.runners;
-    });
-    retdata = retdata.filter((value: any, index: number, self: any) => index === self.findIndex((t: any) => (
-      t.roundId === value.roundId
-    )));
-    retdata.map((ret: any) => delete ret.roundId);
-    const result = retdata.reduce(transform, {});
-    const resultArray: any = Object.values(result);
+    const data = await AuraCSPlaceBet.aggregate([
+      {
+        $match: filter,
+      },
+       {
+        $group: {
+          _id: null,
+          pl: {
+            $sum: '$winnerpl',
+          },
+        },
+      },
 
-    if (resultArray.length > 0) resultArray[0].sportId = '10';
-    return resultArray;
+    ]);
+    if (data.length > 0) {
+      data[0].sportId = '10';
+      data[0].sportName = 'Casino';
+    };
+
+    // let roundIds: any = [];
+    // let retdata: any = [];
+    // const winnerIds: any = [];
+    // if (resData.length > 0) {
+    //   retdata = resData.map((result: any) => {
+    //     const retres = {
+    //       sportName: 'Casino',
+    //       roundId: result.betInfo.roundId,
+    //       pl: 0,
+    //       runners: result.runners,
+    //     };
+    //     roundIds.push(result.betInfo.roundId);
+    //     return retres;
+    //   });
+    // }
+    // roundIds = [...new Set(roundIds)];
+    // const winnerData = await AuraCSResult.find({ roundId: { $in: roundIds } });
+    // winnerData.map((win: any) => {
+    //   const key = win.roundId;
+    //   const marketdata = win.market.marketRunner;
+    //   let value;
+    //   marketdata.map((md: any) => {
+    //     if (md.status === 'WINNER') {
+    //       value = md.name;
+    //     }
+    //   });
+    //   winnerIds.push({ [key]: value });
+    // });
+    // console.log("retdata",retdata);
+    
+    // retdata.map((ret: any) => {
+    //   let winner: string;
+    //   let pl;
+    //   winnerIds.map((el: any) => {
+    //     const key = Object.keys(el)[0];
+    //     if (key === ret.roundId) {
+    //       winner = el[key];
+    //     }
+    //   });
+    //   ret.runners.map((runner: any) => {
+    //     if (runner.name === winner) {
+    //       pl = runner.pl;
+    //     }
+    //   });
+    //   ret.pl = pl;
+    //   delete ret.runners;
+    // });
+    // console.log("retdatssa",retdata);
+    
+    // retdata = retdata.filter((value: any, index: number, self: any) => index === self.findIndex((t: any) => (
+    //   t.roundId === value.roundId
+    // )));
+    // console.log("retdatsdddsa",retdata);
+
+    // retdata.map((ret: any) => delete ret.roundId);
+    // const result = retdata.reduce(transform, {});
+    // console.log("result",result);
+    
+    // const resultArray: any = Object.values(result);
+
+    // if (resultArray.length > 0) resultArray[0].sportId = '10';
+    return data;
   } catch (error: any) {
     console.log("error", error);
     throw new ApiError(httpStatus.BAD_REQUEST, {
