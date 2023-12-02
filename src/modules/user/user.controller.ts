@@ -178,10 +178,7 @@ const exposureList = catchAsync(
   async (req: any, res: CustomResponse) => {
     const { userId } = req.query;
     const data: any = await UserService.getExposureList(userId);
-    const response = {
-      ...data,
-    };
-    res.status(httpStatus.OK).json(response);
+    res.status(httpStatus.OK).json(data);
   }
 );
 

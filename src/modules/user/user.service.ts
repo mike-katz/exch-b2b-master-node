@@ -126,13 +126,13 @@ const findDownline = async (data: any, filter: any, options: any): Promise<void>
     //         }
     //       },
     //     {
-        //   $lookup: {
-        //     from: 'users',
-        //     localField: '_id',
-        //     foreignField: 'parentId',
-        //     as: 'children'
-        //   }
-        // },
+    //   $lookup: {
+    //     from: 'users',
+    //     localField: '_id',
+    //     foreignField: 'parentId',
+    //     as: 'children'
+    //   }
+    // },
 
     //     {
     //       $group: {
@@ -156,7 +156,7 @@ const findDownline = async (data: any, filter: any, options: any): Promise<void>
 
     let finalResult: any = [];
     await Promise.all(results.map(async (item: any) => {
-      
+
       let balance: number = (Number(item?.balance) || 0);
       let exposure: number = (Number(item?.exposure) || 0);
       // const childData: any = await User.aggregate([
@@ -223,17 +223,17 @@ const findDownline = async (data: any, filter: any, options: any): Promise<void>
 }
 
 function generateRandomString(length: number) {
-    const characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
-    let result = '';
+  const characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+  let result = '';
 
-    for (let i = 0; i < length; i++) {
-      const randomIndex = Math.floor(Math.random() * characters.length);
-      result += characters.charAt(randomIndex);
-    }
-
-    return result;
+  for (let i = 0; i < length; i++) {
+    const randomIndex = Math.floor(Math.random() * characters.length);
+    result += characters.charAt(randomIndex);
   }
-  
+
+  return result;
+}
+
 const Register = async (body: any, user: any): Promise<void> => {
 
   const { username, password, mobile, ip, exposure, origin, commission, roles, isSportBook, isIntCasino, isCasino, isAviator } = body
@@ -271,7 +271,7 @@ const Register = async (body: any, user: any): Promise<void> => {
     parts.shift();
     originStr = hostUrl(parts.join('.'));
   }
-const selfReferral =generateRandomString(6)
+  const selfReferral = generateRandomString(6)
   let data: any = {
     username: username.toLowerCase().trim(),
     password: password,
@@ -299,7 +299,7 @@ const selfReferral =generateRandomString(6)
   return;
 }
 
- 
+
 
 const myDownline = async (filter: any, options: any, userData: any): Promise<void> => {
   try {
@@ -346,7 +346,7 @@ const myDownline = async (filter: any, options: any, userData: any): Promise<voi
     const resData: any = {
       results: results.map((item: any) => ({
         username: item.username,
-        balance: (Number(item?.balance) || 0),        
+        balance: (Number(item?.balance) || 0),
         exposure: item.exposure || 0,
         exposureLimit: item.exposureLimit || 0,
         _id: item._id,
@@ -618,7 +618,7 @@ const updateProfile = async (body: any, userData: any) => {
 
   const { userId, password, commission, mobile, myPassword, isSportBook, isIntCasino, isCasino, isAviator } = body;
   try {
-    
+
     const user: any = await findUserByUsername(userData.username);
     if (!(await user.isPasswordMatch(myPassword))) {
       throw new ApiError(httpStatus.BAD_REQUEST, {
@@ -660,7 +660,7 @@ const updateProfile = async (body: any, userData: any) => {
           found.commision = commission
         }
       }
-     
+
       // if (found.roles.includes('WhiteLabel')) {
       if (isSportBook !== undefined || isIntCasino !== undefined || isCasino !== undefined || isAviator !== undefined) {
         if (!userData.roles.some((role: any) => ['WhiteLabel', 'Admin'].includes(role))) {
@@ -703,7 +703,7 @@ const saveProfileLog = async (fromUser: string, toUser: string, type: string, ol
 }
 
 
-const profileLog = async (userId: string, user: any, options:any) => {
+const profileLog = async (userId: string, user: any, options: any) => {
   let filter: any = { fromUser: user?.username }
   let username = user?.username;
   if (userId && userId != "") {
@@ -717,52 +717,53 @@ const profileLog = async (userId: string, user: any, options:any) => {
     filter = { ...filter, toUser: datas?.username }
   }
   const data: any = await ProfileLog.paginate(filter, options)
-  return {data, username};
+  return { data, username };
 }
 
 
 const getAllUsersDownlineUser = async (userId: string) => {
-      const userData: any = await User.find({ parentId: {$in: [userId]} }).select('username');    
+  const userData: any = await User.find({ parentId: { $in: [userId] } }).select('username');
   return userData;
 }
 
 const getExposureList = async (userId: string) => {
   const userData: any = await User.findOne({ _id: userId });
   if (!userData) {
-    throw new ApiError(httpStatus.BAD_REQUEST, {
+    throw new ApiError(httpStatus.OK, {
       msg: "user not found",
     });
   }
-    const result = await ExposureManage.aggregate([
-      {
-        $match: {
-          username: userData.username,
-          exposure: { $gt: 0 },
-        },
+  const result: any = await ExposureManage.aggregate([
+    {
+      $match: {
+        username: userData.username,
+        exposure: { $gt: 0 },
       },
-      {
-        $lookup: {
-          from: 'marketRates',
-          localField: 'exMarketId',
-          foreignField: 'exMarketId',
-          as: 'marketRatesInfo',
-        },
+    },
+    {
+      $lookup: {
+        from: 'marketRates',
+        localField: 'exMarketId',
+        foreignField: 'exMarketId',
+        as: 'marketRatesInfo',
       },
-      {
-        $project: {
-          _id: 0,
-          exposure: 1,
-          exEventId: 1,
-          exMarketId: 1,
-          eventName: { $first: '$marketRatesInfo.eventName' },
-          marketName: { $first: '$marketRatesInfo.marketName' },
-        },
+    },
+    {
+      $project: {
+        _id: 0,
+        exposure: 1,
+        exEventId: 1,
+        exMarketId: 1,
+        eventName: { $first: '$marketRatesInfo.eventName' },
+        marketName: { $first: '$marketRatesInfo.marketName' },
       },
-      {
-        $sort: { _id: -1 },
-      },
-    ]);
-return result;
+    },
+    {
+      $sort: { _id: -1 },
+    },
+  ]);
+
+  return result || [];
 }
 
 export {
