@@ -116,4 +116,10 @@ const profileLog = {
   }),
 };
 
-export default { fetchUserProfile, fetchUserDownline, Register, myDownline, addCreditLog, getCreditLog, updateStatus, search, myBalance, exportCsv, getParentUsername, updateProfile, profileLog };
+const exposureList = {
+  query: Joi.object().keys({
+    userId: Joi.string().optional(),
+  }),
+};
+
+export default { fetchUserProfile, fetchUserDownline, Register, myDownline, addCreditLog, getCreditLog, updateStatus, search, myBalance, exportCsv, getParentUsername, updateProfile, profileLog, exposureList };

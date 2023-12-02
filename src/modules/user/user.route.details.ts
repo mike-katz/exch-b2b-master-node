@@ -127,6 +127,14 @@ const routeDetails: IAuthRouteDetails[] = [
     controllerMethodName: "profileLog",
     auth: "",
   },
+  {
+    key: "GetExposureListAPI",
+    method: "get",
+    url: "/exposure-list",
+    validationMethodName: "exposureList",
+    controllerMethodName: "exposureList",
+    auth: "",
+  },
 ];
 
 export default routeDetails;
