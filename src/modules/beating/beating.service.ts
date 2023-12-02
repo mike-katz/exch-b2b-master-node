@@ -225,6 +225,7 @@ const betList = async (data: any, filter: any, options: any): Promise<void> => {
   try {
     const users = await User.find({ roles: { $in: ['User'] }, parentId: { $in: [data._id] } }).select('username');
     const usernames = users.map(user => user.username);
+    const userIds = users.map(user => user._id.toString());
 
     filter.username = { $in: usernames };
     if (filter?.from && filter?.from != "" && filter?.to && filter?.to != "") {
@@ -262,43 +263,68 @@ const betList = async (data: any, filter: any, options: any): Promise<void> => {
       delete filter.status;
     }
 
-    if (filter?.marketType) {
-      filter.mrktType = filter.marketType;
-      delete filter.marketType
+    if (filter.marketType) {
+      if (filter.marketType === 'fancy') {
+        filter.mrktType = { $in: ['fancy', 'line_market'] };
+      } else {
+        filter.mrktType = filter.marketType;
+      }
+      delete filter.marketType;
     }
 
-    let datas:any = await CricketBetPlace.paginate(filter, options);
-    if (datas.results.length === 0) {
-      datas = await TennisBetPlace.paginate(filter, options);
+    let resData:any = [];
+    if (filter.sportName === 'Aviator') {
+    // delete filter.mrktType;
+    delete filter.username;
+    filter.user = usernames;
+    resData = await Avplacebet.paginate(filter, options);
+  } else if (filter.sportName === 'Casino') {
+    // delete filter.mrktType;
+    delete filter.username;
+    delete filter.sportName;
+    filter.userId = userIds;
+    resData = await AuraCSPlaceBet.paginate(filter, options);
+  } else if (filter.sportName === 'Int Casino') {
+    // delete filter.mrktType;
+    // delete filter.IsSettle;
+    // delete filter.IsUnsettle;
+    // delete filter.IsVoid;
+    delete filter.sportName;
+    resData = await St8Transaction.paginate(filter, options);
+    } else {
+    resData = await CricketBetPlace.paginate(filter, options);
+    if (resData.results.length === 0) {
+      resData = await TennisBetPlace.paginate(filter, options);
     }
-    if (datas.results.length === 0) {
-      datas = await SoccerBetPlace.paginate(filter, options);
+    if (resData.results.length === 0) {
+      resData = await SoccerBetPlace.paginate(filter, options);
     }
-
-
-    // let datas: any = await CricketBetPlace.paginate(filter, options)
-    const resData: any = [];
-    datas?.results.forEach((item: any) => {
+    }
+    
+    const respData: any = [];
+    resData?.results.forEach((item: any) => {
       const itemData = {
-        username: item?.username,
-        odds: item.odds > 0 ? parseFloat(item.odds.toString()) : 0,
-        pl: item.pl > 0 ? parseFloat(item.pl.toString()) : 0,
-        _id: item?._id,
-        stake: item?.stake,
-        type: item?.type,
-        eventName: item?.eventName,
-        selectionName: item?.selectionName,
-        marketType: item?.marketType,
-        mrktType: item?.mrktType,
-        createdAt: item?.createdAt,
-        updatedAt: item?.updatedAt,
-        selectionId: item?.selectionId,
-        sportName: item?.sportName || "",
-      };
-      resData.push(itemData);
+      username: item?.username,
+      odds: item?.betInfo?.requestedOdds || item?.odds || 0,
+      pl: item?.betInfo?.pnl || (item?.pl != '' ? parseFloat(item?.pl?.toString()) : 0),
+      _id: item?._id,
+      stake: item?.stake || item?.stack || item?.betInfo?.reqStake || item?.amount || 0,
+      type: item?.type ? item?.type : (item?.betInfo?.isBack ? 'back' : 'lay') || '-',
+      eventName: item?.eventName ? item?.eventName : item?.matchName || item?.gameName || '-',
+      selectionName: item?.selectionName ? item?.selectionName : item?.betInfo?.runnerName || '-',
+      marketType: item?.marketName || item?.marketType || item?.categoryName || '-',
+      createdAt: item?.createdAt,
+      updatedAt: item?.updatedAt,
+      selectionId: item?.selectionId || '-',
+      sportName: item?.sportName || '',
+      size: item?.size || '',
+      mrktType: item?.mrktType || '',
+    };
+      respData.push(itemData);
     }),
-      datas.results = resData
-    return datas;
+      
+   resData.results = respData
+    return resData;
   }
   catch (error: any) {
     console.log("error", error);
