@@ -174,16 +174,4 @@ const profileLog = catchAsync(
   }
 );
 
-const exposureList = catchAsync(
-  async (req: any, res: CustomResponse) => {
-    const { userId } = req.query;
-    const data = await UserService.getExposureList(userId);
-    const response = {
-      message: "Get Exposure List successfully.",
-      ...data,
-    };
-    res.status(httpStatus.OK).json(response);
-  }
-);
-
-export default { fetchUserProfile, fetchUserDownline, Register, myDownline, addCreditLog, getCreditLog, updateStatus, updateExposure, myBalance, exportCsv, getParentUsername, updateProfile, profileLog, exposureList };
+export default { fetchUserProfile, fetchUserDownline, Register, myDownline, addCreditLog, getCreditLog, updateStatus, updateExposure, myBalance, exportCsv, getParentUsername, updateProfile, profileLog };

@@ -22,4 +22,3 @@ export { default as AuraCSPlaceBet } from "./auraCSPlaceBet.model";
 export { default as AuraCSResult } from "./auraCSResult.model";
 export { default as SoccerBetPlace } from "./soccerBetPlace.model";
 export { default as TennisBetPlace } from "./tennisBetPlace.model";
-export { default as ExposureManage } from "./exposuremanage.model";
