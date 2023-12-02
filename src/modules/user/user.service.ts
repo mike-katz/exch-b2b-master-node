@@ -727,7 +727,7 @@ const getAllUsersDownlineUser = async (userId: string) => {
 }
 
 const getExposureList = async (userId: string) => {
-  const userData: any = await User.findOne({ username: userId });
+  const userData: any = await User.findOne({ _id: userId });
   if (!userData) {
     throw new ApiError(httpStatus.BAD_REQUEST, {
       msg: "user not found",
@@ -736,7 +736,7 @@ const getExposureList = async (userId: string) => {
     const result = await ExposureManage.aggregate([
       {
         $match: {
-          username: userId,
+          username: userData.username,
           exposure: { $gt: 0 },
         },
       },
