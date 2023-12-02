@@ -112,26 +112,6 @@ const bettingHistory = async (data: any, filter: any, options: any): Promise<voi
       respData.push(itemData);
     }),
       resData.results = respData
-    const sumData: any = await CricketBetPlace.aggregate([
-      {
-        $match: filter
-      },
-      {
-        $group: {
-          _id: null,
-          totalStake: {
-            $sum: {
-              $cond: {
-                if: { $regexMatch: { input: "$stake", regex: /^\d+$/ } },
-                then: { $toInt: "$stake" },
-                else: 0
-              }
-            }
-          }
-        }
-      }
-    ]);
-    resData.sum = sumData;
     return resData;
   }
   catch (error: any) {
