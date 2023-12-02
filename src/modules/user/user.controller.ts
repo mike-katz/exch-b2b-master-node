@@ -179,7 +179,6 @@ const exposureList = catchAsync(
     const { userId } = req.query;
     const data: any = await UserService.getExposureList(userId);
     const response = {
-      message: "Get Exposure List successfully.",
       ...data,
     };
     res.status(httpStatus.OK).json(response);
