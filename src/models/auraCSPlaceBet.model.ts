@@ -5,8 +5,11 @@ const { Schema } = mongoose;
 
 const auracsplacebetSchema = new Schema({
  userId: {
-    type: 'String',
+    type: 'String',   
     ref: "User",
+  },
+  userName: {
+    type: 'String',
   },
   matchName: {
     type: 'String',

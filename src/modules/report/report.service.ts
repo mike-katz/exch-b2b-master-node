@@ -155,7 +155,8 @@ const fetchAviatorTotalPL = async (data: any, filter: any): Promise<void> => {
       delete filter.timeZone
     }
     filter.user = { $in: usernames }
-    filter.IsSettle = 1
+    filter.issettled = 1
+    console.log("filter",filter);    
     const resp = await Avplacebet.aggregate([
       {
         $match: filter
