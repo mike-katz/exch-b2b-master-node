@@ -6,6 +6,7 @@ const { Schema } = mongoose;
 const auracsplacebetSchema = new Schema({
  userId: {
     type: 'String',
+    ref: "User",
   },
   matchName: {
     type: 'String',
@@ -84,6 +85,13 @@ const auracsplacebetSchema = new Schema({
     type: 'Number',
   },
 }, { timestamps: true });
+
+auracsplacebetSchema.statics.POPULATED_FIELDS = [
+  {
+    path: "userId",
+    select: "username",
+  },
+];
 
 // add plugin that converts mongoose to json
 auracsplacebetSchema.plugin(plugin.toJSON);

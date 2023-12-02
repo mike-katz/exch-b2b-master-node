@@ -37,6 +37,7 @@ const betList = {
     to: Joi.optional(),
     marketType: Joi.optional(),
     sportName: Joi.optional(),
+    search: Joi.optional(),
     limit: Joi.required(),
     page: Joi.required()
   }),

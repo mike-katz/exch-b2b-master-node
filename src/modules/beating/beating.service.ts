@@ -64,51 +64,51 @@ const bettingHistory = async (data: any, filter: any, options: any): Promise<voi
     let resData;
 
     if (filter.sportName === 'Aviator') {
-    // delete filter.mrktType;
-    delete filter.username;
-    filter.user = username;
-    resData = await Avplacebet.paginate(filter, options);
-  } else if (filter.sportName === 'Casino') {
-    // delete filter.mrktType;
-    delete filter.username;
-    delete filter.sportName;
-    filter.userId = userId.toString();
-    resData = await AuraCSPlaceBet.paginate(filter, options);
-  } else if (filter.sportName === 'Int Casino') {
-    // delete filter.mrktType;
-    // delete filter.IsSettle;
-    // delete filter.IsUnsettle;
-    // delete filter.IsVoid;
-    delete filter.sportName;
-    resData = await St8Transaction.paginate(filter, options);
+      // delete filter.mrktType;
+      delete filter.username;
+      filter.user = username;
+      resData = await Avplacebet.paginate(filter, options);
+    } else if (filter.sportName === 'Casino') {
+      // delete filter.mrktType;
+      delete filter.username;
+      delete filter.sportName;
+      filter.userId = userId.toString();
+      resData = await AuraCSPlaceBet.paginate(filter, options);
+    } else if (filter.sportName === 'Int Casino') {
+      // delete filter.mrktType;
+      // delete filter.IsSettle;
+      // delete filter.IsUnsettle;
+      // delete filter.IsVoid;
+      delete filter.sportName;
+      resData = await St8Transaction.paginate(filter, options);
     } else {
-    resData = await CricketBetPlace.paginate(filter, options);
-    if (resData.results.length === 0) {
-      resData = await TennisBetPlace.paginate(filter, options);
+      resData = await CricketBetPlace.paginate(filter, options);
+      if (resData.results.length === 0) {
+        resData = await TennisBetPlace.paginate(filter, options);
+      }
+      if (resData.results.length === 0) {
+        resData = await SoccerBetPlace.paginate(filter, options);
+      }
     }
-    if (resData.results.length === 0) {
-      resData = await SoccerBetPlace.paginate(filter, options);
-    }
-    }
-    
+
     const respData: any = [];
     resData?.results.forEach((item: any) => {
-       const itemData = {
-      username: item?.username,
-      odds: item?.betInfo?.requestedOdds || item?.odds || 0,
-      pl: item?.betInfo?.pnl || (item?.pl != '' ? parseFloat(item?.pl?.toString()) : 0),
-      _id: item?._id,
-      stake: item?.stake || item?.stack || item?.betInfo?.reqStake || item?.amount || 0,
-      type: item?.type ? item?.type : (item?.betInfo?.isBack ? 'back' : 'lay') || '-',
-      eventName: item?.eventName ? item?.eventName : item?.matchName || item?.gameName || '-',
-      selectionName: item?.selectionName ? item?.selectionName : item?.betInfo?.runnerName || '-',
-      marketType: item?.marketName || item?.marketType || item?.categoryName || '-',
-      createdAt: item?.createdAt,
-      updatedAt: item?.updatedAt,
-      selectionId: item?.selectionId || '-',
-      sportName: item?.sportName || '',
-      size: item?.size || '',
-    };
+      const itemData = {
+        username: item?.username,
+        odds: item?.betInfo?.requestedOdds || item?.odds || 0,
+        pl: item?.betInfo?.pnl || (item?.pl != '' ? parseFloat(item?.pl?.toString()) : 0),
+        _id: item?._id,
+        stake: item?.stake || item?.stack || item?.betInfo?.reqStake || item?.amount || 0,
+        type: item?.type ? item?.type : (item?.betInfo?.isBack ? 'back' : 'lay') || '-',
+        eventName: item?.eventName ? item?.eventName : item?.matchName || item?.gameName || '-',
+        selectionName: item?.selectionName ? item?.selectionName : item?.betInfo?.runnerName || '-',
+        marketType: item?.marketName || item?.marketType || item?.categoryName || '-',
+        createdAt: item?.createdAt,
+        updatedAt: item?.updatedAt,
+        selectionId: item?.selectionId || '-',
+        sportName: item?.sportName || '',
+        size: item?.size || '',
+      };
       respData.push(itemData);
     }),
       resData.results = respData
@@ -226,7 +226,8 @@ const betList = async (data: any, filter: any, options: any): Promise<void> => {
     const users = await User.find({ roles: { $in: ['User'] }, parentId: { $in: [data._id] } }).select('username');
     const usernames = users.map(user => user.username);
     const userIds = users.map(user => user._id.toString());
-
+    const sportName = filter.sportName
+    const search = filter.search
     filter.username = { $in: usernames };
     if (filter?.from && filter?.from != "" && filter?.to && filter?.to != "") {
       delete filter.createdAt
@@ -272,58 +273,87 @@ const betList = async (data: any, filter: any, options: any): Promise<void> => {
       delete filter.marketType;
     }
 
-    let resData:any = [];
+    if (filter.search !== undefined && filter.search != "") {
+      const regexSearch = new RegExp(filter.search, 'i');
+      filter.$or = [
+        { eventName: regexSearch },
+        { selectionName: regexSearch }
+      ]
+      delete filter.search
+    }
+
+    let resData: any = [];
     if (filter.sportName === 'Aviator') {
-    // delete filter.mrktType;
-    delete filter.username;
-    filter.user = usernames;
-    resData = await Avplacebet.paginate(filter, options);
-  } else if (filter.sportName === 'Casino') {
-    // delete filter.mrktType;
-    delete filter.username;
-    delete filter.sportName;
-    filter.userId = userIds;
-    resData = await AuraCSPlaceBet.paginate(filter, options);
-  } else if (filter.sportName === 'Int Casino') {
-    // delete filter.mrktType;
-    // delete filter.IsSettle;
-    // delete filter.IsUnsettle;
-    // delete filter.IsVoid;
-    delete filter.sportName;
-    resData = await St8Transaction.paginate(filter, options);
+      // delete filter.mrktType;
+      delete filter.$or;
+      delete filter.username;
+      filter.user = usernames;
+      resData = await Avplacebet.paginate(filter, options);
+    } else if (filter.sportName === 'Casino') {
+      // delete filter.mrktType;
+      delete filter.$or;
+      delete filter.username;
+      delete filter.sportName;
+
+      if (search !== undefined && search != "") {
+        const regexSearch = new RegExp(search, 'i');
+        filter.$or = [
+          { matchName: regexSearch },
+          { marketName: regexSearch }
+        ]
+      }
+
+      filter.userId = userIds;
+      options.path = AuraCSPlaceBet.POPULATED_FIELDS,
+        resData = await AuraCSPlaceBet.paginate(filter, options);
+    } else if (filter.sportName === 'Int Casino') {
+      // delete filter.mrktType;
+      // delete filter.IsSettle;
+      // delete filter.IsUnsettle;
+      // delete filter.IsVoid;
+      delete filter.sportName;
+      delete filter.$or;
+      if (search !== undefined && search != "") {
+        const regexSearch = new RegExp(search, 'i');
+        filter.$or = [
+          { gameName: regexSearch },
+          { categoryName: regexSearch }
+        ]
+      }
+      resData = await St8Transaction.paginate(filter, options);
     } else {
-    resData = await CricketBetPlace.paginate(filter, options);
-    if (resData.results.length === 0) {
-      resData = await TennisBetPlace.paginate(filter, options);
+      resData = await CricketBetPlace.paginate(filter, options);
+      if (resData.results.length === 0) {
+        resData = await TennisBetPlace.paginate(filter, options);
+      }
+      if (resData.results.length === 0) {
+        resData = await SoccerBetPlace.paginate(filter, options);
+      }
     }
-    if (resData.results.length === 0) {
-      resData = await SoccerBetPlace.paginate(filter, options);
-    }
-    }
-    
+
     const respData: any = [];
     resData?.results.forEach((item: any) => {
       const itemData = {
-      username: item?.username,
-      odds: item?.betInfo?.requestedOdds || item?.odds || 0,
-      pl: item?.betInfo?.pnl || (item?.pl != '' ? parseFloat(item?.pl?.toString()) : 0),
-      _id: item?._id,
-      stake: item?.stake || item?.stack || item?.betInfo?.reqStake || item?.amount || 0,
-      type: item?.type ? item?.type : (item?.betInfo?.isBack ? 'back' : 'lay') || '-',
-      eventName: item?.eventName ? item?.eventName : item?.matchName || item?.gameName || '-',
-      selectionName: item?.selectionName ? item?.selectionName : item?.betInfo?.runnerName || '-',
-      marketType: item?.marketName || item?.marketType || item?.categoryName || '-',
-      createdAt: item?.createdAt,
-      updatedAt: item?.updatedAt,
-      selectionId: item?.selectionId || '-',
-      sportName: item?.sportName || '',
-      size: item?.size || '',
-      mrktType: item?.mrktType || '',
-    };
+        username: item?.username || item?.user || item?.userId?.username || "",
+        odds: item?.betInfo?.requestedOdds || item?.odds || 0,
+        pl: item?.betInfo?.pnl || (item?.pl != '' ? parseFloat(item?.pl?.toString()) : 0),
+        _id: item?._id,
+        stake: item?.stake || item?.stack || item?.betInfo?.reqStake || item?.amount || 0,
+        type: item?.type ? item?.type : (item?.betInfo?.isBack ? 'back' : 'lay') || '-',
+        eventName: item?.eventName ? item?.eventName : item?.matchName || item?.gameName || '-',
+        selectionName: item?.selectionName ? item?.selectionName : item?.betInfo?.runnerName || '-',
+        marketType: item?.marketName || item?.marketType || item?.categoryName || '-',
+        createdAt: item?.createdAt,
+        updatedAt: item?.updatedAt,
+        selectionId: item?.selectionId || '-',
+        sportName: item?.sportName || sportName || '',
+        size: item?.size || '',
+        mrktType: item?.mrktType || '',
+      };
       respData.push(itemData);
     }),
-      
-   resData.results = respData
+
+      resData.results = respData
     return resData;
   }
   catch (error: any) {
@@ -406,7 +436,7 @@ const betPL = async (data: any, eventId: string): Promise<void> => {
         }
       }
     });
-    
+
     marketIdMap.forEach((selectionId, exMarketId) => {
       const index = result.findIndex((entry: any) => entry.exMarketId === exMarketId);
       const updatedItem = {

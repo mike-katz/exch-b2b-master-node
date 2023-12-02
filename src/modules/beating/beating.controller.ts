@@ -58,7 +58,7 @@ const getSports = catchAsync(
 
 const betList = catchAsync(
   async (req: any, res: CustomResponse) => {
-    const filter = pick(req?.query, ["marketType", "sportName", "status", "from", "to"]);
+    const filter = pick(req?.query, ["marketType", "sportName", "search", "status", "from", "to"]);
     const options = pick(req?.query, ["sortBy", "limit", "page"]);
     const data = await BettingService.betList(req.user, filter, options);
     const response = prepareResponse({
