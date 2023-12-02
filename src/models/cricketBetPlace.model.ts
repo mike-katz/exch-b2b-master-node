@@ -1,5 +1,7 @@
 import mongoose, { Schema } from "mongoose";
-import { paginate, toJSON } from "./plugins";
+// import { paginate, toJSON } from "./plugins";
+import * as plugin from "./plugins";
+
 function getdecimal(value: Number) {
   if (typeof value !== 'undefined') {
     return parseFloat(value.toString());
@@ -28,11 +30,9 @@ const cricketbetplaceSchema = new Schema({
   },
   odds: {
     type: Schema.Types.Decimal128,
-    get: getdecimal,
   },
   pl: {
     type: Schema.Types.Decimal128,
-    get: getdecimal,
   },
   selectionId: {
     type: String,
@@ -65,8 +65,8 @@ const cricketbetplaceSchema = new Schema({
   },
 }, { timestamps: true });
 // add plugin that converts mongoose to json
-cricketbetplaceSchema.plugin(toJSON);
-cricketbetplaceSchema.plugin(paginate);
+cricketbetplaceSchema.plugin(plugin.toJSON);
+cricketbetplaceSchema.plugin(plugin.paginate);
 
 const CricketBetPlace: any = mongoose.model<any>("CricketBetPlace", cricketbetplaceSchema);
 

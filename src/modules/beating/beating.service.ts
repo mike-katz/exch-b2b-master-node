@@ -114,24 +114,31 @@ const bettingHistory = async (data: any, filter: any, options: any): Promise<voi
       resData.results = respData
     const sumData: any = await CricketBetPlace.aggregate([
       {
-        $match: {
-          $and: [filter]
-        }
+        $match: filter
       },
       {
         $group: {
           _id: null,
-          totalStake: { $sum: { $toInt: "$stake" } }
+          totalStake: {
+            $sum: {
+              $cond: {
+                if: { $regexMatch: { input: "$stake", regex: /^\d+$/ } },
+                then: { $toInt: "$stake" },
+                else: 0
+              }
+            }
+          }
         }
       }
     ]);
-
     resData.sum = sumData;
     return resData;
   }
   catch (error: any) {
+    console.log("error", error);
+
     throw new ApiError(httpStatus.BAD_REQUEST, {
-      msg: error?.errorData?.msg || "invalid user id.",
+      msg: error?.errorData?.msg || "internal server error.",
     });
   }
 }
@@ -289,7 +296,7 @@ const betList = async (data: any, filter: any, options: any): Promise<void> => {
       delete filter.$or;
       delete filter.username;
       filter.user = usernames;
-    
+
       if (search !== undefined && search != "") {
         const regexSearch = new RegExp(search, 'i');
         filter.$or = [
@@ -312,7 +319,7 @@ const betList = async (data: any, filter: any, options: any): Promise<void> => {
           { userName: regexSearch }
         ]
       }
-      filter.userId = userIds;     
+      filter.userId = userIds;
       resData = await AuraCSPlaceBet.paginate(filter, options);
     } else if (filter.sportName === 'Int Casino') {
       // delete filter.mrktType;
