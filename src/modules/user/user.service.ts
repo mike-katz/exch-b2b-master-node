@@ -1,4 +1,4 @@
-import { B2cUser, CreditLog, ProfileLog, Stake, User, ExposureManage } from "@/models"
+import { B2cUser, CreditLog, ProfileLog, Stake, User } from "@/models"
 import ApiError from "@/utils/ApiError";
 import httpStatus from "http-status";
 import AWS from "aws-sdk";
@@ -726,45 +726,6 @@ const getAllUsersDownlineUser = async (userId: string) => {
   return userData;
 }
 
-const getExposureList = async (userId: string) => {
-  const userData: any = await User.findOne({ username: userId });
-  if (!userData) {
-    throw new ApiError(httpStatus.BAD_REQUEST, {
-      msg: "user not found",
-    });
-  }
-    const result = await ExposureManage.aggregate([
-      {
-        $match: {
-          username: userId,
-          exposure: { $gt: 0 },
-        },
-      },
-      {
-        $lookup: {
-          from: 'marketRates',
-          localField: 'exMarketId',
-          foreignField: 'exMarketId',
-          as: 'marketRatesInfo',
-        },
-      },
-      {
-        $project: {
-          _id: 0,
-          exposure: 1,
-          exEventId: 1,
-          exMarketId: 1,
-          eventName: { $first: '$marketRatesInfo.eventName' },
-          marketName: { $first: '$marketRatesInfo.marketName' },
-        },
-      },
-      {
-        $sort: { _id: -1 },
-      },
-    ]);
-return result;
-}
-
 export {
   findDownline,
   Register,
@@ -782,6 +743,5 @@ export {
   profileLog,
   findUserByUsername,
   findUserById,
-  getAllUsersDownlineUser,
-  getExposureList
+  getAllUsersDownlineUser
 }
