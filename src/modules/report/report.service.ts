@@ -167,7 +167,9 @@ const fetchAviatorTotalPL = async (data: any, filter: any): Promise<void> => {
           _id: null,
           id: { $first: "$sportId" },
           name: { $first: "$sportName" },
-          pl: { $sum: "$pl" },
+          pl: {
+            $sum: { $subtract: ['$pl', '$stack'] },
+          },
           stack: { $sum: "$stack" },
           // commission: 0
         }
