@@ -277,7 +277,8 @@ const betList = async (data: any, filter: any, options: any): Promise<void> => {
       const regexSearch = new RegExp(filter.search, 'i');
       filter.$or = [
         { eventName: regexSearch },
-        { selectionName: regexSearch }
+        { selectionName: regexSearch },
+        { userName: regexSearch }
       ]
       delete filter.search
     }
@@ -288,6 +289,14 @@ const betList = async (data: any, filter: any, options: any): Promise<void> => {
       delete filter.$or;
       delete filter.username;
       filter.user = usernames;
+    
+      if (search !== undefined && search != "") {
+        const regexSearch = new RegExp(search, 'i');
+        filter.$or = [
+          { user: regexSearch }
+        ]
+      }
+
       resData = await Avplacebet.paginate(filter, options);
     } else if (filter.sportName === 'Casino') {
       // delete filter.mrktType;
@@ -299,7 +308,8 @@ const betList = async (data: any, filter: any, options: any): Promise<void> => {
         const regexSearch = new RegExp(search, 'i');
         filter.$or = [
           { matchName: regexSearch },
-          { marketName: regexSearch }
+          { marketName: regexSearch },
+          { userName: regexSearch }
         ]
       }
 
@@ -317,7 +327,8 @@ const betList = async (data: any, filter: any, options: any): Promise<void> => {
         const regexSearch = new RegExp(search, 'i');
         filter.$or = [
           { gameName: regexSearch },
-          { categoryName: regexSearch }
+          { categoryName: regexSearch },
+          { userName: regexSearch }
         ]
       }
       resData = await St8Transaction.paginate(filter, options);
