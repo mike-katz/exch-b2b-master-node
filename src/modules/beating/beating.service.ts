@@ -365,10 +365,8 @@ const matchBet = async (data: any, eventId: string, options: any, status: string
   const users = await User.find({ roles: { $in: ['User'] }, parentId: { $in: [data._id] } }).select('username');
   const usernames = users.map(user => user.username);
 
-  // const { limit = 10, page = 1 } = options;
-  // const skip = (page - 1) * limit;
   const filter: any = {
-    // username: { $in: usernames },
+    username: { $in: usernames },
     exEventId: eventId
   }
   if (status) {
@@ -377,7 +375,8 @@ const matchBet = async (data: any, eventId: string, options: any, status: string
   let betData: any = await CricketBetPlace.paginate(filter, options);
   if (betData?.results?.length === 0) {
     betData = await TennisBetPlace.paginate(filter, options);
-  } else if (betData?.results?.length === 0) {
+  }
+  if (betData?.results?.length === 0) {
     betData = await SoccerBetPlace.paginate(filter, options);
   }
   let results: any = []
@@ -385,8 +384,8 @@ const matchBet = async (data: any, eventId: string, options: any, status: string
     betData.results.map((item: any) => {
       const news: any = {};
       news.pl = item.pl > 0 ? parseFloat(item.pl.toString()) : 0,
-        news.odds = item.odds > 0 ? parseFloat(item.odds.toString()) : 0,
-        news.username = item.username
+      news.odds = item.odds > 0 ? parseFloat(item.odds.toString()) : 0,
+      news.username = item.username
       news.exEventId = item.exEventId
       news.exMarketId = item.exMarketId
       news.stake = item.stake
