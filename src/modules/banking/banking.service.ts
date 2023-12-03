@@ -151,6 +151,7 @@ const getTransaction = async (userData: any, userId: string, options: any): Prom
       filter.receiver_id = userId;
       const getUsername:any = await User.findOne({ _id: userId }).select('username');
       username = getUsername?.username;
+      delete filter.sender_id;
     }
     const optObj = {
       ...options,
