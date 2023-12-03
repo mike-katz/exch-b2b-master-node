@@ -1,4 +1,4 @@
-import { CricketBetPlace, CricketPL, Sport, User, BetLock, BetLockLog, Avplacebet, AuraCSPlaceBet, St8Transaction, TennisBetPlace, SoccerBetPlace } from "@/models"
+import { CricketBetPlace, CricketPL,TennisPL, SoccerPL, Sport, User, BetLock, BetLockLog, Avplacebet, AuraCSPlaceBet, St8Transaction, TennisBetPlace, SoccerBetPlace } from "@/models"
 import ApiError from "@/utils/ApiError";
 import httpStatus from "http-status";
 import { MongoClient } from 'mongodb';
@@ -411,11 +411,16 @@ const betPL = async (data: any, eventId: string): Promise<void> => {
     parentId: { $in: [data._id] }
   }).select('username');
   const usernames = users.map(user => user.username);
-  const result: any = await CricketPL.find({
+  const filter = {
     exEventId: eventId,
     username: { $in: usernames }
-  });
-
+  }
+  let result: any = await CricketPL.find(filter);
+  if (result.length === 0) {
+    result = await SoccerPL.find(filter);
+  } else if (result.length === 0) {
+    result = await TennisPL.find(filter);
+  }
   if (result.length > 0) {
     const outputJson: any = [];
     const marketIdMap = new Map();
