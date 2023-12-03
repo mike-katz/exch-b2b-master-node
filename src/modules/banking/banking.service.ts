@@ -155,10 +155,8 @@ const getTransaction = async (userData: any, userId: string, options: any): Prom
     }
     const optObj = {
       ...options,
-      // path: Transcation.POPULATED_FIELDS,
-      path: B2cBankingLog.POPULATED_FIELDS,
-      
-      sortBy: options.sortBy ? options.sortBy : "createdAt:desc",
+      path: B2cBankingLog.POPULATED_FIELDS,      
+      sortBy: options.sortBy ? options.sortBy : "_id:desc",
     };
 
     // const data = await Transcation.paginate(filter, optObj);
