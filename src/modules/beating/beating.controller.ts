@@ -71,9 +71,9 @@ const betList = catchAsync(
 
 const matchBet = catchAsync(
   async (req: any, res: CustomResponse) => {
-    const { eventId } = req.query
+    const { eventId, status } = req.query
     const options = pick(req?.query, ["sortBy", "limit", "page"]);
-    const data = await BettingService.matchBet(req.user, eventId, options);
+    const data = await BettingService.matchBet(req.user, eventId, options, status);
     const response = prepareResponse({
       message: "fetch Bet success",
       data,

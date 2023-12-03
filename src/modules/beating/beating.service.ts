@@ -1,4 +1,4 @@
-import { CricketBetPlace, CricketPL,TennisPL, SoccerPL, Sport, User, BetLock, BetLockLog, Avplacebet, AuraCSPlaceBet, St8Transaction, TennisBetPlace, SoccerBetPlace } from "@/models"
+import { CricketBetPlace, CricketPL, TennisPL, SoccerPL, Sport, User, BetLock, BetLockLog, Avplacebet, AuraCSPlaceBet, St8Transaction, TennisBetPlace, SoccerBetPlace } from "@/models"
 import ApiError from "@/utils/ApiError";
 import httpStatus from "http-status";
 import { MongoClient } from 'mongodb';
@@ -361,48 +361,55 @@ const betList = async (data: any, filter: any, options: any): Promise<void> => {
   }
 }
 
-const matchBet = async (data: any, eventId: string, options: any): Promise<void> => {
+const matchBet = async (data: any, eventId: string, options: any, status: string): Promise<void> => {
   const users = await User.find({ roles: { $in: ['User'] }, parentId: { $in: [data._id] } }).select('username');
   const usernames = users.map(user => user.username);
 
-  const { limit = 10, page = 1 } = options;
-  const skip = (page - 1) * limit;
-
-  const betData = await CricketBetPlace.aggregate([
-    {
-      $match: {
-        $and: [{ username: { $in: usernames } },
-        { IsUnsettle: 1 },
-        { exEventId: eventId }]
-      }
-    },
-    {
-      $skip: skip,
-    },
-    {
-      $limit: parseInt(limit),
-    },
-    { $sort: { _id: -1 } }
-  ]);
-
-  const totalResults = await CricketBetPlace.countDocuments({ username: { $in: usernames }, IsUnsettle: 1, exEventId: eventId });
+  // const { limit = 10, page = 1 } = options;
+  // const skip = (page - 1) * limit;
+  const filter: any = {
+    // username: { $in: usernames },
+    exEventId: eventId
+  }
+  if (status) {
+    status == "settle" ? filter.IsSettle = 1 : (status == "unsettle" ? filter.IsUnsettle = 1 : filter.IsVoid = 1)
+  }
+  let betData: any = await CricketBetPlace.paginate(filter, options);
+  if (betData?.result?.length === 0) {
+    betData = await TennisBetPlace.paginate(filter, options);
+  } else if (betData?.result?.length === 0) {
+    betData = await SoccerBetPlace.paginate(filter, options);
+  }
   let results: any = []
-  if (betData.length > 0) {
-    betData.forEach((item: any) => {
-      const news = { ...item };
+  if (betData.results.length > 0) {
+    betData.results.map((item: any) => {
+      const news: any = {};
       news.pl = item.pl > 0 ? parseFloat(item.pl.toString()) : 0,
         news.odds = item.odds > 0 ? parseFloat(item.odds.toString()) : 0,
-        results.push(news)
+        news.username = item.username
+      news.exEventId = item.exEventId
+      news.exMarketId = item.exMarketId
+      news.stake = item.stake
+      news.selectionId = item.selectionId
+      news.type = item.type
+      news.size = item.size
+      news.eventName = item.eventName
+      news.selectionName = item.selectionName
+      news.marketType = item.marketType
+      news.mrktType = item.mrktType
+      news.sportId = item.sportId
+      news.sportName = item.sportName
+      news.IsSettle = item.IsSettle
+      news.IsVoid = item.IsVoid
+      news.IsUnsettle = item.IsUnsettle
+      news.createdAt = item.createdAt
+      news.updatedAt = item.updatedAt
+      results.push(news)
     });
   }
-  const resData: any = {
-    page,
-    limit,
-    totalPages: Math.ceil(totalResults / limit),
-    totalResults,
-    results
-  };
-  return resData;
+  // console.log("results",results);
+  betData.results = results;
+  return betData;
 }
 
 const betPL = async (data: any, eventId: string): Promise<void> => {

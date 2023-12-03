@@ -46,6 +46,7 @@ const betList = {
 const matchBet = {
   query: Joi.object().keys({
     eventId: Joi.required(),
+    status: Joi.optional(),
     page: Joi.required(),
     limit: Joi.required(),
     }),
