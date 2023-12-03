@@ -535,20 +535,19 @@ const getLatestBet = async (data: any, eventId: string): Promise<void> => {
     IsUnsettle: 1
   }
   const fancyData: any = await CricketBetPlace.find({ ...filter, mrktType: { $in: ['fancy', 'line_market'] } }).sort({ _id: 'desc' }).limit(20);
-  let otherData:any = [];
-  // options.sortBy = '_id:desc';
-  let betData: any = await CricketBetPlace.find(filter).sort({ _id: 'desc' }).limit(20);
-  otherData = betData
-  if (betData?.length > 20) {
-    betData = await TennisBetPlace.find(filter).sort({ _id: 'desc' }).limit(20 - otherData?.length);
-    otherData = [...otherData, ...betData]
-  }
-  if (betData?.results?.length === 0) {
-    betData = await SoccerBetPlace.find(filter).sort({ _id: 'desc' }).limit(20 - otherData?.length);
-  }
-    otherData = [...otherData, ...betData]
+  let otherData: any = [];
   
-console.log("otherData",otherData);
+  const betData: any = await CricketBetPlace.find(filter).sort({ _id: 'desc' }).limit(20);
+  otherData = betData
+  if (betData?.length < 20) {
+    const tennisData:any = await TennisBetPlace.find(filter).sort({ _id: 'desc' }).limit(20 - otherData?.length);
+    otherData = [...otherData, ...tennisData]
+  }
+  if (otherData.length < 20) {
+    const soccerData: any = await SoccerBetPlace.find(filter).sort({ _id: 'desc' }).limit(20 - otherData?.length);
+    otherData = [...otherData, ...soccerData ]
+  }
+  otherData = Array.from(new Set(otherData));
 
   let fancyResult: any = []
   if (fancyData.length > 0) {
@@ -606,7 +605,7 @@ console.log("otherData",otherData);
   }
  results = results.sort((a: any, b: any) => {
     // Use Date.parse to ensure consistent date comparison
-    return Date.parse(a.createdAt) - Date.parse(b.createdAt);
+    return Date.parse(b.createdAt) - Date.parse(a.createdAt);
 });
   const resp: any = { fancyResult, otherResult: results }
   return resp;
