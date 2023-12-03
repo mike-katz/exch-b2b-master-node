@@ -604,7 +604,10 @@ console.log("otherData",otherData);
       results.push(news)
     });
   }
-  results= results?.sort((a:any, b:any) => (a._id > b._id ? -1 : 1))
+ results = results.sort((a: any, b: any) => {
+    // Use Date.parse to ensure consistent date comparison
+    return Date.parse(a.createdAt) - Date.parse(b.createdAt);
+});
   const resp: any = { fancyResult, otherResult: results }
   return resp;
 }
