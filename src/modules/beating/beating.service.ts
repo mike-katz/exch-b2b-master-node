@@ -375,9 +375,9 @@ const matchBet = async (data: any, eventId: string, options: any, status: string
     status == "settle" ? filter.IsSettle = 1 : (status == "unsettle" ? filter.IsUnsettle = 1 : filter.IsVoid = 1)
   }
   let betData: any = await CricketBetPlace.paginate(filter, options);
-  if (betData?.result?.length === 0) {
+  if (betData?.results?.length === 0) {
     betData = await TennisBetPlace.paginate(filter, options);
-  } else if (betData?.result?.length === 0) {
+  } else if (betData?.results?.length === 0) {
     betData = await SoccerBetPlace.paginate(filter, options);
   }
   let results: any = []
