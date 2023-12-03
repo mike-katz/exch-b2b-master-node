@@ -370,6 +370,9 @@ const matchBet = async (data: any, eventId: string, options: any): Promise<void>
     exEventId: eventId,
     IsUnsettle: 1
   }
+  options.sortBy = '_id:desc';
+  console.log("options",options);
+  
   let betData: any = await CricketBetPlace.paginate(filter, options);
   if (betData?.results?.length === 0) {
     betData = await TennisBetPlace.paginate(filter, options);
