@@ -45,13 +45,13 @@ const saveTransaction = async (userData: any, password: string, data: any): Prom
           toUser.balance = toUserBalance + itemBalance;
 
           transcationData.push({
-            sender_id:userData._id,
-            receiver_id:item?.userId,
+            sender_id: userData._id,
+            receiver_id: item?.userId,
             amount: itemBalance,
-            message:`${userData?.username} send amount to ${toUser?.username}`,
+            message: `${userData?.username} send amount to ${toUser?.username}`,
             method: "Deposit",
             username: userData?.username,
-            balance:toUserBalance + itemBalance,
+            balance: toUserBalance + itemBalance,
             remark: item?.remark,
           });
           // transcationData.push({
@@ -69,7 +69,7 @@ const saveTransaction = async (userData: any, password: string, data: any): Prom
               old: toUser?.creditRef || 0,
               new: item?.creditRef || 0
             });
-          toUser.creditRef = item?.creditRef;
+            toUser.creditRef = item?.creditRef;
           }
 
         } else if (item.type === "withdraw") {
@@ -78,13 +78,13 @@ const saveTransaction = async (userData: any, password: string, data: any): Prom
             status = 400
             return; // Skip transactions with insufficient balance for withdrawal
           }
-            userBalance += itemBalance;
-            toUser.balance = toUserBalance - itemBalance;
+          userBalance += itemBalance;
+          toUser.balance = toUserBalance - itemBalance;
           transcationData.push({
-            sender_id:userData._id,
-            receiver_id:item?.userId,
+            sender_id: userData._id,
+            receiver_id: item?.userId,
             amount: itemBalance,
-            message:`${userData?.username} send amount to ${toUser?.username}`,
+            message: `${userData?.username} send amount to ${toUser?.username}`,
             method: "Withdraw",
             username: userData?.username,
             balance: toUserBalance - itemBalance,
@@ -104,7 +104,7 @@ const saveTransaction = async (userData: any, password: string, data: any): Prom
               username: toUser?.username,
               old: toUser?.creditRef || 0,
               new: item?.creditRef || 0
-            });            
+            });
             toUser.creditRef = item?.creditRef;
           }
         }
@@ -129,15 +129,15 @@ const saveTransaction = async (userData: any, password: string, data: any): Prom
   await user.save();
   if (transcationData.length > 0) {
     // Transcation.insertMany(transcationData)
-    B2cBankingLog.insertMany(transcationData)    
+    B2cBankingLog.insertMany(transcationData)
   }
 
   if (creditLogData.length > 0) {
     CreditLog.insertMany(creditLogData)
   }
 
-  const strings:string= successfulTransactions + failedTransactions;
-  const resp:any={ data: strings.slice(1), status }
+  const strings: string = successfulTransactions + failedTransactions;
+  const resp: any = { data: strings.slice(1), status }
   return resp;
 }
 
@@ -148,19 +148,23 @@ const getTransaction = async (userData: any, userId: string, options: any): Prom
     filter.sender_id = userData?._id
 
     if (userId !== undefined && userId !== "") {
-      filter.receiver_id = userId;
-      const getUsername:any = await User.findOne({ _id: userId }).select('username');
+
+      filter.$or = [
+        { sender_id: userId },
+        { receiver_id: userId },
+      ]
+      const getUsername: any = await User.findOne({ _id: userId }).select('username');
       username = getUsername?.username;
       delete filter.sender_id;
     }
     const optObj = {
       ...options,
-      path: B2cBankingLog.POPULATED_FIELDS,      
+      path: B2cBankingLog.POPULATED_FIELDS,
       sortBy: options.sortBy ? options.sortBy : "_id:desc",
     };
 
     // const data = await Transcation.paginate(filter, optObj);
-    const data = await B2cBankingLog.paginate(filter, optObj);    
+    const data = await B2cBankingLog.paginate(filter, optObj);
     const resp: any = { data, username };
     return resp;
 
