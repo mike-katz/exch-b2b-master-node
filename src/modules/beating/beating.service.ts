@@ -531,14 +531,14 @@ const getLatestBet = async (data: any, eventId: string): Promise<void> => {
   const usernames = users.map(user => user.username);
 
   const filter: any = {
-    // username: { $in: usernames },
+    username: { $in: usernames },
     exEventId: eventId,
     IsUnsettle: 1
   }
   const fancyData: any = await CricketBetPlace.find({ ...filter, mrktType: { $in: ['fancy', 'line_market'] } }).sort({ _id: 'desc' }).limit(20);
   let otherData: any = [];
   
-  const betData: any = await CricketBetPlace.find(filter).sort({ _id: 'desc' }).limit(20);
+  const betData: any = await CricketBetPlace.find({...filter,mrktType: { $nin: ['fancy', 'line_market'] } }).sort({ _id: 'desc' }).limit(20);
   otherData = betData
   if (betData?.length < 20) {
     const tennisData:any = await TennisBetPlace.find(filter).sort({ _id: 'desc' }).limit(20 - otherData?.length);
