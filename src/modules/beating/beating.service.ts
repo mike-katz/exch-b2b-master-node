@@ -108,7 +108,7 @@ const bettingHistory = async (data: any, filter: any, options: any): Promise<voi
         selectionId: item?.selectionId || '-',
         sportName: item?.sportName || '',
         size: item?.size || '',
-        matchedTime: item.matchedTime || ''
+        matchedTime: item.matchedTime || item?.updatedAt || ''
       };
       respData.push(itemData);
     }),
@@ -346,7 +346,7 @@ const betList = async (data: any, filter: any, options: any): Promise<void> => {
         sportName: item?.sportName || sportName || '',
         size: item?.size || '',
         mrktType: item?.mrktType || '',
-        matchedTime: item.matchedTime || ''
+        matchedTime: item.matchedTime || item?.updatedAt || '' 
       };
       respData.push(itemData);
     }),
