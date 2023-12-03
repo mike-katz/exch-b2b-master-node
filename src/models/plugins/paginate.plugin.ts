@@ -67,7 +67,7 @@ const paginate = <T extends Document, U extends Model<U>>(
       });
       sort = sortingCriteria.join(" ");
     } else {
-      sort = "createdAt";
+      sort = 'createdAt:-1';
     }
 
     const limit =

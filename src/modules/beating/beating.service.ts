@@ -361,16 +361,14 @@ const betList = async (data: any, filter: any, options: any): Promise<void> => {
   }
 }
 
-const matchBet = async (data: any, eventId: string, options: any, status: string): Promise<void> => {
+const matchBet = async (data: any, eventId: string, options: any): Promise<void> => {
   const users = await User.find({ roles: { $in: ['User'] }, parentId: { $in: [data._id] } }).select('username');
   const usernames = users.map(user => user.username);
 
   const filter: any = {
     username: { $in: usernames },
-    exEventId: eventId
-  }
-  if (status) {
-    status == "settle" ? filter.IsSettle = 1 : (status == "unsettle" ? filter.IsUnsettle = 1 : filter.IsVoid = 1)
+    exEventId: eventId,
+    IsUnsettle: 1
   }
   let betData: any = await CricketBetPlace.paginate(filter, options);
   if (betData?.results?.length === 0) {
