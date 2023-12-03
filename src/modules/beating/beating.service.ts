@@ -371,8 +371,6 @@ const matchBet = async (data: any, eventId: string, options: any): Promise<void>
     IsUnsettle: 1
   }
   options.sortBy = '_id:desc';
-  console.log("options",options);
-  
   let betData: any = await CricketBetPlace.paginate(filter, options);
   if (betData?.results?.length === 0) {
     betData = await TennisBetPlace.paginate(filter, options);
@@ -385,8 +383,8 @@ const matchBet = async (data: any, eventId: string, options: any): Promise<void>
     betData.results.map((item: any) => {
       const news: any = {};
       news.pl = item.pl > 0 ? parseFloat(item.pl.toString()) : 0,
-      news.odds = item.odds > 0 ? parseFloat(item.odds.toString()) : 0,
-      news.username = item.username
+        news.odds = item.odds > 0 ? parseFloat(item.odds.toString()) : 0,
+        news.username = item.username
       news.exEventId = item.exEventId
       news.exMarketId = item.exMarketId
       news.stake = item.stake
@@ -526,6 +524,91 @@ const betLockLog = async (data: any): Promise<void> => {
   const result: any = await BetLockLog.find({ username: data?.username })
   return result
 }
+
+const getLatestBet = async (data: any, eventId: string): Promise<void> => {
+  const users = await User.find({ roles: { $in: ['User'] }, parentId: { $in: [data._id] } }).select('username');
+  const usernames = users.map(user => user.username);
+
+  const filter: any = {
+    // username: { $in: usernames },
+    exEventId: eventId,
+    IsUnsettle: 1
+  }
+  const fancyData: any = await CricketBetPlace.find({ ...filter, mrktType: { $in: ['fancy', 'line_market'] } }).sort({ _id: 'desc' }).limit(20);
+  let otherData:any = [];
+  // options.sortBy = '_id:desc';
+  let betData: any = await CricketBetPlace.find(filter).sort({ _id: 'desc' }).limit(20);
+  otherData = betData
+  if (betData?.length > 20) {
+    betData = await TennisBetPlace.find(filter).sort({ _id: 'desc' }).limit(20 - otherData?.length);
+    otherData = [...otherData, ...betData]
+  }
+  if (betData?.results?.length === 0) {
+    betData = await SoccerBetPlace.find(filter).sort({ _id: 'desc' }).limit(20 - otherData?.length);
+  }
+    otherData = [...otherData, ...betData]
+  
+console.log("otherData",otherData);
+
+  let fancyResult: any = []
+  if (fancyData.length > 0) {
+    fancyData.map((item: any) => {
+      const news: any = {};
+      news.pl = item.pl > 0 ? parseFloat(item.pl.toString()) : 0,
+        news.odds = item.odds > 0 ? parseFloat(item.odds.toString()) : 0,
+        news.username = item.username
+      news.exEventId = item.exEventId
+      news.exMarketId = item.exMarketId
+      news.stake = item.stake
+      news.mrktType = item.mrktType
+      news.selectionId = item.selectionId
+      news.type = item.type
+      news.size = item.size
+      news.eventName = item.eventName
+      news.selectionName = item.selectionName
+      news.marketType = item.marketType
+      news.sportId = item.sportId
+      news.sportName = item.sportName
+      news.IsSettle = item.IsSettle
+      news.IsVoid = item.IsVoid
+      news.IsUnsettle = item.IsUnsettle
+      news.createdAt = item.createdAt
+      news.updatedAt = item.updatedAt
+      fancyResult.push(news)
+    });
+  }
+  let results: any = [];
+  if (otherData.length > 0) {
+    otherData.map((item: any) => {
+      const news: any = {};
+      news.pl = item.pl > 0 ? parseFloat(item.pl.toString()) : 0,
+      news.odds = item.odds > 0 ? parseFloat(item.odds.toString()) : 0,
+      news.username = item.username
+      news.exEventId = item.exEventId
+      news.exMarketId = item.exMarketId
+      news.stake = item.stake
+      news.selectionId = item.selectionId
+      news.type = item.type
+      news.size = item.size
+      news.eventName = item.eventName
+      news.selectionName = item.selectionName
+      news.marketType = item.marketType
+      news.sportId = item.sportId
+      news.sportName = item.sportName
+      news.mrktType = item.mrktType
+      news.IsSettle = item.IsSettle
+      news.IsVoid = item.IsVoid
+      news.IsUnsettle = item.IsUnsettle
+      news.createdAt = item.createdAt
+      news.updatedAt = item.updatedAt
+      results.push(news)
+    });
+  }
+  results= results?.sort((a:any, b:any) => (a._id > b._id ? -1 : 1))
+  const resp: any = { fancyResult, otherResult: results }
+  return resp;
+}
+
 export {
   bettingHistory,
   profitLoss,
@@ -535,5 +618,6 @@ export {
   matchBet,
   betPL,
   betLock,
-  betLockLog
+  betLockLog,
+  getLatestBet
 }

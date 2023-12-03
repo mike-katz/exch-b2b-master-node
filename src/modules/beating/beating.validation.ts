@@ -71,4 +71,11 @@ const betLockLog = {
     }),
 };
 
-export default { bettingHistory, profitLoss, transaction, getSports, betList, matchBet, betPL, betLock, betLockLog};
+const getLatestBet = {
+  query: Joi.object().keys({
+    eventId: Joi.required(),
+  }),
+};
+
+
+export default { bettingHistory, profitLoss, transaction, getSports, betList, matchBet, betPL, betLock, betLockLog, getLatestBet};

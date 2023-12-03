@@ -91,6 +91,15 @@ const routeDetails: IBettingRouteDetails[] = [
     auth: "",
   },
 
+  {
+    key: "getLastTwentyRecordAPI",
+    method: "get",
+    url: "/latestBet",
+    validationMethodName: "getLatestBet",
+    controllerMethodName: "getLatestBet",
+    auth: "",
+  },
+
 ];
 
 export default routeDetails;
