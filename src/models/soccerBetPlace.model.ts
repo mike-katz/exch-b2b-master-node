@@ -63,6 +63,12 @@ const soccerbetplaceSchema = new Schema({
     type: String,
     ref: 'Sport',
   },
+  mkrtType: {
+    type: String,
+  },
+   matchedTime: {
+    type: Date,    
+  }
 }, { timestamps: true });
 // add plugin that converts mongoose to json
 soccerbetplaceSchema.plugin(toJSON);

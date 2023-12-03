@@ -43,6 +43,9 @@ const tennisbetplaceSchema = new Schema({
   type: {
     type: String,
   },
+  mkrtType: {
+    type: String,
+  },
   IsSettle: {
     type: Number,
     default: 0,
@@ -63,6 +66,9 @@ const tennisbetplaceSchema = new Schema({
     type: String,
     ref: 'Sport',
   },
+   matchedTime: {
+    type: Date,    
+  }
 }, { timestamps: true });
 // add plugin that converts mongoose to json
 tennisbetplaceSchema.plugin(toJSON);
