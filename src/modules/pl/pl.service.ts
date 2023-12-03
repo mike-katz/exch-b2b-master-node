@@ -267,7 +267,7 @@ const getUserBetList = async (filters: any, options: any): Promise<void> => {
           sportName: data.sportName,
           eventName: data.eventName,
           marketName: data.marketType,
-          oddsPrice: data.odds,
+          oddsPrice: Number(data.odds),
           selectionName: data.selectionName,
           stake: data.stake,
           matchedTime: data.matchedTime,
