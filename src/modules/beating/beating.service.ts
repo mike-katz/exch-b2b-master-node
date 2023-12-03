@@ -383,8 +383,8 @@ const matchBet = async (data: any, eventId: string, options: any): Promise<void>
     betData.results.map((item: any) => {
       const news: any = {};
       news.pl = item.pl > 0 ? parseFloat(item.pl.toString()) : 0,
-        news.odds = item.odds > 0 ? parseFloat(item.odds.toString()) : 0,
-        news.username = item.username
+      news.odds = item.odds > 0 ? parseFloat(item.odds.toString()) : 0,
+      news.username = item.username
       news.exEventId = item.exEventId
       news.exMarketId = item.exMarketId
       news.stake = item.stake
@@ -402,6 +402,7 @@ const matchBet = async (data: any, eventId: string, options: any): Promise<void>
       news.IsUnsettle = item.IsUnsettle
       news.createdAt = item.createdAt
       news.updatedAt = item.updatedAt
+      news.matchedTime = item.matchedTime      
       results.push(news)
     });
   }
@@ -573,6 +574,7 @@ const getLatestBet = async (data: any, eventId: string): Promise<void> => {
       news.IsUnsettle = item.IsUnsettle
       news.createdAt = item.createdAt
       news.updatedAt = item.updatedAt
+      news.matchedTime = item.matchedTime
       fancyResult.push(news)
     });
   }
@@ -600,6 +602,7 @@ const getLatestBet = async (data: any, eventId: string): Promise<void> => {
       news.IsUnsettle = item.IsUnsettle
       news.createdAt = item.createdAt
       news.updatedAt = item.updatedAt
+      news.matchedTime = item.matchedTime
       results.push(news)
     });
   }
