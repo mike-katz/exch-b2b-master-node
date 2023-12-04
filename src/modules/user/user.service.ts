@@ -101,7 +101,7 @@ const findDownline = async (data: any, filter: any, options: any): Promise<void>
         _id: item._id,
         status: item?.parentStatus == "Active" ? item?.status : item?.parentStatus || item?.status,
         roles: item.roles,
-        creditRef: item?.creditRef || item?.creditReference || 0,
+        creditRef: Number(item?.creditRef) || Number(item?.creditReference) || 0,
       }
       finalResult.push(data);
     }));
@@ -269,7 +269,7 @@ const myDownline = async (filter: any, options: any, userData: any): Promise<voi
         _id: item._id,
          status: item?.parentStatus == "Active" ? item?.status : item?.parentStatus || item?.status,
         roles: item.roles,
-        creditRef: item?.creditRef || item?.creditReference || 0,
+        creditRef: Number(item?.creditRef) || Number(item?.creditReference) || 0,
         createdAt: item.createdAt,
       })),
       page,
