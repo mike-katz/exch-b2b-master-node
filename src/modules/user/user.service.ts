@@ -263,8 +263,8 @@ const myDownline = async (filter: any, options: any, userData: any): Promise<voi
     resData.results.sort(function (a: any, b: any) {
       const keyA = new Date(a.createdAt);
       const keyB = new Date(b.createdAt);
-      if (keyA < keyB) return 1;
-      if (keyA > keyB) return -1;
+      if (keyA < keyB) return -1;
+      if (keyA > keyB) return 1;
       return 0;
     });
 
