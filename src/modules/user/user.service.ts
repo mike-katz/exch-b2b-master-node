@@ -64,10 +64,9 @@ const findDownline = async (data: any, filter: any, options: any): Promise<void>
         filter
       ]
     }
-    console.log("query",JSON.stringify(query));    
-
+    
     let [results, totalResults] = await Promise.all([
-      User.find(query).skip(skip).limit(limit),
+      User.find(query).sort({createdAt:-1}).skip(skip).limit(limit),
       User.countDocuments(query),
     ]);
 
@@ -93,14 +92,6 @@ const findDownline = async (data: any, filter: any, options: any): Promise<void>
       }
       finalResult.push(data);
     }));
-
-    finalResult = finalResult.sort(function (a: any, b: any) {
-      const keyA = new Date(a.createdAt);
-      const keyB = new Date(b.createdAt);
-      if (keyA < keyB) return 1;
-      if (keyA > keyB) return -1;
-      return 0;
-    });
 
     const resData: any = {
       page,
@@ -196,8 +187,6 @@ const Register = async (body: any, user: any): Promise<void> => {
   return;
 }
 
-
-
 const myDownline = async (filter: any, options: any, userData: any): Promise<void> => {
   try {
     if (filter?.status === "") {
@@ -235,10 +224,9 @@ const myDownline = async (filter: any, options: any, userData: any): Promise<voi
         roles: { $in: ["User"] }
       }
     }
-    console.log("query",JSON.stringify(query));
     
     const [results, totalResults] = await Promise.all([
-      User.find(query).skip(skip).limit(limit),
+      User.find(query).sort({createdAt:-1}).skip(skip).limit(limit),
       User.countDocuments(query),
     ]);
 
@@ -259,14 +247,6 @@ const myDownline = async (filter: any, options: any, userData: any): Promise<voi
       totalPages: Math.ceil(totalResults / limit),
       totalResults,
     };
-
-    resData.results.sort(function (a: any, b: any) {
-      const keyA = new Date(a.createdAt);
-      const keyB = new Date(b.createdAt);
-      if (keyA < keyB) return -1;
-      if (keyA > keyB) return 1;
-      return 0;
-    });
 
     return resData;
   } catch (error: any) {
