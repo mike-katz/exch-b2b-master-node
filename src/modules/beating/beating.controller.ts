@@ -140,7 +140,7 @@ const marketPL = catchAsync(
       data: data?.data,
       eventName: data?.eventName,
       marketName: data?.marketName,
-      
+      runnerData: data?.runnerData,
     });
   }
 );

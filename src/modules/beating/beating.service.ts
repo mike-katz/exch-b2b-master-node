@@ -647,8 +647,7 @@ await client.connect();
       news.IsSettle = item.IsSettle
       news.IsVoid = item.IsVoid
       news.IsUnsettle = item.IsUnsettle
-      news._id = item._id,
-      news.runnerData = markets?.runnerData      
+      news._id = item._id,    
       results.push(news)
     });
   }
@@ -657,7 +656,8 @@ await client.connect();
   const resp: any = {
     data: betData,
     eventName: markets?.eventName,
-    marketName: markets?.marketName
+    marketName: markets?.marketName,
+    runnerData: markets?.runnerData 
   }
   return resp;
 }
