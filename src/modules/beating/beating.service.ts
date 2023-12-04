@@ -616,6 +616,56 @@ const getLatestBet = async (data: any, eventId: string): Promise<void> => {
   return resp;
 }
 
+const marketBet = async (data: any, marketId: string, options: any): Promise<void> => {
+  const users = await User.find({ roles: { $in: ['User'] }, parentId: { $in: [data._id] } }).select('username');
+  const usernames = users.map(user => user.username);
+
+  const filter: any = {
+    username: { $in: usernames },
+    exMarketId: marketId,
+    IsUnsettle: 1
+  }
+  options.sortBy = '_id:desc';
+  let betData: any = await CricketBetPlace.paginate(filter, options);
+  if (betData?.results?.length === 0) {
+    betData = await TennisBetPlace.paginate(filter, options);
+  }
+  if (betData?.results?.length === 0) {
+    betData = await SoccerBetPlace.paginate(filter, options);
+  }
+  let results: any = []
+  if (betData.results.length > 0) {
+    betData.results.map((item: any) => {
+      const news: any = {};
+      news.pl = item.pl > 0 ? parseFloat(item.pl.toString()) : 0,
+      news.odds = item.odds > 0 ? parseFloat(item.odds.toString()) : 0,
+      news.username = item.username
+      news.exEventId = item.exEventId
+      news.exMarketId = item.exMarketId
+      news.stake = item.stake
+      news.selectionId = item.selectionId
+      news.type = item.type
+      news.size = item.size
+      news.eventName = item.eventName
+      news.selectionName = item.selectionName
+      news.marketType = item.marketType
+      news.mrktType = item.mrktType
+      news.sportId = item.sportId
+      news.sportName = item.sportName
+      news.IsSettle = item.IsSettle
+      news.IsVoid = item.IsVoid
+      news.IsUnsettle = item.IsUnsettle
+      news.createdAt = item.createdAt
+      news.updatedAt = item.updatedAt
+      news.matchedTime = item.matchedTime      
+      results.push(news)
+    });
+  }
+  // console.log("results",results);
+  betData.results = results;
+  return betData;
+}
+
 export {
   bettingHistory,
   profitLoss,
@@ -626,5 +676,6 @@ export {
   betPL,
   betLock,
   betLockLog,
-  getLatestBet
+  getLatestBet,
+  marketBet
 }

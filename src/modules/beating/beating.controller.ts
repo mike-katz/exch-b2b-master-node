@@ -128,4 +128,18 @@ const getLatestBet = catchAsync(
     res.status(httpStatus.OK).json(response);
   }
 );
-export default { bettingHistory, betList, profitLoss, transaction, getSports, matchBet, betPL, betLock, betLockLog, getLatestBet };
+
+const marketBet = catchAsync(
+  async (req: any, res: CustomResponse) => {
+    const { marketId } = req.query
+    const options = pick(req?.query, ["sortBy", "limit", "page"]);
+    const data = await BettingService.marketBet(req.user, marketId, options);
+    const response = prepareResponse({
+      message: "fetch Bet success",
+      data,
+    });
+    res.status(httpStatus.OK).json(response);
+  }
+);
+
+export default { bettingHistory, betList, profitLoss, transaction, getSports, matchBet, betPL, betLock, betLockLog, getLatestBet, marketBet };
