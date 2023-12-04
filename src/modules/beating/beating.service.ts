@@ -629,6 +629,7 @@ await client.connect();
     IsUnsettle: 1
   }
   options.sortBy = '_id:desc';
+  options.path = {path:"username", model:"User", select:"username", foreignField: 'username', localField: 'username'};
   let betData: any = await CricketPL.paginate(filter, options);
   if (betData?.results?.length === 0) {
     betData = await TennisPL.paginate(filter, options);
