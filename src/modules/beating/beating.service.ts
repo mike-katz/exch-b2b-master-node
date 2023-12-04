@@ -662,6 +662,125 @@ const marketPL = async (data: any, marketId: string, options: any): Promise<void
   return resp;
 }
 
+const marketPLNew = async (data: any, marketId: string, options: any, userId: string): Promise<void> => {
+  let parentId: string = data._id;
+  let downline: any = [data._id];
+  if (userId && userId != '') {
+    parentId = userId
+  }
+  const { limit = 10, page = 1 } = options;
+  const skip = (page - 1) * limit;
+
+  const myusers = await User.find({
+    $expr: {
+      $eq: [
+        parentId.toString(),
+        {
+          $arrayElemAt: ['$parentId', -1]
+        }
+      ]
+    }
+  }).skip(skip).limit(parseInt(limit)).select('username roles');
+
+  const totalRecords = await User.find({
+    $expr: {
+      $eq: [
+        parentId.toString(),
+        {
+          $arrayElemAt: ['$parentId', -1]
+        }
+      ]
+    }
+  });
+
+
+  downline = myusers.filter(user => user.roles.indexOf('User') === -1).map(user => user._id.toString());
+
+  const userss = myusers.filter(user => user.roles.indexOf('User') === 1).map(user => user.username);
+
+  const users = await User.find({ roles: { $in: ['User'] }, parentId: { $in: downline } }).select('username');
+  let usernames = users.map(user => user.username);
+  usernames = usernames.concat(userss)
+  await client.connect();
+  let markets: any = await client.db(process.env.EXCH_DB).collection('marketRates').findOne({ 'exMarketId': marketId });
+
+  const filter: any = {
+    username: { $in: usernames },
+    exMarketId: marketId,
+    IsUnsettle: 1
+  }
+
+  const populate = { path: "username", model: "User", select: "username roles parentId", foreignField: 'username', localField: 'username' };
+  let betData: any = await CricketPL.find(filter).populate(populate).sort({ _id: -1 });
+  if (betData?.length === 0) {
+    betData = await TennisPL.find(filter).populate(populate).sort({ _id: -1 });
+  }
+  if (betData?.length === 0) {
+    betData = await SoccerPL.find(filter).populate(populate).sort({ _id: -1 });
+  }
+  let results: any = []
+  if (betData.length > 0) {
+    results = myusers.map((user: any) => {
+      const filteredUsers = betData.filter((user: any) => user.username.parentId.includes(user._id.toString()));
+      const typeSums: any = {};
+      filteredUsers.map((user: any) => {
+        user.selectionId.forEach((entry: any) => {
+          for (const key in entry) {
+            const value = entry[key];
+            if (typeSums[key]) {
+              typeSums[key] += value;
+            } else {
+              typeSums[key] = value;
+            }
+          }
+        });
+      });
+
+      return {
+        username: {
+          username: user.username,
+          _id: user._id
+        },
+        exEventId: markets?.exEventId,
+        exMarketId: markets?.exMarketId,
+        selectionId: typeSums,
+        IsSettle: 0,
+        IsVoid: 0,
+        IsUnsettle: 1,
+      };
+    });
+
+    userss.map((user: any) => {
+      const filteredUsers = betData.filter((user: any) => user.username.username === user);
+      filteredUsers.map((item: any) => {
+        const news: any = {};
+        news.username = item.username
+        news.exEventId = item.exEventId
+        news.exMarketId = item.exMarketId
+        news.selectionId = item.selectionId
+        news.IsSettle = item.IsSettle
+        news.IsVoid = item.IsVoid
+        news.IsUnsettle = item.IsUnsettle
+        news._id = item._id,
+          results.push(news)
+      });
+    });
+  }
+  const resp: any = {
+    data: {
+      page,
+      limit,
+      totalPages: Math.ceil(totalRecords.length / limit),
+      totalResults: totalRecords.length,
+      results,
+    },
+    eventName: markets?.eventName,
+    marketName: markets?.marketName,
+    runnerData: markets?.runnerData
+  }
+  return resp;
+}
+
 export {
   bettingHistory,
   profitLoss,
@@ -673,5 +792,6 @@ export {
   betLock,
   betLockLog,
   getLatestBet,
-  marketPL
+  marketPL,
+  marketPLNew
 }

@@ -145,4 +145,20 @@ const marketPL = catchAsync(
   }
 );
 
-export default { bettingHistory, betList, profitLoss, transaction, getSports, matchBet, betPL, betLock, betLockLog, getLatestBet, marketPL };
+const marketPLNew = catchAsync(
+  async (req: any, res: any) => {
+    const { marketId, userId } = req.query
+    const options = pick(req?.query, ["sortBy", "limit", "page"]);
+    const data:any = await BettingService.marketPLNew(req.user, marketId, options, userId);
+    
+    res.status(httpStatus.OK).json({
+      message: "fetch Bet success",
+      data: data?.data,
+      eventName: data?.eventName,
+      marketName: data?.marketName,
+      runnerData: data?.runnerData,
+    });
+  }
+);
+
+export default { bettingHistory, betList, profitLoss, transaction, getSports, matchBet, betPL, betLock, betLockLog, getLatestBet, marketPL, marketPLNew };

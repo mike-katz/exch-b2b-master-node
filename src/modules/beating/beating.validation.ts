@@ -80,9 +80,10 @@ const getLatestBet = {
 const marketPL = {
   query: Joi.object().keys({
     marketId: Joi.required(),
+    userId: Joi.optional(),
     page: Joi.required(),
     limit: Joi.required(),
-    }),
+  }),
 };
 
 export default { bettingHistory, profitLoss, transaction, getSports, betList, matchBet, betPL, betLock, betLockLog, getLatestBet, marketPL};
