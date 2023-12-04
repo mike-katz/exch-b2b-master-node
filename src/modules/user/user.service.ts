@@ -18,45 +18,6 @@ const findUserById = async (userId: string) => {
   return user
 }
 const csvWriter = require('csv-writer');
-// const findMaxRole = async (rolesArray: any): Promise<string> => {
-//   const rolesOrder = ['Admin', 'WhiteLabel', 'Super', 'Master', 'Agent', 'User'];
-
-//   // Find the maximum role
-//   const maxRole = rolesArray.reduce((max: string, currentRole: string) => {
-//     const maxIndex = rolesOrder.indexOf(max);
-//     const currentIndex = rolesOrder.indexOf(currentRole);
-//     return currentIndex > maxIndex ? currentRole : max;
-//   }, rolesOrder[0]);
-//   let filter: any;
-//   switch (maxRole) {
-//     case 'Admin':
-//       filter = 'WhiteLabel';
-//       break;
-//     case 'WhiteLabel':
-//       filter = 'Super';
-//       break;
-//     case 'Super':
-//       filter = 'Master';
-//       break;
-//     case 'Master':
-//       filter = 'Agent';
-//       break;
-//     case 'Agent':
-//       filter = 'User';
-//       break;
-//     case 'User':
-//       filter = "";
-//       break;
-//     default:
-//       filter = "";
-//   }
-//   return filter;
-// }
-
-// const getb2cUsers = async (managerId: string) => {
-//   const b2cData = await B2cUser.find({ managerId });
-//   return b2cData;
-// }
 
 const findDownline = async (data: any, filter: any, options: any): Promise<void> => {
   try {
@@ -103,49 +64,7 @@ const findDownline = async (data: any, filter: any, options: any): Promise<void>
         filter
       ]
     }
-
-
-    // let [results, totalResults] = await Promise.all([
-    //   User.aggregate([
-    //     {
-    //       $match: query
-    //     },
-    //     {
-    //       $sort: { createdAt: -1 }
-    //     },
-    //     {
-    //       $skip: skip
-    //     },
-    //     {
-    //       $limit: limit
-    //     },
-    //     { $unwind: "$parentId" },
-    //      {
-    //         $addFields: {
-    //           parentId: { $toString: "$parentId" }
-    //         }
-    //       },
-    //     {
-    //   $lookup: {
-    //     from: 'users',
-    //     localField: '_id',
-    //     foreignField: 'parentId',
-    //     as: 'children'
-    //   }
-    // },
-
-    //     {
-    //       $group: {
-    //         _id: '$_id',
-    //         username: { $first: '$username' },  // Use $first to preserve the parent fields
-    //         // ... other fields
-    //         isParent: { $first: '$isParent' },
-    //         totalChildrenBalance: { $sum: '$children.balance' }  // Calculate total balance of children
-    //       }
-    //     },
-    //   ]),
-    //   User.countDocuments(query)
-    // ]);
+    console.log("query",JSON.stringify(query));    
 
     let [results, totalResults] = await Promise.all([
       User.find(query).skip(skip).limit(limit),
@@ -159,29 +78,7 @@ const findDownline = async (data: any, filter: any, options: any): Promise<void>
 
       let balance: number = (Number(item?.balance) || 0);
       let exposure: number = (Number(item?.exposure) || 0);
-      // const childData: any = await User.aggregate([
-      //   {
-      //     $match: {
-      //       $and: [
-      //         { parentId: { $in: [item?._id.toString()] } },
-      //         // { roles: { $in: ['User'] } }
-      //       ]
-      //     }
-      //   },
-      //   {
-      //     $group:
-      //     {
-      //       _id: null,
-      //       totalBalance: { $sum: '$balance' },
-      //       totalExposure: { $sum: '$exposure' }
-      //     }
-      //   },
-      // ]);
-
-      // if (childData.length > 0) {
-      //   balance += (Number(childData[0].totalBalance) || 0)
-      //   exposure += (Number(childData[0].totalExposure) || 0)
-      // }
+     
       const data: any = {
         createdAt: item?.createdAt,
         username: item.username,
@@ -338,8 +235,10 @@ const myDownline = async (filter: any, options: any, userData: any): Promise<voi
         roles: { $in: ["User"] }
       }
     }
+    console.log("query",JSON.stringify(query));
+    
     const [results, totalResults] = await Promise.all([
-      User.find(query).sort({ createdAt: -1 }).skip(skip).limit(limit),
+      User.find(query).skip(skip).limit(limit),
       User.countDocuments(query),
     ]);
 
@@ -353,6 +252,7 @@ const myDownline = async (filter: any, options: any, userData: any): Promise<voi
         status: item?.parentStatus == "Active" ? item?.status : item?.parentStatus,
         roles: item.roles,
         creditRef: item.creditRef,
+        createdAt: item.createdAt,
       })),
       page,
       limit,
