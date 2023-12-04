@@ -1,4 +1,4 @@
-import { B2cUser, CreditLog, ProfileLog, Stake, User, ExposureManage } from "@/models"
+import { CreditLog, ProfileLog, Stake, User, ExposureManage } from "@/models"
 import ApiError from "@/utils/ApiError";
 import httpStatus from "http-status";
 import AWS from "aws-sdk";
@@ -38,16 +38,13 @@ const findDownline = async (data: any, filter: any, options: any): Promise<void>
     filter.roles = { $nin: ['User'] };
 
     let parentId = data?._id
-    // let maxRole = await findMaxRole(data.roles);
     if (filter?.userId && filter?.userId !== "") {
-      // const user: any = await User.findOne({ _id: filter?.userId });
-      // maxRole = await findMaxRole(user.roles);
       parentId = filter?.userId
       delete filter.userId
       delete filter.roles
     }
 
-    const { limit = 10, page = 1 } = options;
+    const { limit = 10, page = 1, sortBy="createdAt", order="-1" } = options;
     const skip = (page - 1) * limit;
     let query: any = {
       $and: [
@@ -64,11 +61,27 @@ const findDownline = async (data: any, filter: any, options: any): Promise<void>
         filter
       ]
     }
-    
-    let [results, totalResults] = await Promise.all([
-      User.find(query).sort({createdAt:-1}).skip(skip).limit(limit),
-      User.countDocuments(query),
-    ]);
+    let sortSetting = { [sortBy]: order };
+    let results:any = [];
+    let totalResults:number = 0
+    if (sortBy !== "balance") {
+      [results, totalResults] = await Promise.all([
+        User.find(query).sort(sortSetting).skip(skip).limit(limit),
+        User.countDocuments(query),
+      ]);
+    } else {
+      let pipeline:any = [
+        { $match: query },
+        {
+          $addFields: { newField: { $sum: ['$balance', '$exposure'] } }
+        },
+        { $sort: { newField: parseInt(order) } },
+        { $skip: skip },
+        { $limit: limit }
+      ];
+      results = await User.aggregate(pipeline);
+      totalResults = await User.countDocuments(query);
+    }
 
     // const idArray = Array.from(results, item => item._id.toString());
 
@@ -200,7 +213,7 @@ const myDownline = async (filter: any, options: any, userData: any): Promise<voi
     let parentId: string = userData?._id;
     filter.roles = { $in: ['User'] };
 
-    const { limit = 10, page = 1 } = options;
+    const { limit = 10, page = 1, sortBy="createdAt", order="-1" } = options;
     const skip = (page - 1) * limit;
     let query: any = {
       $and: [
@@ -225,10 +238,27 @@ const myDownline = async (filter: any, options: any, userData: any): Promise<voi
       }
     }
     
-    const [results, totalResults] = await Promise.all([
-      User.find(query).sort({createdAt:-1}).skip(skip).limit(limit),
-      User.countDocuments(query),
-    ]);
+    let sortSetting = { [sortBy]: order };
+    let results:any = [];
+    let totalResults:number = 0
+    if (sortBy !== "balance") {
+      [results, totalResults] = await Promise.all([
+        User.find(query).sort(sortSetting).skip(skip).limit(limit),
+        User.countDocuments(query),
+      ]);
+    } else {
+      let pipeline:any = [
+        { $match: query },
+        {
+          $addFields: { newField: { $sum: ['$balance', '$exposure'] } }
+        },
+        { $sort: { newField: parseInt(order) } },
+        { $skip: skip },
+        { $limit: limit }
+      ];
+      results = await User.aggregate(pipeline);
+      totalResults = await User.countDocuments(query);
+    }
 
     const resData: any = {
       results: results.map((item: any) => ({

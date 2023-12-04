@@ -13,6 +13,8 @@ const fetchUserDownline = {
     status: Joi.string().optional(),
     page: Joi.number().required(),
     limit: Joi.number().required(),
+    sortBy: Joi.string().optional(),
+    order: Joi.string().optional(),
   }),
 };
 
@@ -40,6 +42,8 @@ const myDownline = {
     status: Joi.string().optional(),
     page: Joi.number().required(),
     limit: Joi.number().required(),
+    sortBy: Joi.string().optional(),
+    order: Joi.string().optional(),
   }),
 };
 
