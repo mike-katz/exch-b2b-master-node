@@ -346,7 +346,7 @@ const betList = async (data: any, filter: any, options: any): Promise<void> => {
         sportName: item?.sportName || sportName || '',
         size: item?.size || '',
         mrktType: item?.mrktType || '',
-        matchedTime: item.matchedTime || item?.updatedAt || '' 
+        matchedTime: item.matchedTime || item?.updatedAt || ''
       };
       respData.push(itemData);
     }),
@@ -385,8 +385,8 @@ const matchBet = async (data: any, eventId: string, options: any): Promise<void>
     betData.results.map((item: any) => {
       const news: any = {};
       news.pl = item.pl > 0 ? parseFloat(item.pl.toString()) : 0,
-      news.odds = item.odds > 0 ? parseFloat(item.odds.toString()) : 0,
-      news.username = item.username
+        news.odds = item.odds > 0 ? parseFloat(item.odds.toString()) : 0,
+        news.username = item.username
       news.exEventId = item.exEventId
       news.exMarketId = item.exMarketId
       news.stake = item.stake
@@ -404,7 +404,7 @@ const matchBet = async (data: any, eventId: string, options: any): Promise<void>
       news.IsUnsettle = item.IsUnsettle
       news.createdAt = item.createdAt
       news.updatedAt = item.updatedAt
-      news.matchedTime = item.matchedTime      
+      news.matchedTime = item.matchedTime
       results.push(news)
     });
   }
@@ -539,16 +539,16 @@ const getLatestBet = async (data: any, eventId: string): Promise<void> => {
   }
   const fancyData: any = await CricketBetPlace.find({ ...filter, mrktType: { $in: ['fancy', 'line_market'] } }).sort({ _id: 'desc' }).limit(20);
   let otherData: any = [];
-  
-  const betData: any = await CricketBetPlace.find({...filter,mrktType: { $nin: ['fancy', 'line_market'] } }).sort({ _id: 'desc' }).limit(20);
+
+  const betData: any = await CricketBetPlace.find({ ...filter, mrktType: { $nin: ['fancy', 'line_market'] } }).sort({ _id: 'desc' }).limit(20);
   otherData = betData
   if (betData?.length < 20) {
-    const tennisData:any = await TennisBetPlace.find(filter).sort({ _id: 'desc' }).limit(20 - otherData?.length);
+    const tennisData: any = await TennisBetPlace.find(filter).sort({ _id: 'desc' }).limit(20 - otherData?.length);
     otherData = [...otherData, ...tennisData]
   }
   if (otherData.length < 20) {
     const soccerData: any = await SoccerBetPlace.find(filter).sort({ _id: 'desc' }).limit(20 - otherData?.length);
-    otherData = [...otherData, ...soccerData ]
+    otherData = [...otherData, ...soccerData]
   }
   otherData = Array.from(new Set(otherData));
 
@@ -585,8 +585,8 @@ const getLatestBet = async (data: any, eventId: string): Promise<void> => {
     otherData.map((item: any) => {
       const news: any = {};
       news.pl = item.pl > 0 ? parseFloat(item.pl.toString()) : 0,
-      news.odds = item.odds > 0 ? parseFloat(item.odds.toString()) : 0,
-      news.username = item.username
+        news.odds = item.odds > 0 ? parseFloat(item.odds.toString()) : 0,
+        news.username = item.username
       news.exEventId = item.exEventId
       news.exMarketId = item.exMarketId
       news.stake = item.stake
@@ -608,10 +608,10 @@ const getLatestBet = async (data: any, eventId: string): Promise<void> => {
       results.push(news)
     });
   }
- results = results.sort((a: any, b: any) => {
+  results = results.sort((a: any, b: any) => {
     // Use Date.parse to ensure consistent date comparison
     return Date.parse(b.createdAt) - Date.parse(a.createdAt);
-});
+  });
   const resp: any = { fancyResult, otherResult: results }
   return resp;
 }
@@ -619,17 +619,16 @@ const getLatestBet = async (data: any, eventId: string): Promise<void> => {
 const marketPL = async (data: any, marketId: string, options: any): Promise<void> => {
   const users = await User.find({ roles: { $in: ['User'] }, parentId: { $in: [data._id] } }).select('username');
   const usernames = users.map(user => user.username);
-await client.connect();
+  await client.connect();
   let markets: any = await client.db(process.env.EXCH_DB).collection('marketRates').findOne({ 'exMarketId': marketId });
-  console.log("markets",markets);
-  
+
   const filter: any = {
     username: { $in: usernames },
     exMarketId: marketId,
     IsUnsettle: 1
   }
   options.sortBy = '_id:desc';
-  options.path = {path:"username", model:"User", select:"username", foreignField: 'username', localField: 'username'};
+  options.path = { path: "username", model: "User", select: "username", foreignField: 'username', localField: 'username' };
   let betData: any = await CricketPL.paginate(filter, options);
   if (betData?.results?.length === 0) {
     betData = await TennisPL.paginate(filter, options);
@@ -648,8 +647,8 @@ await client.connect();
       news.IsSettle = item.IsSettle
       news.IsVoid = item.IsVoid
       news.IsUnsettle = item.IsUnsettle
-      news._id = item._id,    
-      results.push(news)
+      news._id = item._id,
+        results.push(news)
     });
   }
   // console.log("results",results);
@@ -658,7 +657,7 @@ await client.connect();
     data: betData,
     eventName: markets?.eventName,
     marketName: markets?.marketName,
-    runnerData: markets?.runnerData 
+    runnerData: markets?.runnerData
   }
   return resp;
 }
