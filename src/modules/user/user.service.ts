@@ -99,9 +99,9 @@ const findDownline = async (data: any, filter: any, options: any): Promise<void>
         exposure,
         exposureLimit: item.exposureLimit || 0,
         _id: item._id,
-        status: item?.parentStatus == "Active" ? item?.status : item?.parentStatus,
+        status: item?.parentStatus == "Active" ? item?.status : item?.parentStatus || item?.status,
         roles: item.roles,
-        creditRef: item.creditRef,
+        creditRef: item?.creditRef || item?.creditReference || 0,
       }
       finalResult.push(data);
     }));
