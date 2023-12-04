@@ -130,15 +130,18 @@ const getLatestBet = catchAsync(
 );
 
 const marketPL = catchAsync(
-  async (req: any, res: CustomResponse) => {
+  async (req: any, res: any) => {
     const { marketId } = req.query
     const options = pick(req?.query, ["sortBy", "limit", "page"]);
-    const data = await BettingService.marketPL(req.user, marketId, options);
-    const response = prepareResponse({
+    const data:any = await BettingService.marketPL(req.user, marketId, options);
+    
+    res.status(httpStatus.OK).json({
       message: "fetch Bet success",
-      data,
+      data: data?.data,
+      eventName: data?.eventName,
+      marketName: data?.marketName,
+      
     });
-    res.status(httpStatus.OK).json(response);
   }
 );
 

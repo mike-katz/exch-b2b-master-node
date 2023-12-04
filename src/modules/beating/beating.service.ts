@@ -619,7 +619,10 @@ const getLatestBet = async (data: any, eventId: string): Promise<void> => {
 const marketPL = async (data: any, marketId: string, options: any): Promise<void> => {
   const users = await User.find({ roles: { $in: ['User'] }, parentId: { $in: [data._id] } }).select('username');
   const usernames = users.map(user => user.username);
-
+await client.connect();
+  let markets: any = await client.db(process.env.EXCH_DB).collection('marketRates').findOne({ 'exMarketId': marketId });
+  console.log("markets",markets);
+  
   const filter: any = {
     username: { $in: usernames },
     exMarketId: marketId,
@@ -644,13 +647,19 @@ const marketPL = async (data: any, marketId: string, options: any): Promise<void
       news.IsSettle = item.IsSettle
       news.IsVoid = item.IsVoid
       news.IsUnsettle = item.IsUnsettle
-      news._id = item._id
+      news._id = item._id,
+      news.runnerData = markets?.runnerData      
       results.push(news)
     });
   }
   // console.log("results",results);
   betData.results = results;
-  return betData;
+  const resp: any = {
+    data: betData,
+    eventName: markets?.eventName,
+    marketName: markets?.marketName
+  }
+  return resp;
 }
 
 export {
