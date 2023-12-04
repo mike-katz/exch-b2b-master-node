@@ -103,9 +103,9 @@ const routeDetails: IBettingRouteDetails[] = [
   {
     key: "getmarketBetAPI",
     method: "get",
-    url: "/marketBet",
-    validationMethodName: "marketBet",
-    controllerMethodName: "marketBet",
+    url: "/market-pl",
+    validationMethodName: "marketPL",
+    controllerMethodName: "marketPL",
     auth: "",
   },
 

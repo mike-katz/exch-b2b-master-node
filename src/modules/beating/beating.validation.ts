@@ -77,7 +77,7 @@ const getLatestBet = {
   }),
 };
 
-const marketBet = {
+const marketPL = {
   query: Joi.object().keys({
     marketId: Joi.required(),
     page: Joi.required(),
@@ -85,4 +85,4 @@ const marketBet = {
     }),
 };
 
-export default { bettingHistory, profitLoss, transaction, getSports, betList, matchBet, betPL, betLock, betLockLog, getLatestBet, marketBet};
+export default { bettingHistory, profitLoss, transaction, getSports, betList, matchBet, betPL, betLock, betLockLog, getLatestBet, marketPL};

@@ -1,4 +1,5 @@
 import mongoose,{ Schema } from 'mongoose';
+import * as plugin from "./plugins";
 
 const tennisPLSchema = new Schema({
   exEventId: {
@@ -25,5 +26,9 @@ const tennisPLSchema = new Schema({
   },
 }, { timestamps: true });
 
-const TennisPL = mongoose.model("TennisPL", tennisPLSchema);
+// add plugin that converts mongoose to json
+tennisPLSchema.plugin(plugin.toJSON);
+tennisPLSchema.plugin(plugin.paginate);
+
+const TennisPL: any = mongoose.model<any>("TennisPL", tennisPLSchema);
 export default TennisPL;

@@ -1,4 +1,6 @@
-import mongoose,{ Schema } from 'mongoose';
+import mongoose, { Schema } from 'mongoose';
+
+import * as plugin from "./plugins";
 
 const cricketPLSchema = new Schema({
  exEventId: {
@@ -28,5 +30,9 @@ const cricketPLSchema = new Schema({
   }
 }, { timestamps: true });
 
-const CricketPL = mongoose.model("CricketPL", cricketPLSchema);
+// add plugin that converts mongoose to json
+cricketPLSchema.plugin(plugin.toJSON);
+cricketPLSchema.plugin(plugin.paginate);
+
+const CricketPL: any = mongoose.model<any>("CricketPL", cricketPLSchema);
 export default CricketPL;

@@ -1,4 +1,5 @@
 import mongoose,{ Schema } from 'mongoose';
+import * as plugin from "./plugins";
 
 const soccerPLSchema = new Schema({
   exEventId: {
@@ -25,5 +26,8 @@ const soccerPLSchema = new Schema({
   },
 }, { timestamps: true });
 
-const SoccerPL = mongoose.model("SoccerPL", soccerPLSchema);
+soccerPLSchema.plugin(plugin.toJSON);
+soccerPLSchema.plugin(plugin.paginate);
+
+const SoccerPL: any = mongoose.model<any>("SoccerPL", soccerPLSchema);
 export default SoccerPL;

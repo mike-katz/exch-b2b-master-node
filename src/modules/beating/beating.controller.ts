@@ -129,11 +129,11 @@ const getLatestBet = catchAsync(
   }
 );
 
-const marketBet = catchAsync(
+const marketPL = catchAsync(
   async (req: any, res: CustomResponse) => {
     const { marketId } = req.query
     const options = pick(req?.query, ["sortBy", "limit", "page"]);
-    const data = await BettingService.marketBet(req.user, marketId, options);
+    const data = await BettingService.marketPL(req.user, marketId, options);
     const response = prepareResponse({
       message: "fetch Bet success",
       data,
@@ -142,4 +142,4 @@ const marketBet = catchAsync(
   }
 );
 
-export default { bettingHistory, betList, profitLoss, transaction, getSports, matchBet, betPL, betLock, betLockLog, getLatestBet, marketBet };
+export default { bettingHistory, betList, profitLoss, transaction, getSports, matchBet, betPL, betLock, betLockLog, getLatestBet, marketPL };
