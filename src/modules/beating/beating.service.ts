@@ -426,7 +426,8 @@ const betPL = async (data: any, eventId: string): Promise<void> => {
   let result: any = await CricketPL.find(filter);
   if (result.length === 0) {
     result = await SoccerPL.find(filter);
-  } else if (result.length === 0) {
+  }
+  if (result.length === 0) {
     result = await TennisPL.find(filter);
   }
   if (result.length > 0) {
