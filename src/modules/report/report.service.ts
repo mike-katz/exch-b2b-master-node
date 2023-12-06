@@ -315,7 +315,7 @@ const fetchAviatorList = async (data: any, filter: any, options: any): Promise<v
     const userData = await userService.getAllUsersDownlineUser(data?._id);
     const usernames = userData.map((item: any) => item?.username)
     filter.user = { $in: usernames }
-    filter.IsSettle = 1
+    filter.issettled = 1
     const resp = await Avplacebet.paginate(filter, options);
     return resp;
 
