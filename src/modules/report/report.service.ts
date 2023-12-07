@@ -34,7 +34,7 @@ const fetchSportTotalPL = async (data: any, filter: any): Promise<void> => {
           sportId: { $first: "$sportId" },
           pl: { $sum: "$pl" },
           commission: { $sum: "$commission" },
-          stack: { $sum: "$stack" }
+          stake: { $sum: "$stake" }
         }
       }
     ]);
