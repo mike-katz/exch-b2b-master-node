@@ -156,7 +156,6 @@ const fetchAviatorTotalPL = async (data: any, filter: any): Promise<void> => {
     }
     filter.user = { $in: usernames }
     filter.issettled = 1
-    console.log("filter",filter);    
     const resp = await Avplacebet.aggregate([
       {
         $match: filter
@@ -167,10 +166,8 @@ const fetchAviatorTotalPL = async (data: any, filter: any): Promise<void> => {
           _id: null,
           id: { $first: "$sportId" },
           name: { $first: "$sportName" },
-          pl: {
-            $sum: { $subtract: ['$pl', '$stack'] },
-          },
           stack: { $sum: "$stack" },
+          pl: { $sum: "$pl" },
           // commission: 0
         }
       }
@@ -316,6 +313,7 @@ const fetchAviatorList = async (data: any, filter: any, options: any): Promise<v
     const usernames = userData.map((item: any) => item?.username)
     filter.user = { $in: usernames }
     filter.issettled = 1
+    options.sortBy = "_id:desc"
     const resp = await Avplacebet.paginate(filter, options);
     return resp;
 
