@@ -1,4 +1,4 @@
-import { AuraCSPlaceBet, Avplacebet, St8Transaction, Reporting, User } from "@/models"
+import { AuraCSPlaceBet, AuraCSResult, Avplacebet, St8Transaction, Reporting, User } from "@/models"
 import ApiError from "@/utils/ApiError";
 import httpStatus from "http-status";
 import * as userService from "@/modules/user/user.service";
@@ -22,8 +22,8 @@ const fetchSportTotalPL = async (data: any, filter: any): Promise<void> => {
       delete filter.from
       delete filter.timeZone
     }
-    console.log("filter",filter);
-    
+    console.log("filter", filter);
+
     filter.username = { $in: usernames }
     const response = await Reporting.aggregate([
       {
@@ -584,7 +584,179 @@ const fetchuserPLList = async (data: any, filter: any, options: any): Promise<vo
     });
   }
 }
+const userEventsProfitlossAura = async (data: any, filter: any, options: any): Promise<void> => {
+  try {
+    const dateData = getFilterProfitLoss(filter);
+    if (dateData.error === 1) {
+      throw new ApiError(httpStatus.BAD_REQUEST, {
+        msg: "Please select only 30 days range only.",
+      });
+    }
+    if (dateData.filteredData) {
+      const filterData = dateData.filteredData;
+      filter = { ...filter, ...filterData };
+      delete filter.to
+      delete filter.from
+      delete filter.timeZone
+    }
+    const userData = await userService.getAllUsersDownlineUser(data?._id);
+    const userIds = userData.map((item: any) => item?._id.toString())
+    filter.userId = { $in: userIds }
+    filter.IsSettle = 1
+    const { limit = 10, page = 1 } = options;
+    const skip = (page - 1) * limit;
+    const retData:any = [];
+    const result = await AuraCSPlaceBet.aggregate([
+      {
+        $match: filter,
+      },
+      {
+        $group: {
+          _id: {
+            matchName: '$matchName',
+          },
+          eventId:{$first:'$_id'},
+          pl: {
+            $sum: '$winnerpl',
+          },
+        },
+      },
+      {
+        $skip: skip,
+      },
+      {
+        $limit: parseInt(limit, 10),
+      },
+      {
+        $sort: {
+          createdAt: -1,
+        },
+      },
+    ]);
+    const totalResults = await AuraCSPlaceBet.aggregate([
+      {
+        $match: filter,
+      },
+      {
+        $group: {
+          _id: {
+            userId: '$userId',
+            matchName: '$matchName',
+          },
+          pl: {
+            $sum: '$winnerpl',
+          },
+        },
+      },
+    ]);
+    result.map((data:any) => {
+      const mapdata = {
+        sportName: 'Casino',
+        eventName: data._id.matchName,
+        eventId: data.eventId,
+        pl: data.pl,
+      };
+      retData.push(mapdata);
+    });
+    const resData:any = {
+      page,
+      limit,
+      totalPages: Math.ceil(totalResults.length / limit),
+      totalResults: totalResults.length,
+      results: retData,
+    };
+    return resData;
+  } catch (error: any) {
+    throw new ApiError(httpStatus.BAD_REQUEST, {
+      msg: error?.errorData?.msg || "invalid user id.",
+    });
+  }
+}
+
+const userMarketsProfitlossAura = async (data: any, filter: any, options: any): Promise<void> => {
+  try {
+    const dateData = getFilterProfitLoss(filter);
+    if (dateData.error === 1) {
+      throw new ApiError(httpStatus.BAD_REQUEST, {
+        msg: "Please select only 30 days range only.",
+      });
+    }
+    if (dateData.filteredData) {
+      const filterData = dateData.filteredData;
+      filter = { ...filter, ...filterData };
+      delete filter.to
+      delete filter.from
+      delete filter.timeZone
+    }
+    const userData = await userService.getAllUsersDownlineUser(data?._id);
+    const userIds = userData.map((item: any) => item?._id.toString())
+    filter.userId = { $in: userIds }
+    filter.IsSettle = 1;
+    const resData = await AuraCSPlaceBet.paginate(filter, options);
+    let roundIds: any = [];
+    let retdata: any = [];
+    const winnerIds: any = [];
+    if (resData.results.length > 0) {
+      retdata = resData.results.map((result: any) => {
+        const retres = {
+          eventName: filter.matchName,
+          sportId: '10',
+          sportName: 'Casino',          
+          marketName: result.marketName,
+          roundId: result.betInfo.roundId,
+          result: '',
+          pl: '',
+          runners: result.runners,
+          createdAt: result.createdAt,
+        };
+        roundIds.push(result.betInfo.roundId);
+        return retres;
+      });
+    }
+    roundIds = [...new Set(roundIds)];
+    const winnerData = await AuraCSResult.find({ roundId: { $in: roundIds } });
+    winnerData.map((win: any) => {
+      const key = win.roundId;
+      const marketdata = win.market.marketRunner;
+      let value;
+      marketdata.map((md: any) => {
+        if (md.status === 'WINNER') {
+          value = md.name;
+        }
+      });
+      winnerIds.push({ [key]: value });
+    });
+    retdata.map((ret: any) => {
+      let winner: any;
+      let pl;
+      winnerIds.map((el: any) => {
+        const key = Object.keys(el)[0];
+        if (key === ret.roundId) {
+          winner = el[key];
+        }
+      });
+      ret.runners.map((runner: any) => {
+        if (runner.name === winner) {
+          pl = runner.pl;
+        }
+      });
+      ret.result = winner;
+      ret.pl = pl;
+      delete ret.runners;
+    });
+    retdata = retdata.filter((value: any, index: number, self: any) => index === self.findIndex((t: any) => (
+      t.roundId === value.roundId
+    )));
+    resData.results = retdata;
+    resData.totalResults = retdata.length;
+    resData.totalPages = Math.ceil(retdata.length / resData.limit);
+    return resData;
+  } catch (error: any) {
+    throw new ApiError(httpStatus.BAD_REQUEST, {
+      msg: error?.errorData?.msg || "invalid user id.",
+    });
+  }
+}
 
 
-
-export { fetchSportTotalPL, fetchCasinoTotalPL, fetchIntCasinoTotalPL, fetchAviatorTotalPL, fetchSportEventList, fetchAviatorList, fetchIntCasinoList, fetchuserPLList }
+export { fetchSportTotalPL, fetchCasinoTotalPL, fetchIntCasinoTotalPL, fetchAviatorTotalPL, fetchSportEventList, fetchAviatorList, fetchIntCasinoList, fetchuserPLList, userEventsProfitlossAura,userMarketsProfitlossAura }

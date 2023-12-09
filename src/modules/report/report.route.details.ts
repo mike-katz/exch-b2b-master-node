@@ -82,6 +82,22 @@ const routeDetails: IReportRouteDetails[] = [
     validationMethodName: "fetchuserPLList",
     controllerMethodName: "fetchuserPLList",
     auth: "",
+  },
+  {
+    key: "fetchAuraListAPI",
+    method: "get",
+    url: "/userEventsProfitlossAura",
+    validationMethodName: "userEventsProfitlossAura",
+    controllerMethodName: "userEventsProfitlossAura",
+    auth: "",
+  },
+  {
+    key: "fetchAuraListAPI",
+    method: "get",
+    url: "/userMarketsProfitlossAura",
+    validationMethodName: "userMarketsProfitlossAura",
+    controllerMethodName: "userMarketsProfitlossAura",
+    auth: "",
   }
 ];
 
