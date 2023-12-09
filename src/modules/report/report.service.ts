@@ -22,6 +22,8 @@ const fetchSportTotalPL = async (data: any, filter: any): Promise<void> => {
       delete filter.from
       delete filter.timeZone
     }
+    console.log("filter",filter);
+    
     filter.username = { $in: usernames }
     const response = await Reporting.aggregate([
       {
