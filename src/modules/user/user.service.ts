@@ -313,7 +313,7 @@ const getCreditLog = async (user: any, userId: string): Promise<void> => {
     const data = await checkParent(userId, user._id);
     username = data.username
   }
-  const data = await CreditLog.find({ username })
+  const data = await CreditLog.find({ username }).sort({createdAt:-1})
   const resp: any = { data, username };
   return resp;
 }
