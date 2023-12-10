@@ -467,9 +467,10 @@ const fetchuserPLList = async (data: any, filter: any, options: any): Promise<vo
       userIds.push(item?._id.toString())
     });
     filter.username = { $in: usernames }
-    filter.IsSettle = 1
+    // filter.IsSettle = 1
     let results: any = [];
-
+    console.log("filter",filter);
+    
     results = await Reporting.aggregate([
       {
         $match: filter
@@ -487,7 +488,7 @@ const fetchuserPLList = async (data: any, filter: any, options: any): Promise<vo
     ]);
 
     //st8
-    const st8Data = await Reporting.aggregate([
+    const st8Data = await St8Transaction.aggregate([
       {
         $match: filter
       },
@@ -508,6 +509,7 @@ const fetchuserPLList = async (data: any, filter: any, options: any): Promise<vo
     //casino 
     delete filter.username
     filter.userId = { $in: userIds }
+    filter.IsSettle = 1
     const casinoData = await AuraCSPlaceBet.aggregate([
       {
         $match: filter
@@ -557,7 +559,9 @@ const fetchuserPLList = async (data: any, filter: any, options: any): Promise<vo
 
     //Aviator
     delete filter.userId;
+    delete filter.IsSettle;
     filter.user = { $in: usernames }
+    filter.issettled = 1
     const aviatorData = await Avplacebet.aggregate([
       {
         $match: filter
