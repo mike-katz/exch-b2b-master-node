@@ -9,7 +9,7 @@ const fetchSportTotalPL = {
 };
 
 const fetchSportEventList = {
-  query: Joi.object().keys({ 
+  query: Joi.object().keys({
     sportName: Joi.string().optional(),
     exEventId: Joi.string().optional(),
     exMarketId: Joi.string().optional(),
@@ -22,7 +22,7 @@ const fetchSportEventList = {
 };
 
 const fetchAviatorList = {
-  query: Joi.object().keys({    
+  query: Joi.object().keys({
     from: Joi.string().optional(),
     to: Joi.string().optional(),
     timeZone: Joi.string().optional(),
@@ -32,26 +32,46 @@ const fetchAviatorList = {
 };
 
 const fetchIntCasinoList = {
-  query: Joi.object().keys({    
+  query: Joi.object().keys({
     from: Joi.string().optional(),
     to: Joi.string().optional(),
     timeZone: Joi.string().optional(),
-    developerCode: Joi.string().optional(),    
+    developerCode: Joi.string().optional(),
     page: Joi.number().required(),
     limit: Joi.number().required(),
   }),
 };
 
 const fetchuserPLList = {
-  query: Joi.object().keys({    
+  query: Joi.object().keys({
     from: Joi.string().optional(),
     to: Joi.string().optional(),
     timeZone: Joi.string().optional(),
-    search: Joi.string().optional(),    
-    userId: Joi.string().optional(),    
+    search: Joi.string().optional(),
+    userId: Joi.string().optional(),
     page: Joi.number().required(),
     limit: Joi.number().required(),
   }),
 };
+const userEventsProfitlossAura = {
+  query: Joi.object().keys({
+    from: Joi.string().optional(),
+    to: Joi.string().optional(),
+    timeZone: Joi.string().optional(),
+    page: Joi.number().optional(),
+    limit: Joi.number().optional(),
+  }),
+};
 
-export default { fetchSportTotalPL, fetchSportEventList, fetchAviatorList, fetchIntCasinoList, fetchuserPLList };
+const userMarketsProfitlossAura = {
+  query: Joi.object().keys({
+    from: Joi.string().optional(),
+    to: Joi.string().optional(),
+    timeZone: Joi.string().optional(),
+    page: Joi.number().optional(),
+    limit: Joi.number().optional(),
+    eventName: Joi.required(),
+  }),
+};
+
+export default { fetchSportTotalPL, fetchSportEventList, fetchAviatorList, fetchIntCasinoList, fetchuserPLList, userEventsProfitlossAura, userMarketsProfitlossAura };

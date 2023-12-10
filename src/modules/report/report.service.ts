@@ -1,4 +1,4 @@
-import { AuraCSPlaceBet, Avplacebet, St8Transaction, Reporting, User } from "@/models"
+import { AuraCSPlaceBet, AuraCSResult, Avplacebet, St8Transaction, Reporting, User } from "@/models"
 import ApiError from "@/utils/ApiError";
 import httpStatus from "http-status";
 import * as userService from "@/modules/user/user.service";
@@ -22,7 +22,7 @@ const fetchSportTotalPL = async (data: any, filter: any): Promise<void> => {
       delete filter.from
       delete filter.timeZone
     }
-    
+
     filter.username = { $in: usernames }
     const response = await Reporting.aggregate([
       {
@@ -589,9 +589,9 @@ const fetchuserPLList = async (data: any, filter: any, options: any): Promise<vo
 
     const parentSumArr = parentWiseUsers.map((parentData: any) => {
       const { parent, users } = parentData;
-      let sum ={pl:0,stack:0}
+      let sum = { pl: 0, stack: 0 }
       if (users.length > 0) {
-          sum = users.reduce((acc: any, user: any) => {
+        sum = users.reduce((acc: any, user: any) => {
           const userResult = results.find((result: any) => result.username === user.username);
           if (userResult) {
             acc.pl += userResult.pl || 0;
@@ -600,11 +600,11 @@ const fetchuserPLList = async (data: any, filter: any, options: any): Promise<vo
           return acc;
         }, { pl: 0, stack: 0 });
       } else {
-          const userResult = results.find((result: any) => result.username === parent.username);
-          if (userResult) {
-            sum.pl = userResult.pl || 0;
-            sum.stack = userResult.stack || 0;
-          }
+        const userResult = results.find((result: any) => result.username === parent.username);
+        if (userResult) {
+          sum.pl = userResult.pl || 0;
+          sum.stack = userResult.stack || 0;
+        }
       }
 
       return {
@@ -633,7 +633,184 @@ const fetchuserPLList = async (data: any, filter: any, options: any): Promise<vo
     });
   }
 }
+const userEventsProfitlossAura = async (data: any, filter: any, options: any): Promise<void> => {
+  try {
+    const dateData = getFilterProfitLoss(filter);
+    if (dateData.error === 1) {
+      throw new ApiError(httpStatus.BAD_REQUEST, {
+        msg: "Please select only 30 days range only.",
+      });
+    }
+    if (dateData.filteredData) {
+      const filterData = dateData.filteredData;
+      filter = { ...filter, ...filterData };
+      delete filter.to
+      delete filter.from
+      delete filter.timeZone
+    }
+    const userData = await userService.getAllUsersDownlineUser(data?._id);
+    const userIds = userData.map((item: any) => item?._id.toString())
+    filter.userId = { $in: userIds }
+    filter.IsSettle = 1
+    const { limit = 10, page = 1 } = options;
+    const skip = (page - 1) * limit;
+    const retData: any = [];
+    const result = await AuraCSPlaceBet.aggregate([
+      {
+        $match: filter,
+      },
+      {
+        $group: {
+          _id: {
+            marketType: '$marketType',
+          },
+          eventId: { $first: '$_id' },
+          pl: {
+            $sum: '$winnerpl',
+          },
+        },
+      },
+      {
+        $sort: { "pl": -1 },
+      },
+      {
+        $skip: skip,
+      },
+      {
+        $limit: parseInt(limit, 10),
+      },
+    ]);
+
+    const totalResults = await AuraCSPlaceBet.aggregate([
+      {
+        $match: filter,
+      },
+      {
+        $group: {
+          _id: {
+            marketType: '$marketType',
+          },
+          eventId: { $first: '$_id' },
+          pl: {
+            $sum: '$winnerpl',
+          },
+        },
+      },
+    ]);
+    result.map((data: any) => {
+      const mapdata = {
+        sportName: 'Casino',
+        eventName: data._id.marketType,
+        eventId: data.eventId,
+        pl: data.pl,
+      };
+      retData.push(mapdata);
+    });
+    const resData: any = {
+      page,
+      limit,
+      totalPages: Math.ceil(totalResults.length / limit),
+      totalResults: totalResults.length,
+      results: retData,
+    };
+    return resData;
+  } catch (error: any) {
+    throw new ApiError(httpStatus.BAD_REQUEST, {
+      msg: error?.errorData?.msg || "invalid user id.",
+    });
+  }
+}
+
+const userMarketsProfitlossAura = async (data: any, filter: any, options: any): Promise<void> => {
+  try {
+    const dateData = getFilterProfitLoss(filter);
+    if (dateData.error === 1) {
+      throw new ApiError(httpStatus.BAD_REQUEST, {
+        msg: "Please select only 30 days range only.",
+      });
+    }
+    if (dateData.filteredData) {
+      const filterData = dateData.filteredData;
+      filter = { ...filter, ...filterData };
+      delete filter.to
+      delete filter.from
+      delete filter.timeZone
+    }
+    const userData = await userService.getAllUsersDownlineUser(data?._id);
+    const userIds = userData.map((item: any) => item?._id.toString())
+    filter.userId = { $in: userIds }
+    filter.IsSettle = 1;
+    const { limit = 10, page = 1 } = options;
+    const skip = (page - 1) * limit;
+    filter = { ...filter, marketType: filter.eventName };
+    delete filter.eventName
+
+    const result = await AuraCSPlaceBet.aggregate([
+      {
+        $match: filter,
+      },
+      {
+        $group: {
+          _id: {
+            marketName: '$marketName',
+          },
+          eventId: { $first: '$_id' },
+          pl: {
+            $sum: '$winnerpl',
+          },
+        },
+      },
+      {
+        $sort: { "pl": -1 },
+      },
+      {
+        $skip: skip,
+      },
+      {
+        $limit: parseInt(limit, 10),
+      },
+    ]);
+
+    const totalResults = await AuraCSPlaceBet.aggregate([
+      {
+        $match: filter,
+      },
+      {
+        $group: {
+          _id: {
+            marketName: '$marketName',
+          },
+          eventId: { $first: '$_id' },
+          pl: {
+            $sum: '$winnerpl',
+          },
+        },
+      },
+    ]);
+    const retData: any = [];
+    result.map((data: any) => {
+      const mapdata = {
+        sportName: 'Casino',
+        eventName: data._id.marketName,
+        eventId: data.eventId,
+        pl: data.pl,
+      };
+      retData.push(mapdata);
+    });
+    const resData: any = {
+      page,
+      limit,
+      totalPages: Math.ceil(totalResults.length / limit),
+      totalResults: totalResults.length,
+      results: retData,
+    };
+    return resData;
+  } catch (error: any) {
+    throw new ApiError(httpStatus.BAD_REQUEST, {
+      msg: error?.errorData?.msg || "invalid user id.",
+    });
+  }
+}
 
 
-
-export { fetchSportTotalPL, fetchCasinoTotalPL, fetchIntCasinoTotalPL, fetchAviatorTotalPL, fetchSportEventList, fetchAviatorList, fetchIntCasinoList, fetchuserPLList }
+export { fetchSportTotalPL, fetchCasinoTotalPL, fetchIntCasinoTotalPL, fetchAviatorTotalPL, fetchSportEventList, fetchAviatorList, fetchIntCasinoList, fetchuserPLList, userEventsProfitlossAura, userMarketsProfitlossAura }
