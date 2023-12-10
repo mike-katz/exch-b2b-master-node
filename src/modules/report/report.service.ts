@@ -479,13 +479,12 @@ const fetchuserPLList = async (data: any, filter: any, options: any): Promise<vo
           name: { $first: "$sportName" },
           sportId: { $first: "$sportId" },
           pl: { $sum: "$pl" },
-          stack: { $sum: "$stack" },
+          stake: { $sum: "$stake" },
           commission: { $sum: "$commission" }
         }
       }
     ]);
-    console.log("results",results.length);
-    
+
     //st8
     const st8Data = await St8Transaction.aggregate([
       {
@@ -504,7 +503,6 @@ const fetchuserPLList = async (data: any, filter: any, options: any): Promise<vo
         }
       }
     ]);
-    console.log("st8Data",st8Data.length);
 
     //casino 
     delete filter.username
@@ -556,7 +554,6 @@ const fetchuserPLList = async (data: any, filter: any, options: any): Promise<vo
         }
       }
     ]);
-    console.log("casinoData",casinoData.length);
 
     //Aviator
     delete filter.userId;
@@ -579,11 +576,9 @@ const fetchuserPLList = async (data: any, filter: any, options: any): Promise<vo
         }
       }
     ]);
-    console.log("aviatorData",aviatorData.length);
 
     results = results.concat(st8Data, casinoData, aviatorData)
-    console.log("results",results.length);
-    
+
     const parentWiseUsers = userData.map((parent: any) => {
       return {
         parent,
@@ -593,7 +588,7 @@ const fetchuserPLList = async (data: any, filter: any, options: any): Promise<vo
 
     const parentSumArr = parentWiseUsers.map((parentData: any) => {
       const { parent, users } = parentData;
-      let sum ={pl:0,stack:0,commission:0}
+      let sum = { pl: 0, stack: 0, commission: 0 }
       if (users.length > 0) {
         sum = users.reduce((acc: any, user: any) => {
           const userResult = results.find((result: any) => result.username === user.username || result.userId === user._id);
@@ -605,12 +600,12 @@ const fetchuserPLList = async (data: any, filter: any, options: any): Promise<vo
           return acc;
         }, { pl: 0, stack: 0, commission: 0 });
       } else {
-          const userResult = results.find((result: any) => result.username === parent.username);
-          if (userResult) {
-            sum.pl = userResult.pl || 0;
-            sum.stack = userResult.stack || 0;
-            sum.commission = userResult.commission || 0;
-          }
+        const userResult = results.find((result: any) => result.username === parent.username);
+        if (userResult) {
+          sum.pl = userResult.pl || 0;
+          sum.stack = userResult.stack || 0;
+          sum.commission = userResult.commission || 0;
+        }
       }
 
       return {
