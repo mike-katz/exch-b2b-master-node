@@ -22,7 +22,6 @@ const fetchSportTotalPL = async (data: any, filter: any): Promise<void> => {
       delete filter.from
       delete filter.timeZone
     }
-    console.log("filter",filter);
     
     filter.username = { $in: usernames }
     const response = await Reporting.aggregate([
@@ -408,6 +407,7 @@ const fetchIntCasinoList = async (data: any, filter: any, options: any): Promise
 const fetchuserPLList = async (data: any, filter: any, options: any): Promise<void> => {
   try {
     const dateData = getFilterProfitLoss(filter);
+    let parentId = data._id.toString();
     if (dateData.error === 1) {
       throw new ApiError(httpStatus.BAD_REQUEST, {
         msg: "Please select only 30 days range only.",
@@ -421,15 +421,20 @@ const fetchuserPLList = async (data: any, filter: any, options: any): Promise<vo
       delete filter.timeZone
     }
     const userFliter: any = {}
-    if (filter.userName) {
-      userFliter.username = filter.userName
+    if (filter.search) {
+      const regexSearch = new RegExp(filter.search, 'i');
+      userFliter.username = regexSearch
+    }
+    if (filter.userId) {
+      parentId = filter.userId;
+      delete filter.userId;
     }
     const query: any = {
       $and: [
         {
           $expr: {
             $eq: [
-              data?._id.toString(),
+              parentId,
               {
                 $arrayElemAt: ['$parentId', -1]
               }
@@ -443,11 +448,24 @@ const fetchuserPLList = async (data: any, filter: any, options: any): Promise<vo
     const { limit = 10, page = 1 } = options;
     const skip = (page - 1) * limit;
     const userData: any = await User.find(query).skip(skip).limit(limit).sort({ _id: 1 })
-
     const totalResults: any = await User.find(query).countDocuments().lean();
-    const usernames = userData.map((item: any) => item?.username)
-    const userIds = userData.map((item: any) => item?._id.toString())
+    let parents: any = [];
+    let userIds: any = [];
+    let usernames: any = [];
+    userData.map((item: any) => {
+      if (item?.roles.includes('User')) {
+        usernames.push(item?.username)
+        userIds.push(item?._id.toString())
+      } else {
+        parents.push(item?._id.toString())
+      }
+    });
+    const parentUsers: any = await User.find({ parentId: { $in: parents }, roles: { $in: ['User'] } }).select('username parentId roles');
 
+    parentUsers.map((item: any) => {
+      usernames.push(item?.username)
+      userIds.push(item?._id.toString())
+    });
     filter.username = { $in: usernames }
     filter.IsSettle = 1
     let results: any = [];
@@ -558,27 +576,54 @@ const fetchuserPLList = async (data: any, filter: any, options: any): Promise<vo
     ]);
 
     results = results.concat(st8Data, casinoData, aviatorData)
-    const userMap: any = new Map(results.map((user: any) => [user.username, user]));
+    const parentWiseUsers = userData.map((parent: any) => {
+      return {
+        parent,
+        users: parentUsers.filter((user: any) => user.parentId.includes(parent._id)),
+      };
+    });
 
-    results = usernames.map((username: any) => ({
-      pl: 0,
-      stack: 0,
-      commission: 0,
-      username,
+    const parentSumArr = parentWiseUsers.map((parentData: any) => {
+      const { parent, users } = parentData;
+      let sum ={pl:0,stack:0}
+      if (users.length > 0) {
+          sum = users.reduce((acc: any, user: any) => {
+          const userResult = results.find((result: any) => result.username === user.username);
+          if (userResult) {
+            acc.pl += userResult.pl || 0;
+            acc.stack += userResult.stack || 0;
+          }
+          return acc;
+        }, { pl: 0, stack: 0 });
+      } else {
+          const userResult = results.find((result: any) => result.username === parent.username);
+          if (userResult) {
+            sum.pl = userResult.pl || 0;
+            sum.stack = userResult.stack || 0;
+          }
+      }
 
-      ...(userMap.get(username) || {})
-    }));
+      return {
+        _id: parent._id,
+        username: parent.username,
+        roles: parent.roles,
+        pl: sum.pl,
+        stack: sum.stack,
+      };
+    });
 
     const result: any = {
       page,
       limit,
       totalPages: Math.ceil(totalResults / limit),
       totalResults: totalResults,
-      results
+      results: parentSumArr
     };
     return result;
 
   } catch (error: any) {
+    console.log("error", error);
+
     throw new ApiError(httpStatus.BAD_REQUEST, {
       msg: error?.errorData?.msg || "invalid user id.",
     });

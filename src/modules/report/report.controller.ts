@@ -92,7 +92,7 @@ const fetchIntCasinoList = catchAsync(
 const fetchuserPLList = catchAsync(
   async (req: any, res: Response) => {
     const options = pick(req?.query, ['sortBy', 'limit', 'page']);
-    const filter = pick(req?.query, ['from', 'to', 'timeZone', 'userName']);    
+    const filter = pick(req?.query, ['from', 'to', 'timeZone', 'userId', 'search']);    
     const data:any = await ReportService.fetchuserPLList(req.user, filter, options);
     res.status(httpStatus.OK).json({
       message: "User PL List success",
