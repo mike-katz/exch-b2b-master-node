@@ -69,8 +69,8 @@ const userMarketsProfitlossAura = {
     timeZone: Joi.string().optional(),
     page: Joi.number().optional(),
     limit: Joi.number().optional(),
-    matchName: Joi.optional(),
+    marketType: Joi.optional(),
   }),
 };
 
-export default { fetchSportTotalPL, fetchSportEventList, fetchAviatorList, fetchIntCasinoList, fetchuserPLList, userEventsProfitlossAura,userMarketsProfitlossAura };
+export default { fetchSportTotalPL, fetchSportEventList, fetchAviatorList, fetchIntCasinoList, fetchuserPLList, userEventsProfitlossAura, userMarketsProfitlossAura };

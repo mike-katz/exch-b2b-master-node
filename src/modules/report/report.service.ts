@@ -605,7 +605,7 @@ const userEventsProfitlossAura = async (data: any, filter: any, options: any): P
     filter.IsSettle = 1
     const { limit = 10, page = 1 } = options;
     const skip = (page - 1) * limit;
-    const retData:any = [];
+    const retData: any = [];
     const result = await AuraCSPlaceBet.aggregate([
       {
         $match: filter,
@@ -613,13 +613,16 @@ const userEventsProfitlossAura = async (data: any, filter: any, options: any): P
       {
         $group: {
           _id: {
-            matchName: '$matchName',
+            marketType: '$marketType',
           },
-          eventId:{$first:'$_id'},
+          eventId: { $first: '$_id' },
           pl: {
             $sum: '$winnerpl',
           },
         },
+      },
+      {
+        $sort: { "pl": -1 },
       },
       {
         $skip: skip,
@@ -627,12 +630,8 @@ const userEventsProfitlossAura = async (data: any, filter: any, options: any): P
       {
         $limit: parseInt(limit, 10),
       },
-      {
-        $sort: {
-          createdAt: -1,
-        },
-      },
     ]);
+
     const totalResults = await AuraCSPlaceBet.aggregate([
       {
         $match: filter,
@@ -640,25 +639,25 @@ const userEventsProfitlossAura = async (data: any, filter: any, options: any): P
       {
         $group: {
           _id: {
-            userId: '$userId',
-            matchName: '$matchName',
+            marketType: '$marketType',
           },
+          eventId: { $first: '$_id' },
           pl: {
             $sum: '$winnerpl',
           },
         },
       },
     ]);
-    result.map((data:any) => {
+    result.map((data: any) => {
       const mapdata = {
         sportName: 'Casino',
-        eventName: data._id.matchName,
+        eventName: data._id.marketType,
         eventId: data.eventId,
         pl: data.pl,
       };
       retData.push(mapdata);
     });
-    const resData:any = {
+    const resData: any = {
       page,
       limit,
       totalPages: Math.ceil(totalResults.length / limit),
@@ -699,9 +698,9 @@ const userMarketsProfitlossAura = async (data: any, filter: any, options: any): 
     if (resData.results.length > 0) {
       retdata = resData.results.map((result: any) => {
         const retres = {
-          eventName: filter.matchName,
+          eventName: filter.marketType,
           sportId: '10',
-          sportName: 'Casino',          
+          sportName: 'Casino',
           marketName: result.marketName,
           roundId: result.betInfo.roundId,
           result: '',
@@ -759,4 +758,4 @@ const userMarketsProfitlossAura = async (data: any, filter: any, options: any): 
 }
 
 
-export { fetchSportTotalPL, fetchCasinoTotalPL, fetchIntCasinoTotalPL, fetchAviatorTotalPL, fetchSportEventList, fetchAviatorList, fetchIntCasinoList, fetchuserPLList, userEventsProfitlossAura,userMarketsProfitlossAura }
+export { fetchSportTotalPL, fetchCasinoTotalPL, fetchIntCasinoTotalPL, fetchAviatorTotalPL, fetchSportEventList, fetchAviatorList, fetchIntCasinoList, fetchuserPLList, userEventsProfitlossAura, userMarketsProfitlossAura }

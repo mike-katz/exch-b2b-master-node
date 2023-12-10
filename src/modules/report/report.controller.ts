@@ -114,7 +114,7 @@ const userEventsProfitlossAura = catchAsync(
 const userMarketsProfitlossAura = catchAsync(
   async (req: any, res: Response) => {
     const options = pick(req?.query, ['sortBy', 'limit', 'page']);
-    const filter = pick(req?.query, ['from', 'to', 'timeZone', 'matchName']);
+    const filter = pick(req?.query, ['from', 'to', 'timeZone','marketType']);
     const data: any = await ReportService.userMarketsProfitlossAura(req.user, filter, options);
     res.status(httpStatus.OK).json({
       message: "User PL List success",
