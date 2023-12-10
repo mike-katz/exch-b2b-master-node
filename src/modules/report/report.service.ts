@@ -469,8 +469,6 @@ const fetchuserPLList = async (data: any, filter: any, options: any): Promise<vo
     filter.username = { $in: usernames }
     // filter.IsSettle = 1
     let results: any = [];
-    console.log("filter",filter);
-    
     results = await Reporting.aggregate([
       {
         $match: filter
@@ -486,7 +484,8 @@ const fetchuserPLList = async (data: any, filter: any, options: any): Promise<vo
         }
       }
     ]);
-
+    console.log("results",results.length);
+    
     //st8
     const st8Data = await St8Transaction.aggregate([
       {
@@ -505,6 +504,7 @@ const fetchuserPLList = async (data: any, filter: any, options: any): Promise<vo
         }
       }
     ]);
+    console.log("st8Data",st8Data.length);
 
     //casino 
     delete filter.username
@@ -556,6 +556,7 @@ const fetchuserPLList = async (data: any, filter: any, options: any): Promise<vo
         }
       }
     ]);
+    console.log("casinoData",casinoData.length);
 
     //Aviator
     delete filter.userId;
@@ -578,8 +579,11 @@ const fetchuserPLList = async (data: any, filter: any, options: any): Promise<vo
         }
       }
     ]);
+    console.log("aviatorData",aviatorData.length);
 
     results = results.concat(st8Data, casinoData, aviatorData)
+    console.log("results",results.length);
+    
     const parentWiseUsers = userData.map((parent: any) => {
       return {
         parent,
@@ -589,22 +593,24 @@ const fetchuserPLList = async (data: any, filter: any, options: any): Promise<vo
 
     const parentSumArr = parentWiseUsers.map((parentData: any) => {
       const { parent, users } = parentData;
-      let sum = { pl: 0, stack: 0 }
+      let sum ={pl:0,stack:0,commission:0}
       if (users.length > 0) {
         sum = users.reduce((acc: any, user: any) => {
-          const userResult = results.find((result: any) => result.username === user.username);
+          const userResult = results.find((result: any) => result.username === user.username || result.userId === user._id);
           if (userResult) {
             acc.pl += userResult.pl || 0;
             acc.stack += userResult.stack || 0;
+            acc.commission += userResult.commission || 0;
           }
           return acc;
-        }, { pl: 0, stack: 0 });
+        }, { pl: 0, stack: 0, commission: 0 });
       } else {
-        const userResult = results.find((result: any) => result.username === parent.username);
-        if (userResult) {
-          sum.pl = userResult.pl || 0;
-          sum.stack = userResult.stack || 0;
-        }
+          const userResult = results.find((result: any) => result.username === parent.username);
+          if (userResult) {
+            sum.pl = userResult.pl || 0;
+            sum.stack = userResult.stack || 0;
+            sum.commission = userResult.commission || 0;
+          }
       }
 
       return {
@@ -613,6 +619,7 @@ const fetchuserPLList = async (data: any, filter: any, options: any): Promise<vo
         roles: parent.roles,
         pl: sum.pl,
         stack: sum.stack,
+        commission: sum.commission,
       };
     });
 
@@ -662,7 +669,7 @@ const userEventsProfitlossAura = async (data: any, filter: any, options: any): P
       {
         $group: {
           _id: {
-            marketType: '$marketType',
+            matchName: '$matchName',
           },
           eventId: { $first: '$_id' },
           pl: {
@@ -688,7 +695,7 @@ const userEventsProfitlossAura = async (data: any, filter: any, options: any): P
       {
         $group: {
           _id: {
-            marketType: '$marketType',
+            matchName: '$matchName',
           },
           eventId: { $first: '$_id' },
           pl: {
@@ -700,7 +707,7 @@ const userEventsProfitlossAura = async (data: any, filter: any, options: any): P
     result.map((data: any) => {
       const mapdata = {
         sportName: 'Casino',
-        eventName: data._id.marketType,
+        matchName: data._id.matchName,
         eventId: data.eventId,
         pl: data.pl,
       };
@@ -742,9 +749,6 @@ const userMarketsProfitlossAura = async (data: any, filter: any, options: any): 
     filter.IsSettle = 1;
     const { limit = 10, page = 1 } = options;
     const skip = (page - 1) * limit;
-    filter = { ...filter, marketType: filter.eventName };
-    delete filter.eventName
-
     const result = await AuraCSPlaceBet.aggregate([
       {
         $match: filter,
