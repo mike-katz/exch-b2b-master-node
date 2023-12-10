@@ -70,7 +70,7 @@ const userMarketsProfitlossAura = {
     timeZone: Joi.string().optional(),
     page: Joi.number().optional(),
     limit: Joi.number().optional(),
-    marketType: Joi.optional(),
+    eventName: Joi.required(),
   }),
 };
 
