@@ -7,7 +7,7 @@ const client = new MongoClient(configs.mongoose.url);
 
 const fetchMarket = async (): Promise<void> => {
   try {
-    let exposures: any = await client.db(process.env.EXCH_DB).collection('exposuremanages').find();
+    let exposures: any = await client.db(process.env.EXCH_DB).collection('exposuremanages').find().sort({ _id: -1 });
     exposures = await exposures.toArray();
     let marketIds: any = [];
     exposures.map((item: any) => {
@@ -94,7 +94,7 @@ const fetchMarket = async (): Promise<void> => {
 const getMarketDetail = async (eventId: string): Promise<void> => {
   await client.connect();
   const cursor = client.db(process.env.EXCH_DB).collection('marketRates')
-    .find({ exEventId: eventId, 'state.status': {$nin: ["SUPERCLOSED","CLOSED"]} });
+    .find({ exEventId: eventId, 'state.status': { $nin: ["SUPERCLOSED", "CLOSED"] } });
   const result: any = await cursor.toArray();
   return result;
 }
