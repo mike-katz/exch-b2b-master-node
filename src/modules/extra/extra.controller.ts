@@ -22,4 +22,14 @@ const getThemes = catchAsync(
   }
 );
 
-export default { saveNews, getThemes };
+const getSpredexIds = catchAsync(
+  async (req: any, res: any) => {
+    const { eventId } = req.query;
+    
+    const data:any = await ActivityService.getSpredexIds(eventId);
+    res.status(httpStatus.OK).json( {message: "Spredex get success",spreadexId:data});
+  }
+);
+
+
+export default { saveNews, getThemes, getSpredexIds };
