@@ -670,6 +670,7 @@ const userEventsProfitlossAura = async (data: any, filter: any, options: any): P
           pl: {
             $sum: '$winnerpl',
           },
+          stack: {$sum: '$betInfo.reqStake'}
         },
       },
       {
@@ -705,6 +706,7 @@ const userEventsProfitlossAura = async (data: any, filter: any, options: any): P
         matchName: data._id.matchName,
         eventId: data.eventId,
         pl: data.pl,
+        stack: data.stack,
       };
       retData.push(mapdata);
     });
@@ -757,6 +759,8 @@ const userMarketsProfitlossAura = async (data: any, filter: any, options: any): 
           pl: {
             $sum: '$winnerpl',
           },
+          stack: {$sum: '$betInfo.reqStake'}
+
         },
       },
       {
@@ -793,6 +797,7 @@ const userMarketsProfitlossAura = async (data: any, filter: any, options: any): 
         eventName: data._id.marketName,
         eventId: data.eventId,
         pl: data.pl,
+        stack: data.stack,
       };
       retData.push(mapdata);
     });
