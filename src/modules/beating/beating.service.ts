@@ -441,7 +441,9 @@ const betPL = async (data: any, eventId: string): Promise<void> => {
         const existingSelection = marketIdMap.get(exMarketId);
         for (const i in selectionId) {
           for (const key in selectionId[i]) {
-            existingSelection[i][key] += selectionId[i][key];
+            if (existingSelection[i][key]) {
+              existingSelection[i][key] = (existingSelection[i][key] || 0) + (selectionId[i][key] || 0);
+            }
           }
         }
       }
