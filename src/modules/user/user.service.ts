@@ -61,52 +61,36 @@ const findDownline = async (data: any, filter: any, options: any): Promise<void>
         filter
       ]
     }
-    let sortSetting:any;
+    let sortSetting = { [sortBy]: order };
+    let results:any = [];
+    let totalResults:number = 0
     if (sortBy !== "balance") {
-      sortSetting = { [sortBy]: parseInt(order) }
-    }else{
-      sortSetting = { newField: parseInt(order) }
+      [results, totalResults] = await Promise.all([
+        User.find(query).sort(sortSetting).skip(skip).limit(limit),
+        User.countDocuments(query),
+      ]);
+    } else {
+      let pipeline:any = [
+        { $match: query },
+        {
+          $addFields: { newField: { $sum: ['$balance', '$exposure'] } }
+        },
+        { $sort: { newField: parseInt(order) } },
+        { $skip: skip },
+        { $limit: limit }
+      ];
+      results = await User.aggregate(pipeline);
+      totalResults = await User.countDocuments(query);
     }
-    let pipeline:any = [
-      { $match: query },
-      {
-        $lookup: {
-          from: 'users',
-          let: { id: "$_id" },
-          pipeline: [
-            {
-              $match: {
-                $expr: {
-                  $in: [{ $toString: "$$id" }, "$parentId"]
-                }
-              }
-            },
-            {
-              $group:{
-                _id:"$$id",
-                downlineBalance: { $sum: '$balance' },
-                downlineExposure: { $sum: '$exposure' }
-              }
-            }
-          ],
-          as: 'downline',
-        }
-      },
-      {
-        $unwind: '$downline',
-      },
-      { $sort: sortSetting},
-      { $skip: skip },
-      { $limit: limit }
-    ];
-    let results = await User.aggregate(pipeline);
-    let totalResults = await User.countDocuments(query);
+
+    // const idArray = Array.from(results, item => item._id.toString());
 
     let finalResult: any = [];
     await Promise.all(results.map(async (item: any) => {
 
       let balance: number = (Number(item?.balance) || 0);
       let exposure: number = (Number(item?.exposure) || 0);
+     
       const data: any = {
         createdAt: item?.createdAt,
         username: item.username,
@@ -118,8 +102,6 @@ const findDownline = async (data: any, filter: any, options: any): Promise<void>
         status: item?.parentStatus == "Active" ? item?.status : item?.parentStatus || item?.status,
         roles: item.roles,
         creditRef: Number(item?.creditRef) || Number(item?.creditReference) || 0,
-        downlineBalance : (Number(item?.downline?.downlineBalance) || 0),
-        downlineExposure: (Number(item?.downline?.downlineExposure) || 0)
       }
       finalResult.push(data);
     }));
