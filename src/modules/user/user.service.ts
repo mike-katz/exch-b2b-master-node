@@ -44,7 +44,7 @@ const findDownline = async (data: any, filter: any, options: any): Promise<void>
       delete filter.roles
     }
 
-    const { limit = 10, page = 1, sortBy="createdAt", order="-1" } = options;
+    const { limit = 10, page = 1, sortBy = "createdAt", order = "-1" } = options;
     const skip = (page - 1) * limit;
     let query: any = {
       $and: [
@@ -61,14 +61,20 @@ const findDownline = async (data: any, filter: any, options: any): Promise<void>
         filter
       ]
     }
-    let sortSetting:any;
+    let sortSetting: any;
     if (sortBy !== "balance") {
       sortSetting = { [sortBy]: parseInt(order) }
-    }else{
+    } else {
       sortSetting = { newField: parseInt(order) }
     }
-    let pipeline:any = [
-      { $match: query },
+
+    let pipeline: any = [
+      {
+        $match: query
+      },
+      {
+        $addFields: { newField: { $sum: ['$balance', '$exposure'] } }
+      },
       {
         $lookup: {
           from: 'users',
@@ -95,7 +101,7 @@ const findDownline = async (data: any, filter: any, options: any): Promise<void>
       {
         $unwind: '$downline',
       },
-      { $sort: sortSetting},
+      { $sort: sortSetting },
       { $skip: skip },
       { $limit: limit }
     ];
@@ -118,7 +124,7 @@ const findDownline = async (data: any, filter: any, options: any): Promise<void>
         status: item?.parentStatus == "Active" ? item?.status : item?.parentStatus || item?.status,
         roles: item.roles,
         creditRef: Number(item?.creditRef) || Number(item?.creditReference) || 0,
-        downlineBalance : (Number(item?.downline?.downlineBalance) || 0),
+        downlineBalance: (Number(item?.downline?.downlineBalance) || 0),
         downlineExposure: (Number(item?.downline?.downlineExposure) || 0)
       }
       finalResult.push(data);
@@ -231,7 +237,7 @@ const myDownline = async (filter: any, options: any, userData: any): Promise<voi
     let parentId: string = userData?._id;
     filter.roles = { $in: ['User'] };
 
-    const { limit = 10, page = 1, sortBy="createdAt", order="-1" } = options;
+    const { limit = 10, page = 1, sortBy = "createdAt", order = "-1" } = options;
     const skip = (page - 1) * limit;
     let query: any = {
       $and: [
@@ -255,17 +261,17 @@ const myDownline = async (filter: any, options: any, userData: any): Promise<voi
         roles: { $in: ["User"] }
       }
     }
-    
+
     let sortSetting = { [sortBy]: order };
-    let results:any = [];
-    let totalResults:number = 0
+    let results: any = [];
+    let totalResults: number = 0
     if (sortBy !== "balance") {
       [results, totalResults] = await Promise.all([
         User.find(query).sort(sortSetting).skip(skip).limit(limit),
         User.countDocuments(query),
       ]);
     } else {
-      let pipeline:any = [
+      let pipeline: any = [
         { $match: query },
         {
           $addFields: { newField: { $sum: ['$balance', '$exposure'] } }
@@ -285,7 +291,7 @@ const myDownline = async (filter: any, options: any, userData: any): Promise<voi
         exposure: item.exposure || 0,
         exposureLimit: item.exposureLimit || 0,
         _id: item._id,
-         status: item?.parentStatus == "Active" ? item?.status : item?.parentStatus || item?.status,
+        status: item?.parentStatus == "Active" ? item?.status : item?.parentStatus || item?.status,
         roles: item.roles,
         creditRef: Number(item?.creditRef) || Number(item?.creditReference) || 0,
         createdAt: item.createdAt,
@@ -331,7 +337,7 @@ const getCreditLog = async (user: any, userId: string): Promise<void> => {
     const data = await checkParent(userId, user._id);
     username = data.username
   }
-  const data = await CreditLog.find({ username }).sort({createdAt:-1})
+  const data = await CreditLog.find({ username }).sort({ createdAt: -1 })
   const resp: any = { data, username };
   return resp;
 }
