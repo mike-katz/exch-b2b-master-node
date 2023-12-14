@@ -64,7 +64,6 @@ const saveNews = async (userData: any, origin: any, news: string): Promise<void>
   }
 }
 
-
 const getThemes = async (origin: any): Promise<void> => {
   const uri = process.env.MONGODB_URL;
   const client:any = new MongoClient(uri);
@@ -73,4 +72,12 @@ const getThemes = async (origin: any): Promise<void> => {
   const results = await cursor.toArray();
   return results
 }
-export { saveNews, getThemes }
+
+const getSpredexIds = async (eventId: string): Promise<string> => {
+  const uri = process.env.MONGODB_URL;
+  const client:any = new MongoClient(uri);
+  const cursor = await client.db(process.env.EXCH_DB).collection('scoreboards')
+    .findOne({ eventId });
+  return cursor.spreadexId || '';
+}
+export { saveNews, getThemes, getSpredexIds }

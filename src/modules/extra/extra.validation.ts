@@ -12,4 +12,12 @@ const getThemes = {
   
   }),
 };
-export default { saveNews, getThemes };
+
+const getSpredexIds = {
+  query: Joi.object().keys({
+    eventId: Joi.string().required()
+  }),
+};
+
+
+export default { saveNews, getThemes, getSpredexIds };

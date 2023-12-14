@@ -27,6 +27,14 @@ const routeDetails: IExtraRouteDetails[] = [
     controllerMethodName: "getThemes",
     // auth: "",
   }, 
+  {
+    key: "getSpredexIdAPI",
+    method: "get",
+    url: "/fetch-scoreboard",
+    validationMethodName: "getSpredexIds",
+    controllerMethodName: "getSpredexIds",
+    // auth: "",
+  }, 
 ];
 
 export default routeDetails;
