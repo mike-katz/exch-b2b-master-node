@@ -73,7 +73,12 @@ const findDownline = async (data: any, filter: any, options: any): Promise<void>
         $match: query
       },
       {
-        $addFields: { newField: { $sum: ['$balance', '$exposure'] } }
+        $addFields: {
+          newField: { $sum: ['$balance', '$exposure'] },
+          isUser: {
+            $in: ["User", "$roles"]
+          }
+        }
       },
       {
         $lookup: {
@@ -88,18 +93,33 @@ const findDownline = async (data: any, filter: any, options: any): Promise<void>
               }
             },
             {
-              $group:{
-                _id:"$$id",
+              $group: {
+                _id: "$$id",
                 downlineBalance: { $sum: '$balance' },
                 downlineExposure: { $sum: '$exposure' }
               }
             }
           ],
-          as: 'downline',
+          as: 'downline'
         }
       },
       {
-        $unwind: '$downline',
+        $addFields: {
+          downline: {
+            $cond: {
+              if: "$isUser",
+              then: [{
+                _id: "$_id",
+                downlineBalance: 0,
+                downlineExposure: 0
+              }],
+              else: "$downline"
+            }
+          }
+        }
+      },
+      {
+        $unwind: '$downline'
       },
       { $sort: sortSetting },
       { $skip: skip },
@@ -107,7 +127,6 @@ const findDownline = async (data: any, filter: any, options: any): Promise<void>
     ];
     let results = await User.aggregate(pipeline);
     let totalResults = await User.countDocuments(query);
-
     let finalResult: any = [];
     await Promise.all(results.map(async (item: any) => {
 
