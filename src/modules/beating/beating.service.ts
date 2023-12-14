@@ -301,7 +301,12 @@ const betList = async (data: any, filter: any, options: any): Promise<void> => {
         ]
       }
       filter.userId = userIds;
-      resData = await AuraCSPlaceBet.paginate(filter, options);
+      const optObj = {
+      ...options,
+      path: AuraCSPlaceBet.POPULATED_FIELDS,
+      };
+      
+      resData = await AuraCSPlaceBet.paginate(filter, optObj);
     } else if (filter.sportName === 'Int Casino') {
       // delete filter.mrktType;
       // delete filter.IsSettle;
