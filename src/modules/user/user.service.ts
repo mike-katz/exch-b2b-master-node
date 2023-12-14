@@ -85,8 +85,8 @@ const findDownline = async (data: any, filter: any, options: any): Promise<void>
               }
             },
             {
-              $project:{
-                _id:0,
+              $group:{
+                _id:"$$id",
                 downlineBalance: { $sum: '$balance' },
                 downlineExposure: { $sum: '$exposure' }
               }
