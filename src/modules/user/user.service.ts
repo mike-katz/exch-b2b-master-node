@@ -70,9 +70,6 @@ const findDownline = async (data: any, filter: any, options: any): Promise<void>
     let pipeline:any = [
       { $match: query },
       {
-        $addFields: { newField: { $sum: ['$balance', '$exposure'] } }
-      },
-      {
         $lookup: {
           from: 'users',
           let: { id: "$_id" },
