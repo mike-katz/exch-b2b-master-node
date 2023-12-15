@@ -1,4 +1,4 @@
-import { AuraCSPlaceBet, AuraCSResult, Avplacebet, St8Transaction, Reporting, User } from "@/models"
+import { AuraCSPlaceBet, Avplacebet, St8Transaction, Reporting, User } from "@/models"
 import ApiError from "@/utils/ApiError";
 import httpStatus from "http-status";
 import * as userService from "@/modules/user/user.service";

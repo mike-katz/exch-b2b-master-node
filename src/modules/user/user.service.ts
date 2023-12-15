@@ -704,7 +704,7 @@ const getExposureList = async (userId: string) => {
     },
     {
       $lookup: {
-        from: 'marketRates',
+        from: 'reportings',
         localField: 'exMarketId',
         foreignField: 'exMarketId',
         as: 'marketRatesInfo',
