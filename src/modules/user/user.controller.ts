@@ -181,5 +181,12 @@ const exposureList = catchAsync(
     res.status(httpStatus.OK).json(data);
   }
 );
+const demoCalculation = catchAsync(
+  async (req: any, res: CustomResponse) => {
+    const { userId,type,checkExId } = req.query;
+    const data: any = await UserService.demoCalculation(userId,type,checkExId);
+    res.status(httpStatus.OK).json(data);
+  }
+);
 
-export default { fetchUserProfile, fetchUserDownline, Register, myDownline, addCreditLog, getCreditLog, updateStatus, updateExposure, myBalance, exportCsv, getParentUsername, updateProfile, profileLog, exposureList };
+export default { fetchUserProfile, fetchUserDownline, Register, myDownline, addCreditLog, getCreditLog, updateStatus, updateExposure, myBalance, exportCsv, getParentUsername, updateProfile, profileLog, exposureList,demoCalculation };

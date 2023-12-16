@@ -1,4 +1,4 @@
-import { CreditLog, ProfileLog, Stake, User, ExposureManage } from "@/models"
+import { CreditLog, ProfileLog, Stake, User, ExposureManage, CricketBetPlace, SoccerBetPlace, TennisBetPlace } from "@/models"
 import ApiError from "@/utils/ApiError";
 import httpStatus from "http-status";
 import AWS from "aws-sdk";
@@ -727,6 +727,146 @@ const getExposureList = async (userId: string) => {
 
   return result || [];
 }
+// const demoCalculation = async (userId: string,type:string,checkExId:string) => {
+//   const userData: any = await User.findOne({ _id: userId });
+//   if (!userData) {
+//     throw new ApiError(httpStatus.OK, {
+//       msg: "user not found",
+//     });
+//   }
+//   let exIdCondition={$eq:["$exEventId",checkExId]};
+//   if(type=="market"){
+//     exIdCondition={$eq:["$exMarketId",checkExId]}
+//   }
+//   let pipeline = [{
+//     $match: {
+//       $expr: {
+//         $and:[
+//           {$eq:["$$name","$username"]},
+//           exIdCondition
+//         ]
+//       }
+//     }
+//   },
+//   {
+//     $group: {
+//       _id: "$username",
+//       eventName: { $first: '$eventName' },
+//       marketName: { $first: '$marketType' },
+//       pl: { $sum: '$pl' }
+//     }
+//   },
+//   {
+//     $project:{
+//       _id:0,
+//       eventName: 1,
+//       marketName: 1,
+//       pl: 1
+//     }
+//   }
+// ];
+//   const result = await User.aggregate([
+//     {
+//       $match: {
+//         $and: [
+//           {parentId:userId},
+//           {roles:"User"},
+//         ]
+//       },
+//     },
+//     {
+//       $lookup: {
+//         from: 'soccerbetplaces',
+//         let: { name: "$username" },
+//         pipeline,
+//         as: 'soccerbetplace'
+//       }
+//     },
+//     {$unwind:{
+//       path:'$soccerbetplace',
+//       preserveNullAndEmptyArrays:true
+//     }},
+//     {
+//       $lookup: {
+//         from: 'cricketbetplaces',
+//         let: { name: "$username" },
+//         pipeline,
+//         as: 'cricketbetplace'
+//       }
+//     },
+//     {$unwind:{
+//       path:'$cricketbetplace',
+//       preserveNullAndEmptyArrays:true
+//     }},
+//     {
+//       $lookup: {
+//         from: 'tennisbetplaces',
+//         let: { name: "$username" },
+//         pipeline ,
+//         as: 'tennisbetplace'
+//       }
+//     },
+//     {$unwind:{
+//       path:'$tennisbetplace',
+//       preserveNullAndEmptyArrays:true
+//     }},
+//     // {$sort:{createdAt:-1}},
+//     { $skip: 0 },
+//     { $limit: 10 },
+//     {$project:{
+//       _id:1,
+//       username:1,
+//       soccerbetplace:1,
+//       cricketbetplace:1,
+//       tennisbetplace:1
+//     }}
+//   ]) 
+
+//   return result || [];
+// }
+
+const demoCalculation = async (userId: string,type:string,checkExId:string) => {
+  const userData: any = await User.findOne({ _id: userId });
+  if (!userData) {
+    throw new ApiError(httpStatus.OK, {
+      msg: "user not found",
+    });
+  }
+  // let groupBy = "$exEventId"
+  let exIdCondition:any={exEventId:checkExId};
+  if(type=="market"){
+    exIdCondition={exMarketId:checkExId}
+    // groupBy = "$exMarketId"
+  }
+  let userNames:any = [];
+  if(userData.roles.includes("User")){
+    userNames = [userData.username];
+  }else{
+    let getUserNames = await User.find({ parentId: userId },'username');
+    getUserNames.map((user: any) => {
+      userNames.push(user.username,)
+    })
+  }
+  let agreegate = [{
+    $match:{
+      $and:[{username:{$in:userNames}},exIdCondition]
+    }
+  },
+  {
+    $group:{
+      // _id:exIdCondition,
+      _id:"$exMarketId",
+      eventName: { $first: '$eventName' },
+      marketName: { $first: '$marketType' },
+      pl: { $sum: '$pl' }
+    }
+  }];
+  let result = await SoccerBetPlace.aggregate(agreegate);
+  const tennisBetPlace = await TennisBetPlace.aggregate(agreegate);
+  const cricketBetPlace = await CricketBetPlace.aggregate(agreegate);
+  result = result.concat(tennisBetPlace,cricketBetPlace)
+  return result || [];
+}
 
 export {
   findDownline,
@@ -746,5 +886,6 @@ export {
   findUserByUsername,
   findUserById,
   getAllUsersDownlineUser,
-  getExposureList
+  getExposureList,
+  demoCalculation
 }

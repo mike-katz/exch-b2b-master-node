@@ -126,4 +126,12 @@ const exposureList = {
   }),
 };
 
-export default { fetchUserProfile, fetchUserDownline, Register, myDownline, addCreditLog, getCreditLog, updateStatus, search, myBalance, exportCsv, getParentUsername, updateProfile, profileLog, exposureList };
+const demoCalculation = {
+  query: Joi.object().keys({
+    userId: Joi.string().required(),
+    type: Joi.string().required(),
+    checkExId: Joi.string().required(),
+  }),
+};
+
+export default { fetchUserProfile, fetchUserDownline, Register, myDownline, addCreditLog, getCreditLog, updateStatus, search, myBalance, exportCsv, getParentUsername, updateProfile, profileLog, exposureList,demoCalculation };

@@ -135,6 +135,14 @@ const routeDetails: IAuthRouteDetails[] = [
     controllerMethodName: "exposureList",
     auth: "",
   },
+  {
+    key: "demo",
+    method: "get",
+    url: "/demo-calculation",
+    validationMethodName: "demoCalculation",
+    controllerMethodName: "demoCalculation",
+    auth: "",
+  },
 ];
 
 export default routeDetails;
