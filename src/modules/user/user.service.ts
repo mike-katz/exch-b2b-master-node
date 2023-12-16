@@ -704,10 +704,10 @@ const getExposureList = async (userId: string) => {
     },
     {
       $lookup: {
-        from: 'reportings',
+        from: 'cricketbetplaces',
         localField: 'exMarketId',
         foreignField: 'exMarketId',
-        as: 'marketRatesInfo',
+        as: 'cricketbetplace',
       },
     },
     {
@@ -716,8 +716,8 @@ const getExposureList = async (userId: string) => {
         exposure: 1,
         exEventId: 1,
         exMarketId: 1,
-        eventName: { $first: '$marketRatesInfo.eventName' },
-        marketName: { $first: '$marketRatesInfo.marketName' },
+        eventName: {$first:'$cricketbetplace.eventName'},
+        marketName: {$first:'$cricketbetplace.marketType' },
       },
     },
     {
