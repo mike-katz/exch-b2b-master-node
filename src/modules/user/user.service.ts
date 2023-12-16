@@ -105,14 +105,21 @@ const findDownline = async (data: any, filter: any, options: any): Promise<void>
       },
       {
         $addFields: {
+          downlineCount: { $size: '$downline' }
+        }
+      },
+      {
+        $addFields: {
           downline: {
             $cond: {
-              if: "$isUser",
-              then: [{
-                _id: "$_id",
-                downlineBalance: 0,
-                downlineExposure: 0
-              }],
+              if: { $eq: [{ $size: '$downline' }, 0] },
+              then: [
+                {
+                  _id: "$_id",
+                  downlineBalance: 0,
+                  downlineExposure: 0
+                }
+              ],
               else: "$downline"
             }
           }
