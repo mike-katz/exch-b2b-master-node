@@ -725,7 +725,7 @@ const getExposureList = async (userId: string) => {
         exMarketId: 1,
         createdAt: 1,
         eventName: {$first:'$cricketbetplace.eventName'},
-        marketName: {$first:'$cricketbetplace.marketType' },
+        marketName: {$first:'$cricketbetplace.marketName' },
       },
     },
     {
