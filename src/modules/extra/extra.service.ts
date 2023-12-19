@@ -74,10 +74,16 @@ const getThemes = async (origin: any): Promise<void> => {
 }
 
 const getSpredexIds = async (eventId: string): Promise<string> => {
-  const uri = process.env.MONGODB_URL;
+ 
+   try {
+    const uri = process.env.MONGODB_URL;
   const client:any = new MongoClient(uri);
   const cursor = await client.db(process.env.EXCH_DB).collection('scoreboards')
     .findOne({ eventId });
   return cursor.spreadexId || '';
+  } catch (err) {
+     return '';
+   }
+  
 }
 export { saveNews, getThemes, getSpredexIds }
