@@ -796,6 +796,15 @@ const getExposureList = async (userId: string) => {
       },
     },
     {
+      $group: {
+        _id: '$exMarketId',
+         exposure: '$exposure',
+        exEventId: '$exEventId',
+        exMarketId: '$exMarketId',
+        createdAt: '$createdAt',
+      }
+    }
+    {
       $sort: { _id: -1 },
     },
   ]);
