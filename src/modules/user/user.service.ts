@@ -709,13 +709,56 @@ const getExposureList = async (userId: string) => {
         exposure: { $gt: 0 },
       },
     },
-    {
+   {
       $lookup: {
-        from: 'marketRates',
+        from: 'cricketbetplaces',
         localField: 'exMarketId',
         foreignField: 'exMarketId',
         as: 'cricketbetplace',
       },
+    },
+    {
+      $lookup: {
+        from: 'tennisbetplaces',
+        localField: 'exMarketId',
+        foreignField: 'exMarketId',
+        as: 'tennisbetplace',
+      },
+    },
+    {
+      $lookup: {
+        from: 'soccerbetplaces',
+        localField: 'exMarketId',
+        foreignField: 'exMarketId',
+        as: 'soccerbetplace',
+      },
+    },
+    {
+      $unwind: {
+        path: "$cricketbetplace",
+        preserveNullAndEmptyArrays: true
+      }
+    },
+    {
+      $unwind: {
+        path: "$tennisbetplace",
+        preserveNullAndEmptyArrays: true
+      }
+    },
+    {
+      $unwind: {
+        path: "$soccerbetplace",
+        preserveNullAndEmptyArrays: true
+      }
+    },
+    {
+      $match: {
+        $or: [
+          { "cricketbetplace.IsSettle": 0 },
+          { "tennisbetplace.IsSettle": 0 },
+          { "soccerbetplace.IsSettle": 0 }
+        ]
+      }
     },
     {
       $project: {
@@ -724,8 +767,32 @@ const getExposureList = async (userId: string) => {
         exEventId: 1,
         exMarketId: 1,
         createdAt: 1,
-        eventName: {$first:'$cricketbetplace.eventName'},
-        marketName: {$first:'$cricketbetplace.marketName' },
+        eventName: {
+          $cond: {
+            if: { $ne: ["$cricketbetplace", null] },
+            then: '$cricketbetplace.eventName',
+            else: {
+              $cond: {
+                if: { $ne: ["$tennisbetplace", null] },
+                then: '$tennisbetplace.eventName',
+                else: '$soccerbetplace.eventName'
+              }
+            }
+          }
+        },
+        marketName: {
+          $cond: {
+            if: { $ne: ["$cricketbetplace", null] },
+            then: '$cricketbetplace.marketType',
+            else: {
+              $cond: {
+                if: { $ne: ["$tennisbetplace", null] },
+                then: '$tennisbetplace.marketType',
+                else: '$soccerbetplace.marketType'
+              }
+            }
+          }
+        },
       },
     },
     {
