@@ -538,6 +538,7 @@ const accountDetail = async (userId: string, userData: any): Promise<void> => {
     const dataNew: any = {
       balance: data.balance > 0 ? parseFloat(data.balance.toString()) : 0,
       mobile: data.mobile,
+      exposure: data.exposure,
       exposureLimit: data.exposureLimit,
       commission: data.commision,
       _id: data._id,

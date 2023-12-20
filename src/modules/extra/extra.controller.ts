@@ -31,5 +31,4 @@ const getSpredexIds = catchAsync(
   }
 );
 
-
 export default { saveNews, getThemes, getSpredexIds };
