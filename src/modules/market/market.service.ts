@@ -2,16 +2,24 @@ import ApiError from "@/utils/ApiError";
 import httpStatus from "http-status";
 import { MongoClient } from 'mongodb';
 import configs from "@/config/config";
-import { CricketBetPlace, Event, SoccerBetPlace, Sport, StreamShedule, TennisBetPlace, Tournament } from "@/models";
+import { CricketBetPlace, Event, SoccerBetPlace, Sport, StreamShedule, TennisBetPlace } from "@/models";
 const client = new MongoClient(configs.mongoose.url);
 
 const fetchMarket = async (): Promise<void> => {
   try {
+    let exposures: any = await client.db(process.env.EXCH_DB).collection('exposuremanages').find().sort({ _id: -1 });
+    exposures = await exposures.toArray();
+    let marketIds: any = [];
+    exposures.map((item: any) => {
+      marketIds.push(item?.exEventId)
+    })
+
     let allData: any = [];
-     const soccer: any = await SoccerBetPlace.aggregate([
+    const soccer: any = await SoccerBetPlace.aggregate([
       {
         $match: {
-          IsUnsettle: 1
+          IsUnsettle: 1,
+          exEventId: { $in: marketIds }
         }
       },
       {
@@ -50,7 +58,9 @@ const fetchMarket = async (): Promise<void> => {
     const tennis: any = await TennisBetPlace.aggregate([
       {
         $match: {
-          IsUnsettle: 1
+          IsUnsettle: 1,
+          exEventId: { $in: marketIds }
+
         }
       },
       {
@@ -86,10 +96,11 @@ const fetchMarket = async (): Promise<void> => {
     ]);
     allData = [...allData, ...tennis];
 
-    const cricket:any = await CricketBetPlace.aggregate([
+    const cricket: any = await CricketBetPlace.aggregate([
       {
         $match: {
-          IsUnsettle: 1
+          IsUnsettle: 1,
+          exEventId: { $in: marketIds }
         }
       },
       {
