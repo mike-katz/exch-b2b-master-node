@@ -2,28 +2,22 @@ import ApiError from "@/utils/ApiError";
 import httpStatus from "http-status";
 import { MongoClient } from 'mongodb';
 import configs from "@/config/config";
-import { Event, Sport, StreamShedule, Tournament } from "@/models";
+import { CricketBetPlace, Event, SoccerBetPlace, Sport, StreamShedule, TennisBetPlace, Tournament } from "@/models";
 const client = new MongoClient(configs.mongoose.url);
 
 const fetchMarket = async (): Promise<void> => {
   try {
-    let exposures: any = await client.db(process.env.EXCH_DB).collection('exposuremanages').find().sort({ _id: -1 });
-    exposures = await exposures.toArray();
-    let marketIds: any = [];
-    exposures.map((item: any) => {
-      marketIds.push(item?.exEventId)
-    })
-    const pipeline = [
+    let allData: any = [];
+     const soccer: any = await SoccerBetPlace.aggregate([
       {
         $match: {
-          'state.status': { $ne: 'CLOSED' },
-          exEventId: { $in: marketIds }
+          IsUnsettle: 1
         }
       },
       {
         $lookup: {
           from: 'sports',
-          localField: 'sportsId',
+          localField: 'sportId',
           foreignField: 'sportId',
           as: 'sportData'
         }
@@ -33,7 +27,7 @@ const fetchMarket = async (): Promise<void> => {
       },
       {
         $group: {
-          _id: '$sportsId',
+          _id: '$sportId',
           sportName: { $first: '$sportData.sportName' },
           iconUrl: { $first: '$sportData.iconUrl' },
           events: {
@@ -50,38 +44,164 @@ const fetchMarket = async (): Promise<void> => {
           _id: 1
         }
       },
+    ]);
+    allData = [...allData, ...soccer];
 
+    const tennis: any = await TennisBetPlace.aggregate([
       {
-        $unwind: '$events',
+        $match: {
+          IsUnsettle: 1
+        }
       },
       {
-        $sort: {
-          [`events.marketTime`]: -1,
-        },
+        $lookup: {
+          from: 'sports',
+          localField: 'sportId',
+          foreignField: 'sportId',
+          as: 'sportData'
+        }
+      },
+      {
+        $unwind: '$sportData'
       },
       {
         $group: {
-          _id: '$_id',
-          sportName: { $first: '$sportName' },
-          iconUrl: { $first: '$iconUrl' },
+          _id: '$sportId',
+          sportName: { $first: '$sportData.sportName' },
+          iconUrl: { $first: '$sportData.iconUrl' },
           events: {
             $addToSet: {
-              exEventId: '$events.exEventId',
-              eventName: '$events.eventName',
-            },
-          },
-        },
+              exEventId: '$exEventId',
+              eventName: '$eventName',
+              marketTime: '$marketTime'
+            }
+          }
+        }
       },
       {
         $sort: {
-          _id: 1,
-        },
+          _id: 1
+        }
       },
-    ];
+    ]);
+    allData = [...allData, ...tennis];
 
-    await client.connect();
-    const results: any = await client.db(process.env.EXCH_DB).collection('marketRates').aggregate(pipeline);
-    return results.toArray();
+    const cricket:any = await CricketBetPlace.aggregate([
+      {
+        $match: {
+          IsUnsettle: 1
+        }
+      },
+      {
+        $lookup: {
+          from: 'sports',
+          localField: 'sportId',
+          foreignField: 'sportId',
+          as: 'sportData'
+        }
+      },
+      {
+        $unwind: '$sportData'
+      },
+      {
+        $group: {
+          _id: '$sportId',
+          sportName: { $first: '$sportData.sportName' },
+          iconUrl: { $first: '$sportData.iconUrl' },
+          events: {
+            $addToSet: {
+              exEventId: '$exEventId',
+              eventName: '$eventName',
+              marketTime: '$marketTime'
+            }
+          }
+        }
+      },
+      {
+        $sort: {
+          _id: 1
+        }
+      },
+    ]);
+    allData = [...allData, ...cricket];
+
+    return allData;
+    // let exposures: any = await client.db(process.env.EXCH_DB).collection('exposuremanages').find().sort({ _id: -1 });
+    // exposures = await exposures.toArray();
+    // let marketIds: any = [];
+    // exposures.map((item: any) => {
+    //   marketIds.push(item?.exEventId)
+    // })
+    //   const pipeline = [
+    //     {
+    //       $match: {
+    //         'state.status': { $ne: 'CLOSED' },
+    //         exEventId: { $in: marketIds }
+    //       }
+    //     },
+    // {
+    //   $lookup: {
+    //     from: 'sports',
+    //     localField: 'sportsId',
+    //     foreignField: 'sportId',
+    //     as: 'sportData'
+    //   }
+    // },
+    // {
+    //   $unwind: '$sportData'
+    // },
+    // {
+    //   $group: {
+    //     _id: '$sportsId',
+    //     sportName: { $first: '$sportData.sportName' },
+    //     iconUrl: { $first: '$sportData.iconUrl' },
+    //     events: {
+    //       $addToSet: {
+    //         exEventId: '$exEventId',
+    //         eventName: '$eventName',
+    //         marketTime: '$marketTime'
+    //       }
+    //     }
+    //   }
+    // },
+    // {
+    //   $sort: {
+    //     _id: 1
+    //   }
+    // },
+
+    //     {
+    //       $unwind: '$events',
+    //     },
+    //     {
+    //       $sort: {
+    //         [`events.marketTime`]: -1,
+    //       },
+    //     },
+    //     {
+    //       $group: {
+    //         _id: '$_id',
+    //         sportName: { $first: '$sportName' },
+    //         iconUrl: { $first: '$iconUrl' },
+    //         events: {
+    //           $addToSet: {
+    //             exEventId: '$events.exEventId',
+    //             eventName: '$events.eventName',
+    //           },
+    //         },
+    //       },
+    //     },
+    //     {
+    //       $sort: {
+    //         _id: 1,
+    //       },
+    //     },
+    //   ];
+
+    //   await client.connect();
+    //   const results: any = await client.db(process.env.EXCH_DB).collection('marketRates').aggregate(pipeline);
+    //   return results.toArray();
+    // return [];
 
   } catch (error: any) {
     console.log("error", error);
