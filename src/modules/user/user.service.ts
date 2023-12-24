@@ -25,6 +25,8 @@ const findDownline = async (data: any, filter: any, options: any): Promise<void>
       delete filter.status;
     }
 
+    let currentRole = data.roles;
+
     if (filter.search !== undefined && filter.search != "") {
       filter.username = { $regex: filter?.search, $options: "i" }
     }
@@ -40,6 +42,12 @@ const findDownline = async (data: any, filter: any, options: any): Promise<void>
     let parentId = data?._id
     if (filter?.userId && filter?.userId !== "") {
       parentId = filter?.userId
+
+    const found = await findUserById(parentId);
+      if (found) {
+        currentRole = found.roles;
+      }
+      
       delete filter.userId
       delete filter.roles
     }
@@ -68,72 +76,86 @@ const findDownline = async (data: any, filter: any, options: any): Promise<void>
       sortSetting = { newField: parseInt(order) }
     }
 
-    let pipeline: any = [
-      {
-        $match: query
-      },
-      {
-        $addFields: {
-          newField: { $sum: ['$balance', '$exposure'] },
-          isUser: {
-            $in: ["User", "$roles"]
-          }
-        }
-      },
-      {
-        $lookup: {
-          from: 'users',
-          let: { id: "$_id" },
-          pipeline: [
-            {
-              $match: {
-                $expr: {
-                  $in: [{ $toString: "$$id" }, "$parentId"]
-                }
-              }
-            },
-            {
-              $group: {
-                _id: "$$id",
-                downlineBalance: { $sum: '$balance' },
-                downlineExposure: { $sum: '$exposure' }
-              }
-            }
-          ],
-          as: 'downline'
-        }
-      },
-      {
-        $addFields: {
-          downlineCount: { $size: '$downline' }
-        }
-      },
-      {
-        $addFields: {
-          downline: {
-            $cond: {
-              if: { $eq: [{ $size: '$downline' }, 0] },
-              then: [
-                {
-                  _id: "$_id",
-                  downlineBalance: 0,
-                  downlineExposure: 0
-                }
-              ],
-              else: "$downline"
+    let results:any = [];
+    let totalResults:number = 0;
+    if (currentRole.includes('Agent')) {
+      const objOpt = {
+        limit,
+        page,
+        sortBy: sortBy+":"+(parseInt(order) === -1 ? "desc":"asc"),
+      }
+      
+      const userData:any = await User.paginate(query, objOpt);
+      results = userData.results;
+      totalResults = userData.totalResults
+    } else {
+      let pipeline: any = [
+        {
+          $match: query
+        },
+        {
+          $addFields: {
+            newField: { $sum: ['$balance', '$exposure'] },
+            isUser: {
+              $in: ["User", "$roles"]
             }
           }
-        }
-      },
-      {
-        $unwind: '$downline'
-      },
-      { $sort: sortSetting },
-      { $skip: skip },
-      { $limit: limit }
-    ];
-    let results = await User.aggregate(pipeline);
-    let totalResults = await User.countDocuments(query);
+        },
+        {
+          $lookup: {
+            from: 'users',
+            let: { id: "$_id" },
+            pipeline: [
+              {
+                $match: {
+                  $expr: {
+                    $in: [{ $toString: "$$id" }, "$parentId"]
+                  }
+                }
+              },
+              {
+                $group: {
+                  _id: "$$id",
+                  downlineBalance: { $sum: '$balance' },
+                  downlineExposure: { $sum: '$exposure' }
+                }
+              }
+            ],
+            as: 'downline'
+          }
+        },
+        {
+          $addFields: {
+            downlineCount: { $size: '$downline' }
+          }
+        },
+        {
+          $addFields: {
+            downline: {
+              $cond: {
+                if: { $eq: [{ $size: '$downline' }, 0] },
+                then: [
+                  {
+                    _id: "$_id",
+                    downlineBalance: 0,
+                    downlineExposure: 0
+                  }
+                ],
+                else: "$downline"
+              }
+            }
+          }
+        },
+        {
+          $unwind: '$downline'
+        },
+        { $sort: sortSetting },
+        { $skip: skip },
+        { $limit: limit }
+      ];
+      results = await User.aggregate(pipeline);
+      totalResults = await User.countDocuments(query);
+    }
     let finalResult: any = [];
     await Promise.all(results.map(async (item: any) => {
 
