@@ -943,6 +943,7 @@ const userMarketsProfitlossAura = async (filters: any, options: any): Promise<vo
       const mapdata = {
         sportName: 'Casino',
         eventName: data._id.matchName,
+        marketName: data._id.marketName,
         eventId: data.eventId,
         pl: data.pl,
       };
