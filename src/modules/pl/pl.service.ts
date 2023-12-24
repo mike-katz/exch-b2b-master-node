@@ -889,65 +889,134 @@ const userMarketsProfitlossAura = async (filters: any, options: any): Promise<vo
       const filterData = dateData.filteredData;
       filter = { ...filter, ...filterData };
     }
-    const resData = await AuraCSPlaceBet.paginate(filter, options);
-    let roundIds: any = [];
-    let retdata: any = [];
-    const winnerIds: any = [];
-    if (resData.results.length > 0) {
-      retdata = resData.results.map((result: any) => {
-        const retres = {
-          eventName: filters.matchName,
-          sportId: '10',
-          sportName: 'Casino',          
-          marketName: result.marketName,
-          roundId: result.betInfo.roundId,
-          result: '',
-          pl: '',
-          runners: result.runners,
-          createdAt: result.createdAt,
-        };
-        roundIds.push(result.betInfo.roundId);
-        return retres;
-      });
-    }
-    roundIds = [...new Set(roundIds)];
-    const winnerData = await AuraCSResult.find({ roundId: { $in: roundIds } });
-    winnerData.map((win: any) => {
-      const key = win.roundId;
-      const marketdata = win.market.marketRunner;
-      let value;
-      marketdata.map((md: any) => {
-        if (md.status === 'WINNER') {
-          value = md.name;
-        }
-      });
-      winnerIds.push({ [key]: value });
+
+    const { limit = 10, page = 1 } = options;
+    const skip = (page - 1) * limit;
+    const retData:any = [];
+    
+    const result = await AuraCSPlaceBet.aggregate([
+      {
+        $match: filter,
+      },
+      {
+        $group: {
+          _id: {
+            matchName: '$matchName',
+            marketName: '$marketName',
+          },
+          eventId:{$first:'$_id'},
+          pl: {
+            $sum: '$winnerpl',
+          },
+        },
+      },
+      {
+        $skip: skip,
+      },
+      {
+        $limit: parseInt(limit, 10),
+      },
+      {
+        $sort: {
+          createdAt: -1,
+        },
+      },
+    ]);
+    const totalResults = await AuraCSPlaceBet.aggregate([
+      {
+        $match: filter,
+      },
+      {
+        $group: {
+          _id: {
+            matchName: '$matchName',
+            marketName: '$marketName',
+          },
+          eventId:{$first:'$_id'},
+          pl: {
+            $sum: '$winnerpl',
+          },
+        },
+      },
+    ]);
+     result.map((data:any) => {
+      const mapdata = {
+        sportName: 'Casino',
+        eventName: data._id.matchName,
+        eventId: data.eventId,
+        pl: data.pl,
+      };
+      retData.push(mapdata);
     });
-    retdata.map((ret: any) => {
-      let winner: any;
-      let pl;
-      winnerIds.map((el: any) => {
-        const key = Object.keys(el)[0];
-        if (key === ret.roundId) {
-          winner = el[key];
-        }
-      });
-      ret.runners.map((runner: any) => {
-        if (runner.name === winner) {
-          pl = runner.pl;
-        }
-      });
-      ret.result = winner;
-      ret.pl = pl;
-      delete ret.runners;
-    });
-    retdata = retdata.filter((value: any, index: number, self: any) => index === self.findIndex((t: any) => (
-      t.roundId === value.roundId
-    )));
-    resData.results = retdata;
-    resData.totalResults = retdata.length;
-    resData.totalPages = Math.ceil(retdata.length / resData.limit);
+    const resData:any = {
+      page,
+      limit,
+      totalPages: Math.ceil(totalResults.length / limit),
+      totalResults: totalResults.length,
+      results: retData,
+    };
     return resData;
+
+
+    // const resData = await AuraCSPlaceBet.paginate(filter, options);
+    // let roundIds: any = [];
+    // let retdata: any = [];
+    // const winnerIds: any = [];
+    // if (resData.results.length > 0) {
+    //   retdata = resData.results.map((result: any) => {
+    //     const retres = {
+    //       eventName: filters.matchName,
+    //       sportId: '10',
+    //       sportName: 'Casino',          
+    //       marketName: result.marketName,
+    //       roundId: result.betInfo.roundId,
+    //       result: '',
+    //       pl: '',
+    //       runners: result.runners,
+    //       createdAt: result.createdAt,
+    //     };
+    //     roundIds.push(result.betInfo.roundId);
+    //     return retres;
+    //   });
+    // }
+    // roundIds = [...new Set(roundIds)];
+    // const winnerData = await AuraCSResult.find({ roundId: { $in: roundIds } });
+    // winnerData.map((win: any) => {
+    //   const key = win.roundId;
+    //   const marketdata = win.market.marketRunner;
+    //   let value;
+    //   marketdata.map((md: any) => {
+    //     if (md.status === 'WINNER') {
+    //       value = md.name;
+    //     }
+    //   });
+    //   winnerIds.push({ [key]: value });
+    // });
+    // retdata.map((ret: any) => {
+    //   let winner: any;
+    //   let pl;
+    //   winnerIds.map((el: any) => {
+    //     const key = Object.keys(el)[0];
+    //     if (key === ret.roundId) {
+    //       winner = el[key];
+    //     }
+    //   });
+    //   ret.runners.map((runner: any) => {
+    //     if (runner.name === winner) {
+    //       pl = runner.pl;
+    //     }
+    //   });
+    //   ret.result = winner;
+    //   ret.pl = pl;
+    //   delete ret.runners;
+    // });
+    // retdata = retdata.filter((value: any, index: number, self: any) => index === self.findIndex((t: any) => (
+    //   t.roundId === value.roundId
+    // )));
+    // resData.results = retdata;
+    // resData.totalResults = retdata.length;
+    // resData.totalPages = Math.ceil(retdata.length / resData.limit);
+    // return resData;
   } catch (error: any) {
     console.log("error", error);
     throw new ApiError(httpStatus.BAD_REQUEST, {
