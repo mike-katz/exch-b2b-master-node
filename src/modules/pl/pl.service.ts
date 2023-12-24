@@ -2,7 +2,7 @@ import ApiError from "@/utils/ApiError";
 import httpStatus from "http-status";
 import { MongoClient } from 'mongodb';
 import configs from "@/config/config";
-import { AuraCSPlaceBet, AuraCSResult, Avplacebet, CricketBetPlace, Reporting, St8Transaction } from "@/models";
+import { AuraCSPlaceBet, AuraCSResult, Avplacebet, CricketBetPlace, Reporting, SoccerBetPlace, St8Transaction, TennisBetPlace } from "@/models";
 const client = new MongoClient(configs.mongoose.url);
 import moment from 'moment-timezone';
 import { findUserById } from "../user/user.service";
@@ -255,8 +255,15 @@ const getUserBetList = async (filters: any, options: any): Promise<void> => {
       const filterData = dateData.filteredData;
       filter = { ...filter, ...filterData };
     }
-
-    const resData: any = await CricketBetPlace.paginate(filter, options);
+    console.log("filter",filter);
+    
+    let resData: any = await CricketBetPlace.paginate(filter, options);
+    if (resData.results.length === 0) {
+      resData = await TennisBetPlace.paginate(filter, options);
+    }
+    if (resData.results.length === 0) {
+      resData = await SoccerBetPlace.paginate(filter, options);
+    }
     let retdata: any = []
     if (resData.results.length > 0) {
       resData.results.map((data: any) => {
@@ -1058,7 +1065,8 @@ const getUserBetListAura = async (filters: any, options: any): Promise<void> => 
       const filterData = dateData.filteredData;
       filter = { ...filter, ...filterData };
     }
-
+    console.log("filter",filter);
+    
     const resultData = await AuraCSPlaceBet.paginate(filter, options);
     let resultArr: any = [];
     if (resultData.results.length > 0) {
