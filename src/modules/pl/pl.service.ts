@@ -883,7 +883,7 @@ const userMarketsProfitlossAura = async (filters: any, options: any): Promise<vo
         msg: "Please select only 30 days range only.",
       });
     }
-    let filter = { userId: profile._id.toString(),matchName: filters.matchName };
+    let filter = { userId: profile._id.toString(),matchName: filters.eventId };
 
     if (dateData.filteredData) {
       const filterData = dateData.filteredData;
