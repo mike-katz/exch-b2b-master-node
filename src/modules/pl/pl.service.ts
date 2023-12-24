@@ -1040,9 +1040,19 @@ const getUserBetListAura = async (filters: any, options: any): Promise<void> => 
         msg: "Please select only 30 days range only.",
       });
     }
-    let filter = {
-      userId: profile._id.toString(), 'betInfo.roundId': filters.roundId,
+    let filter:any = {
+      userId: profile._id.toString(),
+      
+      // 'betInfo.roundId': filters.roundId,
     };
+    if (filters?.roundId) {
+      filter.marketName = filters?.roundId
+    }
+    
+    if (filters?.matchName) {
+      filter.matchName = filters?.matchName
+    }
+
     if (dateData.filteredData) {
       const filterData = dateData.filteredData;
       filter = { ...filter, ...filterData };
