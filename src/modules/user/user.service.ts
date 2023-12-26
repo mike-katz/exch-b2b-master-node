@@ -725,6 +725,77 @@ const getExposureList = async (userId: string) => {
       msg: "user not found",
     });
   }
+  // const result: any = await ExposureManage.aggregate([
+  //   {
+  //     $match: {
+  //       username: userData.username,
+  //       exposure: { $gt: 0 },
+  //     },
+  //   },
+  //  {
+  //     $lookup: {
+  //       from: 'marketRates',
+  //       localField: 'exMarketId',
+  //       foreignField: 'exMarketId',
+  //       as: 'cricketbetplace',
+  //     },
+  //   },
+   
+  //   {
+  //     $unwind: {
+  //       path: "$cricketbetplace",
+  //       preserveNullAndEmptyArrays: true
+  //     }
+  //   },
+    // {
+    //   $project: {
+    //     _id: 0,
+    //     exposure: 1,
+    //     exEventId: 1,
+    //     exMarketId: 1,
+    //     createdAt: 1,
+  //       eventName: {
+  //         $cond: {
+  //           if: { $ne: ["$cricketbetplace", null] },
+  //           then: '$cricketbetplace.eventName',
+  //           else: {
+  //             $cond: {
+  //               if: { $ne: ["$tennisbetplace", null] },
+  //               then: '$tennisbetplace.eventName',
+  //               else: '$soccerbetplace.eventName'
+  //             }
+  //           }
+  //         }
+  //       },
+  //       marketName: {
+  //         $cond: {
+  //           if: { $ne: ["$cricketbetplace", null] },
+  //           then: '$cricketbetplace.marketType',
+  //           else: {
+  //             $cond: {
+  //               if: { $ne: ["$tennisbetplace", null] },
+  //               then: '$tennisbetplace.marketType',
+  //               else: '$soccerbetplace.marketType'
+  //             }
+  //           }
+  //         }
+  //       },
+  //     },
+  //   },
+    // {
+    //   $group: {
+    //     _id: "$exMarketId",
+    //     exposure: { $first: "$exposure" },
+    //     exEventId: { $first: "$exEventId" },
+    //     createdAt: { $first: "$createdAt" },
+    //     eventName: { $first: "$eventName" },
+    //     marketName: { $first: "$marketName" },
+    //   },
+    // },
+    // {
+    //   $sort: { _id: -1 },
+    // },
+  // ]);
   const result: any = await ExposureManage.aggregate([
     {
       $match: {
@@ -732,107 +803,37 @@ const getExposureList = async (userId: string) => {
         exposure: { $gt: 0 },
       },
     },
-   {
-      $lookup: {
-        from: 'cricketbetplaces',
-        localField: 'exMarketId',
-        foreignField: 'exMarketId',
-        as: 'cricketbetplace',
-      },
-    },
     {
-      $lookup: {
-        from: 'tennisbetplaces',
-        localField: 'exMarketId',
-        foreignField: 'exMarketId',
-        as: 'tennisbetplace',
-      },
+    $lookup: {
+      from: "marketresults", 
+      localField: "exMarketId",
+      foreignField: "exMarketId",
+      as: "marketResult",
     },
-    {
-      $lookup: {
-        from: 'soccerbetplaces',
-        localField: 'exMarketId',
-        foreignField: 'exMarketId',
-        as: 'soccerbetplace',
-      },
+  },
+  {
+    $match: {
+      $or: [
+        { "marketResult": { $size: 0 } },
+        { "marketResult.IsSettle": { $eq: 0 } }
+      ],
     },
-    {
-      $unwind: {
-        path: "$cricketbetplace",
-        preserveNullAndEmptyArrays: true
-      }
-    },
-    {
-      $unwind: {
-        path: "$tennisbetplace",
-        preserveNullAndEmptyArrays: true
-      }
-    },
-    {
-      $unwind: {
-        path: "$soccerbetplace",
-        preserveNullAndEmptyArrays: true
-      }
-    },
-    {
-      $match: {
-        $or: [
-          { "cricketbetplace.IsSettle": 0 },
-          { "tennisbetplace.IsSettle": 0 },
-          { "soccerbetplace.IsSettle": 0 }
-        ]
-      }
-    },
+  },
     {
       $project: {
-        _id: 0,
+        _id: "$exMarketId",
         exposure: 1,
         exEventId: 1,
-        exMarketId: 1,
+        marketName: 1,
+        eventName: 1,
         createdAt: 1,
-        eventName: {
-          $cond: {
-            if: { $ne: ["$cricketbetplace", null] },
-            then: '$cricketbetplace.eventName',
-            else: {
-              $cond: {
-                if: { $ne: ["$tennisbetplace", null] },
-                then: '$tennisbetplace.eventName',
-                else: '$soccerbetplace.eventName'
-              }
-            }
-          }
-        },
-        marketName: {
-          $cond: {
-            if: { $ne: ["$cricketbetplace", null] },
-            then: '$cricketbetplace.marketType',
-            else: {
-              $cond: {
-                if: { $ne: ["$tennisbetplace", null] },
-                then: '$tennisbetplace.marketType',
-                else: '$soccerbetplace.marketType'
-              }
-            }
-          }
-        },
-      },
-    },
-    {
-      $group: {
-        _id: "$exMarketId",
-        exposure: { $first: "$exposure" },
-        exEventId: { $first: "$exEventId" },
-        createdAt: { $first: "$createdAt" },
-        eventName: { $first: "$eventName" },
-        marketName: { $first: "$marketName" },
-      },
+      }
     },
     {
       $sort: { _id: -1 },
     },
+    
   ]);
-
   return result || [];
 }
 
