@@ -458,8 +458,8 @@ const getCategoryList = async (filters: any, options: any): Promise<void> => {
 
     const { page = 1, limit = 10 } = options;
     const skip = (page - 1) * limit;
-    const total = await St8Transaction.find(filter).countDocuments().lean();
-    const categories = await St8Transaction.aggregate([
+
+    const pipeline:any = [
       { $match: filter },
       {
         $group: {
@@ -486,19 +486,25 @@ const getCategoryList = async (filters: any, options: any): Promise<void> => {
           sportName: 'Int Casino',
         },
       },
-      { $sort: { updatedAt: -1 } },
+      
+    ];
+    const total = await St8Transaction.aggregate(pipeline);
+    pipeline.push(
+      {
+        $sort: { updatedAt: -1 }
+      },
       {
         $skip: skip,
       },
       {
         $limit: parseInt(limit),
-      },
-    ]);
+      })
+    const categories = await St8Transaction.aggregate(pipeline);
     const resData: any = {
       page,
       limit,
-      totalPages: Math.ceil(total / limit),
-      totalResults: total,
+      totalPages: Math.ceil(total.length / limit),
+      totalResults: total.length,
       results: categories,
     };
     return resData;
