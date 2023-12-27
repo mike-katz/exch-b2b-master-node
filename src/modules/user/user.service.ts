@@ -431,19 +431,27 @@ const updateStatus = async (userData: any, password: string, status: string, use
   }
 }
 
-const myBalance = async (userData: any): Promise<void> => {
-
-  const users = await User.find({ parentId: userData._id });
-  const balanceSum = users.reduce((totalBel, currentUser) => totalBel + (Number(currentUser?.balance) || 0), 0).toFixed(2);
-
-  const exposureSum = users.reduce((totalBel, currentUser) => totalBel + (Number(currentUser?.exposure) || 0), 0).toFixed(2);
-
+const myBalance = async (userData: any): Promise<any> => {
+   const pipeline = [
+      { $match: { parentId: { $in: [userData._id.toString()] } } },
+      {
+        $group: {
+          _id: null,
+          balanceSum: { $sum: "$balance"  },
+          exposureSum: { $sum: "$exposure" },
+          totalUser: { $sum: 1 },
+        },
+      },
+   ];
+  
+  const aggregationResult = await User.aggregate(pipeline);
+  const { balanceSum =0, exposureSum =0, totalUser=0 } = aggregationResult[0];
   const res: any = {
-    balance: (Number(userData?.balance) || 0),
+    balance: (Number(userData?.balance).toFixed(2) || 0),
     exposureLimit: userData?.exposureLimit,
-    totalUser: users.length,
-    totalBalance: Number(balanceSum),
-    totalExposure: Number(exposureSum)
+    totalUser,
+    totalBalance: Number(balanceSum).toFixed(2),
+    totalExposure: Number(exposureSum).toFixed(2)
   }
   return res;
 }
