@@ -26,6 +26,8 @@ const findDownline = async (data: any, filter: any, options: any): Promise<void>
       delete filter.status;
     }
 
+    let currentRole = data.roles;
+
     if (filter.search !== undefined && filter.search != "") {
       filter.username = { $regex: filter?.search, $options: "i" }
     }
@@ -41,6 +43,12 @@ const findDownline = async (data: any, filter: any, options: any): Promise<void>
     let parentId = data?._id
     if (filter?.userId && filter?.userId !== "") {
       parentId = filter?.userId
+
+    const found = await findUserById(parentId);
+      if (found) {
+        currentRole = found.roles;
+      }
+      
       delete filter.userId
       delete filter.roles
     }
@@ -69,72 +77,86 @@ const findDownline = async (data: any, filter: any, options: any): Promise<void>
       sortSetting = { newField: parseInt(order) }
     }
 
-    let pipeline: any = [
-      {
-        $match: query
-      },
-      {
-        $addFields: {
-          newField: { $sum: ['$balance', '$exposure'] },
-          isUser: {
-            $in: ["User", "$roles"]
-          }
-        }
-      },
-      {
-        $lookup: {
-          from: 'users',
-          let: { id: "$_id" },
-          pipeline: [
-            {
-              $match: {
-                $expr: {
-                  $in: [{ $toString: "$$id" }, "$parentId"]
-                }
-              }
-            },
-            {
-              $group: {
-                _id: "$$id",
-                downlineBalance: { $sum: '$balance' },
-                downlineExposure: { $sum: '$exposure' }
-              }
-            }
-          ],
-          as: 'downline'
-        }
-      },
-      {
-        $addFields: {
-          downlineCount: { $size: '$downline' }
-        }
-      },
-      {
-        $addFields: {
-          downline: {
-            $cond: {
-              if: { $eq: [{ $size: '$downline' }, 0] },
-              then: [
-                {
-                  _id: "$_id",
-                  downlineBalance: 0,
-                  downlineExposure: 0
-                }
-              ],
-              else: "$downline"
+    let results:any = [];
+    let totalResults:number = 0;
+    if (currentRole.includes('Agent')) {
+      const objOpt = {
+        limit,
+        page,
+        sortBy: sortBy+":"+(parseInt(order) === -1 ? "desc":"asc"),
+      }
+      
+      const userData:any = await User.paginate(query, objOpt);
+      results = userData.results;
+      totalResults = userData.totalResults
+    } else {
+      let pipeline: any = [
+        {
+          $match: query
+        },
+        {
+          $addFields: {
+            newField: { $sum: ['$balance', '$exposure'] },
+            isUser: {
+              $in: ["User", "$roles"]
             }
           }
-        }
-      },
-      {
-        $unwind: '$downline'
-      },
-      { $sort: sortSetting },
-      { $skip: skip },
-      { $limit: limit }
-    ];
-    let results = await User.aggregate(pipeline);
-    let totalResults = await User.countDocuments(query);
+        },
+        {
+          $lookup: {
+            from: 'users',
+            let: { id: "$_id" },
+            pipeline: [
+              {
+                $match: {
+                  $expr: {
+                    $in: [{ $toString: "$$id" }, "$parentId"]
+                  }
+                }
+              },
+              {
+                $group: {
+                  _id: "$$id",
+                  downlineBalance: { $sum: '$balance' },
+                  downlineExposure: { $sum: '$exposure' }
+                }
+              }
+            ],
+            as: 'downline'
+          }
+        },
+        {
+          $addFields: {
+            downlineCount: { $size: '$downline' }
+          }
+        },
+        {
+          $addFields: {
+            downline: {
+              $cond: {
+                if: { $eq: [{ $size: '$downline' }, 0] },
+                then: [
+                  {
+                    _id: "$_id",
+                    downlineBalance: 0,
+                    downlineExposure: 0
+                  }
+                ],
+                else: "$downline"
+              }
+            }
+          }
+        },
+        {
+          $unwind: '$downline'
+        },
+        { $sort: sortSetting },
+        { $skip: skip },
+        { $limit: limit }
+      ];
+      results = await User.aggregate(pipeline);
+      totalResults = await User.countDocuments(query);
+    }
     let finalResult: any = [];
     await Promise.all(results.map(async (item: any) => {
 
@@ -410,19 +432,27 @@ const updateStatus = async (userData: any, password: string, status: string, use
   }
 }
 
-const myBalance = async (userData: any): Promise<void> => {
-
-  const users = await User.find({ parentId: userData._id });
-  const balanceSum = users.reduce((totalBel, currentUser) => totalBel + (Number(currentUser?.balance) || 0), 0).toFixed(2);
-
-  const exposureSum = users.reduce((totalBel, currentUser) => totalBel + (Number(currentUser?.exposure) || 0), 0).toFixed(2);
-
+const myBalance = async (userData: any): Promise<any> => {
+   const pipeline = [
+      { $match: { parentId: { $in: [userData._id.toString()] } } },
+      {
+        $group: {
+          _id: null,
+          balanceSum: { $sum: "$balance"  },
+          exposureSum: { $sum: "$exposure" },
+          totalUser: { $sum: 1 },
+        },
+      },
+   ];
+  
+  const aggregationResult = await User.aggregate(pipeline);
+  const { balanceSum =0, exposureSum =0, totalUser=0 } = aggregationResult[0];
   const res: any = {
-    balance: (Number(userData?.balance) || 0),
+    balance: (Number(userData?.balance).toFixed(2) || 0),
     exposureLimit: userData?.exposureLimit,
-    totalUser: users.length,
-    totalBalance: Number(balanceSum),
-    totalExposure: Number(exposureSum)
+    totalUser,
+    totalBalance: Number(balanceSum).toFixed(2),
+    totalExposure: Number(exposureSum).toFixed(2)
   }
   return res;
 }
@@ -704,6 +734,77 @@ const getExposureList = async (userId: string) => {
       msg: "user not found",
     });
   }
+  // const result: any = await ExposureManage.aggregate([
+  //   {
+  //     $match: {
+  //       username: userData.username,
+  //       exposure: { $gt: 0 },
+  //     },
+  //   },
+  //  {
+  //     $lookup: {
+  //       from: 'marketRates',
+  //       localField: 'exMarketId',
+  //       foreignField: 'exMarketId',
+  //       as: 'cricketbetplace',
+  //     },
+  //   },
+   
+  //   {
+  //     $unwind: {
+  //       path: "$cricketbetplace",
+  //       preserveNullAndEmptyArrays: true
+  //     }
+  //   },
+    // {
+    //   $project: {
+    //     _id: 0,
+    //     exposure: 1,
+    //     exEventId: 1,
+    //     exMarketId: 1,
+    //     createdAt: 1,
+  //       eventName: {
+  //         $cond: {
+  //           if: { $ne: ["$cricketbetplace", null] },
+  //           then: '$cricketbetplace.eventName',
+  //           else: {
+  //             $cond: {
+  //               if: { $ne: ["$tennisbetplace", null] },
+  //               then: '$tennisbetplace.eventName',
+  //               else: '$soccerbetplace.eventName'
+  //             }
+  //           }
+  //         }
+  //       },
+  //       marketName: {
+  //         $cond: {
+  //           if: { $ne: ["$cricketbetplace", null] },
+  //           then: '$cricketbetplace.marketType',
+  //           else: {
+  //             $cond: {
+  //               if: { $ne: ["$tennisbetplace", null] },
+  //               then: '$tennisbetplace.marketType',
+  //               else: '$soccerbetplace.marketType'
+  //             }
+  //           }
+  //         }
+  //       },
+  //     },
+  //   },
+    // {
+    //   $group: {
+    //     _id: "$exMarketId",
+    //     exposure: { $first: "$exposure" },
+    //     exEventId: { $first: "$exEventId" },
+    //     createdAt: { $first: "$createdAt" },
+    //     eventName: { $first: "$eventName" },
+    //     marketName: { $first: "$marketName" },
+    //   },
+    // },
+    // {
+    //   $sort: { _id: -1 },
+    // },
+  // ]);
   const result: any = await ExposureManage.aggregate([
     {
       $match: {
@@ -711,107 +812,37 @@ const getExposureList = async (userId: string) => {
         exposure: { $gt: 0 },
       },
     },
-   {
-      $lookup: {
-        from: 'cricketbetplaces',
-        localField: 'exMarketId',
-        foreignField: 'exMarketId',
-        as: 'cricketbetplace',
-      },
-    },
     {
-      $lookup: {
-        from: 'tennisbetplaces',
-        localField: 'exMarketId',
-        foreignField: 'exMarketId',
-        as: 'tennisbetplace',
-      },
+    $lookup: {
+      from: "marketresults", 
+      localField: "exMarketId",
+      foreignField: "exMarketId",
+      as: "marketResult",
     },
-    {
-      $lookup: {
-        from: 'soccerbetplaces',
-        localField: 'exMarketId',
-        foreignField: 'exMarketId',
-        as: 'soccerbetplace',
-      },
+  },
+  {
+    $match: {
+      $or: [
+        { "marketResult": { $size: 0 } },
+        { "marketResult.IsSettle": { $eq: 0 } }
+      ],
     },
-    {
-      $unwind: {
-        path: "$cricketbetplace",
-        preserveNullAndEmptyArrays: true
-      }
-    },
-    {
-      $unwind: {
-        path: "$tennisbetplace",
-        preserveNullAndEmptyArrays: true
-      }
-    },
-    {
-      $unwind: {
-        path: "$soccerbetplace",
-        preserveNullAndEmptyArrays: true
-      }
-    },
-    {
-      $match: {
-        $or: [
-          { "cricketbetplace.IsSettle": 0 },
-          { "tennisbetplace.IsSettle": 0 },
-          { "soccerbetplace.IsSettle": 0 }
-        ]
-      }
-    },
+  },
     {
       $project: {
-        _id: 0,
+        _id: "$exMarketId",
         exposure: 1,
         exEventId: 1,
-        exMarketId: 1,
+        marketName: 1,
+        eventName: 1,
         createdAt: 1,
-        eventName: {
-          $cond: {
-            if: { $ne: ["$cricketbetplace", null] },
-            then: '$cricketbetplace.eventName',
-            else: {
-              $cond: {
-                if: { $ne: ["$tennisbetplace", null] },
-                then: '$tennisbetplace.eventName',
-                else: '$soccerbetplace.eventName'
-              }
-            }
-          }
-        },
-        marketName: {
-          $cond: {
-            if: { $ne: ["$cricketbetplace", null] },
-            then: '$cricketbetplace.marketType',
-            else: {
-              $cond: {
-                if: { $ne: ["$tennisbetplace", null] },
-                then: '$tennisbetplace.marketType',
-                else: '$soccerbetplace.marketType'
-              }
-            }
-          }
-        },
-      },
-    },
-    {
-      $group: {
-        _id: "$exMarketId",
-        exposure: { $first: "$exposure" },
-        exEventId: { $first: "$exEventId" },
-        createdAt: { $first: "$createdAt" },
-        eventName: { $first: "$eventName" },
-        marketName: { $first: "$marketName" },
-      },
+      }
     },
     {
       $sort: { _id: -1 },
     },
+    
   ]);
-
   return result || [];
 }
 
