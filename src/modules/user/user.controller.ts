@@ -181,5 +181,16 @@ const exposureList = catchAsync(
     res.status(httpStatus.OK).json(data);
   }
 );
+const getUserBetList = catchAsync(
+  async (req: any, res: CustomResponse) => {
+    const { userId,marketId } = req.query;
+    const options = pick(req?.query, ["sortBy", "limit", "page"]);
+    const filter = pick(req?.query, ['marketId','sportId', 'timeZone', 'from', 'to']);
 
-export default { fetchUserProfile, fetchUserDownline, Register, myDownline, addCreditLog, getCreditLog, updateStatus, updateExposure, myBalance, exportCsv, getParentUsername, updateProfile, profileLog, exposureList };
+    const data: any = await UserService.getUserBetList(req.query.userId,filter,options);
+    res.status(httpStatus.OK).json(data);
+  }
+);
+
+
+export default { fetchUserProfile, fetchUserDownline, Register, myDownline, addCreditLog, getCreditLog, updateStatus, updateExposure, myBalance, exportCsv, getParentUsername, updateProfile, profileLog, exposureList,getUserBetList };

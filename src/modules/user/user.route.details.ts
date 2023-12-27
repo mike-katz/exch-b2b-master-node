@@ -135,6 +135,14 @@ const routeDetails: IAuthRouteDetails[] = [
     controllerMethodName: "exposureList",
     auth: "",
   },
+  {
+    key: "GetUserBetListAPI",
+    method: "get",
+    url: "/get-user-bet-list",
+    validationMethodName: "getUserBetList",
+    controllerMethodName: "getUserBetList",
+    auth: "",
+  },
 ];
 
 export default routeDetails;

@@ -1,4 +1,4 @@
-import { CreditLog, ProfileLog, Stake, User, ExposureManage } from "@/models"
+import { CreditLog, ProfileLog, Stake, User, ExposureManage,CricketBetPlace,TennisBetPlace,SoccerBetPlace } from "@/models"
 import ApiError from "@/utils/ApiError";
 import httpStatus from "http-status";
 import AWS from "aws-sdk";
@@ -7,6 +7,7 @@ import path from 'path';
 import stakes from "@/config/stake";
 import { ObjectId } from "mongodb";
 import { hostUrl } from '../../utils/utils';
+import { getFilterProfitLoss } from "../pl/pl.service";
 
 const findUserByUsername = (username: string) => {
   const user: any = User.findOne({ username });
@@ -814,6 +815,66 @@ const getExposureList = async (userId: string) => {
   return result || [];
 }
 
+const getUserBetList = async (userId:string,filter:any,options:any) => {
+  const userData: any = await User.findOne({ _id: userId });
+  if (!userData) {
+    throw new ApiError(httpStatus.OK, {
+      msg: "user not found",
+    });
+  }
+  const dateData = getFilterProfitLoss(filter);
+  if (dateData.error === 1) {
+    throw new ApiError(httpStatus.BAD_REQUEST, {
+      msg: "Please select only 30 days range only.",
+    });
+  }
+  if (dateData.filteredData) {
+    const filterData = dateData.filteredData;
+    filter = { ...filter, ...filterData };
+    delete filter.to
+    delete filter.from
+    delete filter.timeZone
+  }
+  filter = { ...filter, username:userData?.username, exMarketId: filter?.marketId }
+  delete filter.marketId;
+  let resultData = await CricketBetPlace.paginate(filter, options);
+  if (resultData.results.length === 0) {
+    resultData = await TennisBetPlace.paginate(filter, options);
+  }
+  if (resultData.results.length === 0) {
+    resultData = await SoccerBetPlace.paginate(filter, options);
+  }
+  const resultArr:any = [];
+
+  if (resultData.results.length > 0) {
+    resultData.results.map((data:any) => {
+      const result = {
+        pl1: Number(data.pl),
+        pl2: Number(-data.stake),
+        type: data.type,
+        sportName: data.sportName,
+        eventName: data.eventName,
+        marketName: data.marketType,
+        oddsPrice: data.odds,
+        selectionName: data.selectionName,
+        stake: data.stake,
+        matchedTime: data.matchedTime,
+        createdAt: data.createdAt,
+      };
+      if (result.type === 'lay' || result.type === 'no') {
+        const temp = -result.pl1;
+        result.pl1 = Math.abs(result.pl2);
+        result.pl2 = temp;
+      }
+      resultArr.push(result);
+    });
+  }
+  resultData.results = resultArr;
+  
+
+  return resultData || [];
+}
+
 export {
   findDownline,
   Register,
@@ -832,5 +893,6 @@ export {
   findUserByUsername,
   findUserById,
   getAllUsersDownlineUser,
-  getExposureList
+  getExposureList,
+  getUserBetList
 }
