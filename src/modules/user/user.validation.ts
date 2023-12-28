@@ -126,4 +126,17 @@ const exposureList = {
   }),
 };
 
-export default { fetchUserProfile, fetchUserDownline, Register, myDownline, addCreditLog, getCreditLog, updateStatus, search, myBalance, exportCsv, getParentUsername, updateProfile, profileLog, exposureList };
+const getUserBetList = {
+  query: Joi.object().keys({
+    userId: Joi.string().required(),
+    sportId: Joi.string().required(),
+    marketId: Joi.string().required(),
+    page: Joi.number().required(),
+    limit: Joi.number().required(),
+    from: Joi.string().optional(),
+    to: Joi.string().optional(),
+    timeZone: Joi.string().optional(),
+  }),
+};
+
+export default { fetchUserProfile, fetchUserDownline, Register, myDownline, addCreditLog, getCreditLog, updateStatus, search, myBalance, exportCsv, getParentUsername, updateProfile, profileLog, exposureList,getUserBetList };
