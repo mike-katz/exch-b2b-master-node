@@ -824,7 +824,7 @@ const getExposureList = async (userId: string) => {
     $match: {
       $or: [
         { "marketResult": { $size: 0 } },
-        { "marketResult.IsSettle": { $eq: 0 } }
+        { "marketResult.IsUnsettle": { $eq: 1 } }
       ],
     },
   },
