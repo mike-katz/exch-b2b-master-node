@@ -266,7 +266,8 @@ const betList = async (data: any, filter: any, options: any): Promise<void> => {
       filter.$or = [
         { eventName: regexSearch },
         { selectionName: regexSearch },
-        { userName: regexSearch }
+        { username: regexSearch },
+        { marketType: regexSearch },
       ]
       delete filter.search
     }
