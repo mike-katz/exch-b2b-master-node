@@ -538,12 +538,14 @@ const betLockLog = async (data: any): Promise<void> => {
 }
 
 const getLatestBet = async (data: any, eventId: string,sportId: any,flag: string): Promise<void> => {
-  const users = await User.find({ roles: { $in: ['User'] }, parentId: { $in: [data._id] } }).select('username');
-  const usernames = users.map(user => user.username);
   const filter: any = {
-    username: { $in: usernames },
     exEventId: eventId,
     IsUnsettle: 1,
+  }
+  if(data.roles && !data.roles.includes('Admin')){
+    const users = await User.find({ roles: { $in: ['User'] }, parentId: { $in: [data._id] } }).select('username');
+    const usernames = users.map(user => user.username);
+    filter.username = { $in: usernames };
   }
   //sportId = cricket = 4 , soccer =1 , tennis =2
   //fancy => 'fancy', 'line_market' && other =>$nin: ['fancy', 'line_market']
