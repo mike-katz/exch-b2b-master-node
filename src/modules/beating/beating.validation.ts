@@ -48,7 +48,10 @@ const matchBet = {
     eventId: Joi.required(),
     page: Joi.required(),
     limit: Joi.required(),
-    }),
+    sportId: Joi.required(),
+    flag: Joi.optional(),
+    amount: Joi.optional(),
+  })
 };
 
 const betPL = {

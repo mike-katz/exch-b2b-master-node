@@ -369,22 +369,37 @@ const betList = async (data: any, filter: any, options: any): Promise<void> => {
   }
 }
 
-const matchBet = async (data: any, eventId: string, options: any): Promise<void> => {
-  const users = await User.find({ roles: { $in: ['User'] }, parentId: { $in: [data._id] } }).select('username');
-  const usernames = users.map(user => user.username);
-
-  const filter: any = {
-    username: { $in: usernames },
+const matchBet = async (data: any, eventId: string,status:any,sportId:any,flag:any,amount:any, options: any): Promise<void> => {
+  const filter:any = {
     exEventId: eventId,
-    IsUnsettle: 1
+    IsUnsettle:1,
+  }
+  if(data.roles && !data.roles.includes('Admin')){
+    const users = await User.find({ roles: { $in: ['User'] }, parentId: { $in: [data._id] } }).select('username');
+    const usernames = users.map(user => user.username);
+    filter.username = { $in: usernames };
+  }
+  amount ? filter.stake = {$gte:amount} : '';
+  switch (flag) {
+    case "fancy":
+        filter.mrktType = {$in:['fancy', 'line_market']};
+      break;
+    case "other":
+      filter.mrktType = {$nin:['fancy', 'line_market']};
+    break;
   }
   options.sortBy = '_id:desc';
-  let betData: any = await CricketBetPlace.paginate(filter, options);
-  if (betData?.results?.length === 0) {
-    betData = await TennisBetPlace.paginate(filter, options);
-  }
-  if (betData?.results?.length === 0) {
-    betData = await SoccerBetPlace.paginate(filter, options);
+  let betData: any = [];
+  switch (sportId) {
+    case "1":
+      betData = await await SoccerBetPlace.paginate(filter, options);
+      break;
+    case "2":
+      betData = await TennisBetPlace.paginate(filter, options);
+      break;
+    case "4":
+      betData = await CricketBetPlace.paginate(filter, options);
+      break;
   }
   let results: any = []
   if (betData.results.length > 0) {
