@@ -439,25 +439,60 @@ const betPL = async (data: any, eventId: string,sportId:string): Promise<void> =
     exEventId: eventId,
     IsUnsettle:1,
   }
-  if(data.roles && !data.roles.includes('Admin')){
-    const users = await User.find({
-      roles: { $in: ['User'] },
-      parentId: { $in: [data._id] }
-    }).select('username');
-    const usernames = users.map(user => user.username);
-    filter.username = { $in: usernames };
-  }
-
+  let pipeline = [
+    {
+      $match: filter
+    },
+    {
+      $lookup:{
+        from: 'users',
+        let: { username: '$username' },
+        pipeline: [
+          {
+            $match: {
+              $expr: {
+                $and: [
+                  { $eq: ['$username', '$$username'] },
+                  { $in: ['User','$roles'] },
+                  { $in: [data._id.toString(),'$parentId'] }
+                ],
+              },
+            },
+          },
+          {
+            $project:{
+              username:1
+            }
+          }
+        ],
+        as:'user'
+      }
+    },
+    { $unwind:"$user"},
+    {
+      $group:{
+        _id:"$_id",
+        username:{$first:"$username"},
+        exEventId:{$first:"$exEventId"},
+        type:{$first:"$type"},
+        exMarketId:{$first:"$exMarketId"},
+        selectionId:{$first:"$selectionId"},
+      }
+    },
+    {
+      $sort:{_id:-1}
+    }
+  ];
   let result: any = [];
   switch (sportId) {
     case "1":
-      result = await SoccerPL.find(filter);
+      result = await SoccerPL.aggregate(pipeline);
       break;
     case "2":
-      result = await TennisPL.find(filter);
+      result = await TennisPL.aggregate(pipeline);
       break;
     case "4":
-      result = await CricketPL.find(filter);
+      result = await CricketPL.aggregate(pipeline);
       break;
   }
   if (result.length > 0) {
