@@ -576,79 +576,78 @@ const getLatestBet = async (data: any, eventId: string,sportId: any,flag: string
       filter.mrktType = {$nin:['fancy', 'line_market']};
   }
   let fancyData: any = [];
-  
+  let pipeline = [
+    {
+      $match: filter
+    },
+    {
+      $lookup:{
+        from: 'users',
+        let: { username: '$username' },
+        pipeline: [
+          {
+            $match: {
+              $expr: {
+                $and: [
+                  { $eq: ['$username', '$$username'] },
+                  { $in: ['User','$roles'] },
+                  { $in: [data._id.toString(),'$parentId'] }
+                ],
+              },
+            },
+          },
+          {
+            $project:{
+              username:1
+            }
+          }
+        ],
+        as:'user'
+      }
+    },
+    { $unwind:"$user"},
+    {
+      $group:{
+        _id:"$_id",
+        pl:{$first:"$pl"},
+        odds:{$first:"$odds"},
+        username:{$first:"$username"},
+        exEventId:{$first:"$exEventId"},
+        exMarketId:{$first:"$exMarketId"},
+        stake:{$first:"$stake"},
+        selectionId:{$first:"$selectionId"},
+        type:{$first:"$type"},
+        size:{$first:"$size"},
+        eventName:{$first:"$eventName"},
+        selectionName:{$first:"$selectionName"},
+        marketType:{$first:"$marketType"},
+        sportId:{$first:"$sportId"},
+        sportName:{$first:"$sportName"},
+        IsSettle:{$first:"$IsSettle"},
+        IsVoid:{$first:"$IsVoid"},
+        IsUnsettle:{$first:"$IsUnsettle"},
+        createdAt:{$first:"$createdAt"},
+        updatedAt:{$first:"$updatedAt"},
+        matchedTime:{$first:"$matchedTime"},
+        mrktType:{$first:"$mrktType"},
+      }
+    },
+    {
+      $sort:{_id:-1}
+    },
+    {
+      $limit:20
+    }
+  ];
   switch (sportId) {
     case "1":
-      fancyData = await SoccerBetPlace.find(filter).sort({ _id: 'desc' }).limit(20);
+      fancyData = await SoccerBetPlace.aggregate(pipeline);;
       break;
     case "2":
-      fancyData = await TennisBetPlace.find(filter).sort({ _id: 'desc' }).limit(20);
+      fancyData = await TennisBetPlace.aggregate(pipeline);;
       break;
     case "4":
-      fancyData = await CricketBetPlace.aggregate([
-        {
-          $match: filter
-        },
-        {
-          $lookup:{
-            from: 'users',
-            let: { username: '$username' },
-            pipeline: [
-              {
-                $match: {
-                  $expr: {
-                    $and: [
-                      { $eq: ['$username', '$$username'] },
-                      { $in: ['User','$roles'] },
-                      { $in: [data._id.toString(),'$parentId'] }
-                    ],
-                  },
-                },
-              },
-              {
-                $project:{
-                  username:1,
-                  parentId:1
-                }
-              }
-            ],
-            as:'user'
-          }
-        },
-        { $unwind:"$user"},
-        {
-          $group:{
-            _id:"$_id",
-            pl:{$first:"$pl"},
-            odds:{$first:"$odds"},
-            username:{$first:"$username"},
-            exEventId:{$first:"$exEventId"},
-            exMarketId:{$first:"$exMarketId"},
-            stake:{$first:"$stake"},
-            selectionId:{$first:"$selectionId"},
-            type:{$first:"$type"},
-            size:{$first:"$size"},
-            eventName:{$first:"$eventName"},
-            selectionName:{$first:"$selectionName"},
-            marketType:{$first:"$marketType"},
-            sportId:{$first:"$sportId"},
-            sportName:{$first:"$sportName"},
-            IsSettle:{$first:"$IsSettle"},
-            IsVoid:{$first:"$IsVoid"},
-            IsUnsettle:{$first:"$IsUnsettle"},
-            createdAt:{$first:"$createdAt"},
-            updatedAt:{$first:"$updatedAt"},
-            matchedTime:{$first:"$matchedTime"},
-            mrktType:{$first:"$mrktType"},
-          }
-        },
-        {
-          $sort:{_id:-1}
-        },
-        {
-          $limit:20
-        }
-      ]);
+      fancyData = await CricketBetPlace.aggregate(pipeline);
       break;
   }
   
