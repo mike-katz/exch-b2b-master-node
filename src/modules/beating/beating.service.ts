@@ -551,10 +551,10 @@ const getLatestBet = async (data: any, eventId: string,sportId: any,flag: string
   //fancy => 'fancy', 'line_market' && other =>$nin: ['fancy', 'line_market']
   switch (flag) {
     case "fancy":
-        filter.marketType = {$in:['fancy', 'line_market']};
+        filter.mrktType = {$in:['fancy', 'line_market']};
       break;
     default:
-      filter.marketType = {$nin:['fancy', 'line_market']};
+      filter.mrktType = {$nin:['fancy', 'line_market']};
   }
   let fancyData: any = [];
   
@@ -566,7 +566,6 @@ const getLatestBet = async (data: any, eventId: string,sportId: any,flag: string
       fancyData = await TennisBetPlace.find(filter).sort({ _id: 'desc' }).limit(20);
       break;
     case "4":
-      console.log(filter);
       fancyData = await CricketBetPlace.find(filter).sort({ _id: 'desc' }).limit(20);
       break;
   }
