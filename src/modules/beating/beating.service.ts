@@ -566,11 +566,6 @@ const getLatestBet = async (data: any, eventId: string,sportId: any,flag: string
     exEventId: eventId,
     IsUnsettle: 1,
   }
-  if(data.roles && !data.roles.includes('Admin')){
-    const users = await User.find({ roles: { $in: ['User'] }, parentId: { $in: [data._id] } }).select('username');
-    const usernames = users.map(user => user.username);
-    filter.username = { $in: usernames };
-  }
   //sportId = cricket = 4 , soccer =1 , tennis =2
   //fancy => 'fancy', 'line_market' && other =>$nin: ['fancy', 'line_market']
   switch (flag) {
@@ -590,7 +585,70 @@ const getLatestBet = async (data: any, eventId: string,sportId: any,flag: string
       fancyData = await TennisBetPlace.find(filter).sort({ _id: 'desc' }).limit(20);
       break;
     case "4":
-      fancyData = await CricketBetPlace.find(filter).sort({ _id: 'desc' }).limit(20);
+      fancyData = await CricketBetPlace.aggregate([
+        {
+          $match: filter
+        },
+        {
+          $lookup:{
+            from: 'users',
+            let: { username: '$username' },
+            pipeline: [
+              {
+                $match: {
+                  $expr: {
+                    $and: [
+                      { $eq: ['$username', '$$username'] },
+                      { $in: ['User','$roles'] },
+                      { $in: [data._id.toString(),'$parentId'] }
+                    ],
+                  },
+                },
+              },
+              {
+                $project:{
+                  username:1,
+                  parentId:1
+                }
+              }
+            ],
+            as:'user'
+          }
+        },
+        { $unwind:"$user"},
+        {
+          $group:{
+            _id:"$_id",
+            pl:{$first:"$pl"},
+            odds:{$first:"$odds"},
+            username:{$first:"$username"},
+            exEventId:{$first:"$exEventId"},
+            exMarketId:{$first:"$exMarketId"},
+            stake:{$first:"$stake"},
+            selectionId:{$first:"$selectionId"},
+            type:{$first:"$type"},
+            size:{$first:"$size"},
+            eventName:{$first:"$eventName"},
+            selectionName:{$first:"$selectionName"},
+            marketType:{$first:"$marketType"},
+            sportId:{$first:"$sportId"},
+            sportName:{$first:"$sportName"},
+            IsSettle:{$first:"$IsSettle"},
+            IsVoid:{$first:"$IsVoid"},
+            IsUnsettle:{$first:"$IsUnsettle"},
+            createdAt:{$first:"$createdAt"},
+            updatedAt:{$first:"$updatedAt"},
+            matchedTime:{$first:"$matchedTime"},
+            mrktType:{$first:"$mrktType"},
+          }
+        },
+        {
+          $sort:{_id:-1}
+        },
+        {
+          $limit:20
+        }
+      ]);
       break;
   }
   
