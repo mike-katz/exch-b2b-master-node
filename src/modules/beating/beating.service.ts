@@ -537,65 +537,45 @@ const betLockLog = async (data: any): Promise<void> => {
   return result
 }
 
-const getLatestBet = async (data: any, eventId: string): Promise<void> => {
+const getLatestBet = async (data: any, eventId: string,sportId: any,flag: string): Promise<void> => {
   const users = await User.find({ roles: { $in: ['User'] }, parentId: { $in: [data._id] } }).select('username');
   const usernames = users.map(user => user.username);
-
   const filter: any = {
     username: { $in: usernames },
     exEventId: eventId,
-    IsUnsettle: 1
+    IsUnsettle: 1,
   }
-  const fancyData: any = await CricketBetPlace.find({ ...filter, mrktType: { $in: ['fancy', 'line_market'] } }).sort({ _id: 'desc' }).limit(20);
-  let otherData: any = [];
-
-  const betData: any = await CricketBetPlace.find({ ...filter, mrktType: { $nin: ['fancy', 'line_market'] } }).sort({ _id: 'desc' }).limit(20);
-  otherData = betData
-  if (betData?.length < 20) {
-    const tennisData: any = await TennisBetPlace.find(filter).sort({ _id: 'desc' }).limit(20 - otherData?.length);
-    otherData = [...otherData, ...tennisData]
+  //sportId = cricket = 4 , soccer =1 , tennis =2
+  //fancy => 'fancy', 'line_market' && other =>$nin: ['fancy', 'line_market']
+  switch (flag) {
+    case "fancy":
+        filter.marketType = {$in:['fancy', 'line_market']};
+      break;
+    default:
+      filter.marketType = {$nin:['fancy', 'line_market']};
   }
-  if (otherData.length < 20) {
-    const soccerData: any = await SoccerBetPlace.find(filter).sort({ _id: 'desc' }).limit(20 - otherData?.length);
-    otherData = [...otherData, ...soccerData]
+  let fancyData: any = [];
+  
+  switch (sportId) {
+    case "1":
+      fancyData = await SoccerBetPlace.find(filter).sort({ _id: 'desc' }).limit(20);
+      break;
+    case "2":
+      fancyData = await TennisBetPlace.find(filter).sort({ _id: 'desc' }).limit(20);
+      break;
+    case "4":
+      console.log(filter);
+      fancyData = await CricketBetPlace.find(filter).sort({ _id: 'desc' }).limit(20);
+      break;
   }
-  otherData = Array.from(new Set(otherData));
-
-  let fancyResult: any = []
+  
+  let results: any = [];
   if (fancyData.length > 0) {
     fancyData.map((item: any) => {
       const news: any = {};
       news.pl = item.pl > 0 ? parseFloat(item.pl.toString()) : 0,
-        news.odds = item.odds > 0 ? parseFloat(item.odds.toString()) : 0,
-        news.username = item.username
-      news.exEventId = item.exEventId
-      news.exMarketId = item.exMarketId
-      news.stake = item.stake
-      news.mrktType = item.mrktType
-      news.selectionId = item.selectionId
-      news.type = item.type
-      news.size = item.size
-      news.eventName = item.eventName
-      news.selectionName = item.selectionName
-      news.marketType = item.marketType
-      news.sportId = item.sportId
-      news.sportName = item.sportName
-      news.IsSettle = item.IsSettle
-      news.IsVoid = item.IsVoid
-      news.IsUnsettle = item.IsUnsettle
-      news.createdAt = item.createdAt
-      news.updatedAt = item.updatedAt
-      news.matchedTime = item.matchedTime
-      fancyResult.push(news)
-    });
-  }
-  let results: any = [];
-  if (otherData.length > 0) {
-    otherData.map((item: any) => {
-      const news: any = {};
-      news.pl = item.pl > 0 ? parseFloat(item.pl.toString()) : 0,
-        news.odds = item.odds > 0 ? parseFloat(item.odds.toString()) : 0,
-        news.username = item.username
+      news.odds = item.odds > 0 ? parseFloat(item.odds.toString()) : 0,
+      news.username = item.username
       news.exEventId = item.exEventId
       news.exMarketId = item.exMarketId
       news.stake = item.stake
@@ -607,7 +587,7 @@ const getLatestBet = async (data: any, eventId: string): Promise<void> => {
       news.marketType = item.marketType
       news.sportId = item.sportId
       news.sportName = item.sportName
-      news.mrktType = item.mrktType
+      news.mrktType = item?.mrktType
       news.IsSettle = item.IsSettle
       news.IsVoid = item.IsVoid
       news.IsUnsettle = item.IsUnsettle
@@ -621,7 +601,7 @@ const getLatestBet = async (data: any, eventId: string): Promise<void> => {
     // Use Date.parse to ensure consistent date comparison
     return Date.parse(b.createdAt) - Date.parse(a.createdAt);
   });
-  const resp: any = { fancyResult, otherResult: results }
+  const resp: any = { results }
   return resp;
 }
 

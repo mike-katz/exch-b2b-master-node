@@ -119,8 +119,8 @@ const betLockLog = catchAsync(
 
 const getLatestBet = catchAsync(
   async (req: any, res: CustomResponse) => {
-    const { eventId } = req.query
-    const data = await BettingService.getLatestBet(req.user, eventId);
+    const { eventId,sportId,flag } = req.query
+    const data = await BettingService.getLatestBet(req.user, eventId,sportId,flag);
     const response = prepareResponse({
       message: "fetch Bet PL success",
       data,

@@ -74,6 +74,8 @@ const betLockLog = {
 const getLatestBet = {
   query: Joi.object().keys({
     eventId: Joi.required(),
+    flag: Joi.required(),
+    sportId: Joi.required(),
   }),
 };
 
