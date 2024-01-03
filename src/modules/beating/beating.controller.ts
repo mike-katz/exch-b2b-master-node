@@ -84,8 +84,8 @@ const matchBet = catchAsync(
 
 const betPL = catchAsync(
   async (req: any, res: CustomResponse) => {
-    const { eventId } = req.query
-    const data = await BettingService.betPL(req.user, eventId);
+    const { eventId,sportId } = req.query
+    const data = await BettingService.betPL(req.user, eventId,sportId);
     const response = prepareResponse({
       message: "fetch Bet PL success",
       data,

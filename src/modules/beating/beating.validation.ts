@@ -54,7 +54,8 @@ const matchBet = {
 const betPL = {
   query: Joi.object().keys({
     eventId: Joi.required(),
-    status:Joi.optional()
+    status:Joi.optional(),
+    sportId: Joi.required(),
   }),
 };
 

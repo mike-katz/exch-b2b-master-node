@@ -419,22 +419,31 @@ const matchBet = async (data: any, eventId: string, options: any): Promise<void>
   return betData;
 }
 
-const betPL = async (data: any, eventId: string): Promise<void> => {
-  const users = await User.find({
-    roles: { $in: ['User'] },
-    parentId: { $in: [data._id] }
-  }).select('username');
-  const usernames = users.map(user => user.username);
-  const filter = {
+const betPL = async (data: any, eventId: string,sportId:string): Promise<void> => {
+  const filter:any = {
     exEventId: eventId,
-    username: { $in: usernames }
+    IsUnsettle:1,
   }
-  let result: any = await CricketPL.find(filter);
-  if (result.length === 0) {
-    result = await SoccerPL.find(filter);
+  if(data.roles && !data.roles.includes('Admin')){
+    const users = await User.find({
+      roles: { $in: ['User'] },
+      parentId: { $in: [data._id] }
+    }).select('username');
+    const usernames = users.map(user => user.username);
+    filter.username = { $in: usernames };
   }
-  if (result.length === 0) {
-    result = await TennisPL.find(filter);
+
+  let result: any = [];
+  switch (sportId) {
+    case "1":
+      result = await SoccerPL.find(filter);
+      break;
+    case "2":
+      result = await TennisPL.find(filter);
+      break;
+    case "4":
+      result = await CricketPL.find(filter);
+      break;
   }
   if (result.length > 0) {
     const outputJson: any = [];
