@@ -68,7 +68,10 @@ const cricketbetplaceSchema = new Schema({
   },
   matchedTime: {
     type: Date,    
-  }
+  },
+  size: {
+    type: String,
+  },
 }, { timestamps: true });
 // add plugin that converts mongoose to json
 cricketbetplaceSchema.plugin(plugin.toJSON);
