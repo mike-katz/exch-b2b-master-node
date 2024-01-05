@@ -211,6 +211,7 @@ const getSports = async (): Promise<void> => {
 
 const betList = async (data: any, filter: any, options: any): Promise<void> => {
   try {
+
     const users = await User.find({ roles: { $in: ['User'] }, parentId: { $in: [data._id] } }).select('username');
     const usernames = users.map(user => user.username);
     const userIds = users.map(user => user._id.toString());
@@ -352,6 +353,7 @@ const betList = async (data: any, filter: any, options: any): Promise<void> => {
         sportName: item?.sportName || sportName || '',
         size: item?.size || '',
         mrktType: item?.mrktType || '',
+        
         matchedTime: item.matchedTime || item?.updatedAt || ''
       };
       respData.push(itemData);
