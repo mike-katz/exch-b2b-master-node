@@ -470,6 +470,35 @@ const betPL = async (data: any, eventId: string,sportId:string): Promise<void> =
     },
     { $unwind:"$user"},
     {
+      $lookup:{
+        from: 'marketRates',
+        let: { exMarketId: '$exMarketId' },
+        pipeline: [
+          {
+            $match: {
+              $expr: {
+                $and: [
+                  { $eq: ['$exMarketId', '$$exMarketId'] },
+                ],
+              },
+            },
+          },
+          {
+            $project:{
+              runners:"$runners"
+            }
+          }
+        ],
+        as:'marketRates'
+      }
+    },
+    {
+      $unwind: {
+        path: "$marketRates",
+        preserveNullAndEmptyArrays: true
+      }
+    },
+    {
       $group:{
         _id:"$_id",
         username:{$first:"$username"},
@@ -477,6 +506,7 @@ const betPL = async (data: any, eventId: string,sportId:string): Promise<void> =
         type:{$first:"$type"},
         exMarketId:{$first:"$exMarketId"},
         selectionId:{$first:"$selectionId"},
+        marketRates:{$first:"$marketRates.runners"},
       }
     },
     {
@@ -499,21 +529,37 @@ const betPL = async (data: any, eventId: string,sportId:string): Promise<void> =
     const outputJson: any = [];
     const marketIdMap = new Map();
     result.forEach((item: any) => {
-      const { exMarketId, selectionId } = item;
-      if (!marketIdMap.has(exMarketId)) {
-        marketIdMap.set(exMarketId, selectionId);
-      } else {
-        const existingSelection = marketIdMap.get(exMarketId);
-        for (const i in selectionId) {
-          for (const key in selectionId[i]) {
-            if (existingSelection[i][key] || existingSelection[i][key] == 0) {
-              existingSelection[i][key] = (existingSelection[i][key] || 0) + (selectionId[i][key] || 0);
+      const { exMarketId, selectionId,type,marketRates } = item;
+      if((type == "fancy" || type == 'line_market') && (marketRates?.[0]?.exchange?.availableToBack?.[0].price || marketRates?.[0]?.exchange?.availableToBack?.[0].price == 0)){
+        let selectionIdKeyStart = marketRates[0].exchange.availableToBack[0].price - 5;  
+        if (!marketIdMap.has(exMarketId)) {
+          let newSelection:any = [];
+          for (let start = selectionIdKeyStart; start <= (selectionIdKeyStart+11); start++) {
+            selectionId[start] ? newSelection = {...newSelection,[start]:selectionId[start]} : '';
+          }
+          marketIdMap.set(exMarketId, newSelection);
+        } else {
+          let existingSelection = marketIdMap.get(exMarketId);
+          for (let start = selectionIdKeyStart; start <= (selectionIdKeyStart+11); start++) {
+            selectionId[start] ? existingSelection = {...existingSelection,[start]:existingSelection[start]+selectionId[start]} : '';
+          }
+          marketIdMap.set(exMarketId, existingSelection);
+        }
+      }else{
+        if (!marketIdMap.has(exMarketId)) {
+          marketIdMap.set(exMarketId, selectionId);
+        } else {
+          const existingSelection = marketIdMap.get(exMarketId);
+          for (const i in selectionId) {
+            for (const key in selectionId[i]) {
+              if (existingSelection[i][key] || existingSelection[i][key] == 0) {
+                existingSelection[i][key] = (existingSelection[i][key] || 0) + (selectionId[i][key] || 0);
+              }
             }
           }
         }
       }
     });
-    
     marketIdMap.forEach((selectionId, exMarketId) => {
       const index = result.findIndex((entry: any) => entry.exMarketId === exMarketId);
       const updatedItem = {
