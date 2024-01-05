@@ -43,7 +43,7 @@ const tennisbetplaceSchema = new Schema({
   type: {
     type: String,
   },
-  mkrtType: {
+  mrktType: {
     type: String,
   },
   IsSettle: {

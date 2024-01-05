@@ -63,7 +63,7 @@ const soccerbetplaceSchema = new Schema({
     type: String,
     ref: 'Sport',
   },
-  mkrtType: {
+  mrktType: {
     type: String,
   },
    matchedTime: {
