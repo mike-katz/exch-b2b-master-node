@@ -441,90 +441,25 @@ const betPL = async (data: any, eventId: string,sportId:string): Promise<void> =
     exEventId: eventId,
     IsUnsettle:1,
   }
-  let pipeline = [
-    {
-      $match: filter
-    },
-    {
-      $lookup:{
-        from: 'users',
-        let: { username: '$username' },
-        pipeline: [
-          {
-            $match: {
-              $expr: {
-                $and: [
-                  { $eq: ['$username', '$$username'] },
-                  { $in: ['User','$roles'] },
-                  { $in: [data._id.toString(),'$parentId'] }
-                ],
-              },
-            },
-          },
-          {
-            $project:{
-              username:1
-            }
-          }
-        ],
-        as:'user'
-      }
-    },
-    { $unwind:"$user"},
-    {
-      $lookup:{
-        from: 'marketRates',
-        let: { exMarketId: '$exMarketId' },
-        pipeline: [
-          {
-            $match: {
-              $expr: {
-                $and: [
-                  { $eq: ['$exMarketId', '$$exMarketId'] },
-                ],
-              },
-            },
-          },
-          {
-            $project:{
-              runners:"$runners"
-            }
-          }
-        ],
-        as:'marketRates'
-      }
-    },
-    {
-      $unwind: {
-        path: "$marketRates",
-        preserveNullAndEmptyArrays: true
-      }
-    },
-    {
-      $group:{
-        _id:"$_id",
-        username:{$first:"$username"},
-        exEventId:{$first:"$exEventId"},
-        type:{$first:"$type"},
-        exMarketId:{$first:"$exMarketId"},
-        selectionId:{$first:"$selectionId"},
-        marketRates:{$first:"$marketRates.runners"},
-      }
-    },
-    {
-      $sort:{_id:-1}
-    }
-  ];
+  if(data.roles && !data.roles.includes('Admin')){
+    const users = await User.find({
+      roles: { $in: ['User'] },
+      parentId: { $in: [data._id] }
+    }).select('username');
+    const usernames = users.map(user => user.username);
+    filter.username = { $in: usernames };
+  }
+  
   let result: any = [];
   switch (sportId) {
     case "1":
-      result = await SoccerPL.aggregate(pipeline);
+      result = await SoccerPL.find(filter);
       break;
     case "2":
-      result = await TennisPL.aggregate(pipeline);
+      result = await TennisPL.find(filter);
       break;
     case "4":
-      result = await CricketPL.aggregate(pipeline);
+      result = await CricketPL.find(filter);
       break;
   }
   if (result.length > 0) {
