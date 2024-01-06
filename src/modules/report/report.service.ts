@@ -217,13 +217,23 @@ const fetchSportEventList = async (data: any, filter: any, options: any): Promis
     ];
 
     if (filter.exMarketId) {
-      pipeline.push({
+      pipeline.push(
+        {
+          $lookup: {
+            from: 'users',
+            localField: 'username',
+            foreignField: 'username',
+            as: 'userData'
+          }
+        },
+        {
         $project: {
           _id: null,
           eventName: 1 ,
           username: 1 ,
           sportName: 1 ,
           marketName: 1 ,
+          userId:{$first:'$userData._id'},
           exEventId: 1 ,
           exMarketId: 1 ,
           pl: 1,
