@@ -49,7 +49,7 @@ const fetchMarket = async (): Promise<void> => {
       },
       {
         $sort: {
-          _id: 1
+          'events.eventName': 1,
         }
       },
     ]);
@@ -90,7 +90,7 @@ const fetchMarket = async (): Promise<void> => {
       },
       {
         $sort: {
-          _id: 1
+          'events.eventName': 1,          
         }
       },
     ]);
@@ -130,7 +130,7 @@ const fetchMarket = async (): Promise<void> => {
       },
       {
         $sort: {
-          _id: 1
+          'events.eventName': 1,          
         }
       },
     ]);
