@@ -72,6 +72,14 @@ const routeDetails: IBettingRouteDetails[] = [
     controllerMethodName: "betPL",
     auth: "",
   },
+  {
+    key: "getBetPLAPI",
+    method: "get",
+    url: "/plFancy",
+    validationMethodName: "betPLFancy",
+    controllerMethodName: "betPLFancy",
+    auth: "",
+  },
 
  {
     key: "saveBetLockAPI",

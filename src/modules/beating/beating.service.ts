@@ -440,6 +440,103 @@ const betPL = async (data: any, eventId: string,sportId:string): Promise<void> =
   const filter:any = {
     exEventId: eventId,
     IsUnsettle:1,
+    type:{$nin:['fancy','line_market']}
+  }
+  let pipeline = [
+    {
+      $match: filter
+    },
+    {
+      $lookup:{
+        from: 'users',
+        let: { username: '$username' },
+        pipeline: [
+          {
+            $match: {
+              $expr: {
+                $and: [
+                  { $eq: ['$username', '$$username'] },
+                  { $in: ['User','$roles'] },
+                  { $in: [data._id.toString(),'$parentId'] }
+                ],
+              },
+            },
+          },
+          {
+            $project:{
+              username:1
+            }
+          }
+        ],
+        as:'user'
+      }
+    },
+    { $unwind:"$user"},
+    {
+      $group:{
+        _id:"$_id",
+        username:{$first:"$username"},
+        exEventId:{$first:"$exEventId"},
+        type:{$first:"$type"},
+        exMarketId:{$first:"$exMarketId"},
+        selectionId:{$first:"$selectionId"},
+      }
+    },
+    {
+      $sort:{_id:-1}
+    }
+  ];
+  let result: any = [];
+  switch (sportId) {
+    case "1":
+      result = await SoccerPL.aggregate(pipeline);
+      break;
+    case "2":
+      result = await TennisPL.aggregate(pipeline);
+      break;
+    case "4":
+      result = await CricketPL.aggregate(pipeline);
+      break;
+  }
+  if (result.length > 0) {
+    const outputJson: any = [];
+    const marketIdMap = new Map();
+    result.forEach((item: any) => {
+      const { exMarketId, selectionId } = item;
+      if (!marketIdMap.has(exMarketId)) {
+        marketIdMap.set(exMarketId, selectionId);
+      } else {
+        const existingSelection = marketIdMap.get(exMarketId);
+        for (const i in selectionId) {
+          for (const key in selectionId[i]) {
+            if (existingSelection[i][key] || existingSelection[i][key] == 0) {
+              existingSelection[i][key] = (existingSelection[i][key] || 0) + (selectionId[i][key] || 0);
+            }
+          }
+        }
+      }
+    });
+    marketIdMap.forEach((selectionId, exMarketId) => {
+      const index = result.findIndex((entry: any) => entry.exMarketId === exMarketId);
+      const updatedItem = {
+        _id: result[index]?._id,
+        exEventId: result[index]?.exEventId,
+        type: result[index]?.type,
+        exMarketId,
+        selectionId
+      };
+      outputJson.push(updatedItem);
+    });
+    return outputJson;
+  }
+  return result;
+}
+
+const betPLFancy = async (data: any, eventId: string,sportId:string): Promise<void> => {
+  const filter:any = {
+    exEventId: eventId,
+    IsUnsettle:1,
+    type:{$in:['fancy','line_market']}
   }
   let pipeline = [
     {
@@ -503,7 +600,6 @@ const betPL = async (data: any, eventId: string,sportId:string): Promise<void> =
     {
       $group:{
         _id:"$_id",
-        username:{$first:"$username"},
         exEventId:{$first:"$exEventId"},
         type:{$first:"$type"},
         exMarketId:{$first:"$exMarketId"},
@@ -531,8 +627,8 @@ const betPL = async (data: any, eventId: string,sportId:string): Promise<void> =
     const outputJson: any = [];
     const marketIdMap = new Map();
     result.forEach((item: any) => {
-      const { exMarketId, selectionId,type,marketRates } = item;
-      if((type == "fancy" || type == 'line_market') && (marketRates?.[0]?.exchange?.availableToBack?.[0].price || marketRates?.[0]?.exchange?.availableToBack?.[0].price == 0)){
+      const { exMarketId, selectionId,marketRates } = item;
+      if((marketRates?.[0]?.exchange?.availableToBack?.[0].price || marketRates?.[0]?.exchange?.availableToBack?.[0].price == 0)){
         let selectionIdKeyStart = marketRates[0].exchange.availableToBack[0].price - 5;  
         if (!marketIdMap.has(exMarketId)) {
           let newSelection:any = [];
@@ -547,19 +643,6 @@ const betPL = async (data: any, eventId: string,sportId:string): Promise<void> =
               existingSelection[indexOfSelection] ? existingSelection[indexOfSelection].si += selectionId[start] : '';
             }
             marketIdMap.set(exMarketId, existingSelection);
-        }
-      }else{
-        if (!marketIdMap.has(exMarketId)) {
-          marketIdMap.set(exMarketId, selectionId);
-        } else {
-          const existingSelection = marketIdMap.get(exMarketId);
-          for (const i in selectionId) {
-            for (const key in selectionId[i]) {
-              if (existingSelection[i][key] || existingSelection[i][key] == 0) {
-                existingSelection[i][key] = (existingSelection[i][key] || 0) + (selectionId[i][key] || 0);
-              }
-            }
-          }
         }
       }
     });
@@ -947,5 +1030,6 @@ export {
   betLockLog,
   getLatestBet,
   marketPL,
-  marketPLNew
+  marketPLNew,
+  betPLFancy
 }

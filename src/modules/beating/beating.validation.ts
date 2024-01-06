@@ -62,6 +62,14 @@ const betPL = {
   }),
 };
 
+const betPLFancy = {
+  query: Joi.object().keys({
+    eventId: Joi.required(),
+    status:Joi.optional(),
+    sportId: Joi.required(),
+  }),
+};
+
 const betLock = {
   body: Joi.object().keys({
     eventId: Joi.required(),
@@ -92,4 +100,4 @@ const marketPL = {
   }),
 };
 
-export default { bettingHistory, profitLoss, transaction, getSports, betList, matchBet, betPL, betLock, betLockLog, getLatestBet, marketPL};
+export default { bettingHistory, profitLoss, transaction, getSports, betList, matchBet, betPL, betLock, betLockLog, getLatestBet, marketPL,betPLFancy};
