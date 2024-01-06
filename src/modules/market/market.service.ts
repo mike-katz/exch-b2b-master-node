@@ -49,10 +49,11 @@ const fetchMarket = async (): Promise<void> => {
       },
       {
         $sort: {
-          _id: 1
+          'events.eventName': 1,
         }
       },
     ]);
+    soccer?.events?.sort((a:any, b:any) => a.eventName - b.eventName);
     allData = [...allData, ...soccer];
 
     const tennis: any = await TennisBetPlace.aggregate([
@@ -90,10 +91,11 @@ const fetchMarket = async (): Promise<void> => {
       },
       {
         $sort: {
-          _id: 1
+          'events.eventName': 1,          
         }
       },
     ]);
+    tennis?.events?.sort((a:any, b:any) => a.eventName - b.eventName);
     allData = [...allData, ...tennis];
 
     const cricket: any = await CricketBetPlace.aggregate([
@@ -130,10 +132,11 @@ const fetchMarket = async (): Promise<void> => {
       },
       {
         $sort: {
-          _id: 1
+          'events.eventName': 1,          
         }
       },
     ]);
+    cricket?.events?.sort((a:any, b:any) => a.eventName - b.eventName);
     allData = [...allData, ...cricket];
     return allData;
   } catch (error: any) {
