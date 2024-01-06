@@ -210,16 +210,17 @@ const fetchSportEventList = async (data: any, filter: any, options: any): Promis
 
     if (filter.exMarketId) {
       pipeline.push({
-        $group: {
-          _id: "$exMarketId",
-          eventName: { $first: "$eventName" },
-          sportName: { $first: "$sportName" },
-          marketName: { $first: "$marketName" },
-          exEventId: { $first: "$exEventId" },
-          exMarketId: { $first: "$exMarketId" },
-          pl: { $sum: "$pl" },
-          stack: { $sum: "$stack" },
-          commission: { $sum: "$commission" }
+        $project: {
+          _id: null,
+          eventName: 1 ,
+          username: 1 ,
+          sportName: 1 ,
+          marketName: 1 ,
+          exEventId: 1 ,
+          exMarketId: 1 ,
+          pl: 1,
+          stack: "$stake",
+          commission: 1
         }
       });
     } else if (filter.exEventId) {
@@ -232,7 +233,7 @@ const fetchSportEventList = async (data: any, filter: any, options: any): Promis
           exEventId: { $first: "$exEventId" },
           exMarketId: { $first: "$exMarketId" },
           pl: { $sum: "$pl" },
-          stack: { $sum: "$stack" },
+          stack: { $sum: "$stake" },
           commission: { $sum: "$commission" }
         }
       });
@@ -247,7 +248,7 @@ const fetchSportEventList = async (data: any, filter: any, options: any): Promis
           exEventId: { $first: "$exEventId" },
           exMarketId: { $first: "$exMarketId" },
           pl: { $sum: "$pl" },
-          stack: { $sum: "$stack" },
+          stack: { $sum: "$stake" },
           commission: { $sum: "$commission" }
         }
       });
@@ -262,7 +263,7 @@ const fetchSportEventList = async (data: any, filter: any, options: any): Promis
           exEventId: { $first: "$exEventId" },
           exMarketId: { $first: "$exMarketId" },
           pl: { $sum: "$pl" },
-          stack: { $sum: "$stack" },
+          stack: { $sum: "$stake" },
           commission: { $sum: "$commission" }
         }
       });
