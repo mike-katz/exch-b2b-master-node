@@ -496,16 +496,12 @@ const betList = async (data: any, filter: any, options: any): Promise<void> => {
 }
 
 const matchBet = async (data: any, eventId: string,status:any,sportId:any,flag:any,amount:any, options: any): Promise<void> => {
+  const { limit = 10, page = 1 } = options;
+  const skip = (page - 1) * limit;
   const filter:any = {
     exEventId: eventId,
     IsUnsettle:1,
   }
-  if(data.roles && !data.roles.includes('Admin')){
-    const users = await User.find({ roles: { $in: ['User'] }, parentId: { $in: [data._id] } }).select('username');
-    const usernames = users.map(user => user.username);
-    filter.username = { $in: usernames };
-  }
-  amount ? filter.stake = {$gte:amount} : '';
   switch (flag) {
     case "fancy":
         filter.mrktType = {$in:['fancy', 'line_market']};
@@ -514,26 +510,129 @@ const matchBet = async (data: any, eventId: string,status:any,sportId:any,flag:a
       filter.mrktType = {$nin:['fancy', 'line_market']};
     break;
   }
-  options.sortBy = '_id:desc';
+  let pipeline:any = [];
+  if(amount){
+    pipeline.push({
+      $addFields: {
+        regex: {
+          $regexFind: {
+            input: "$stake",
+            regex: "^\\d+"
+          }
+        }
+      }
+    },
+    {
+      $set: {
+        stake_num: {
+          $convert: {
+            input: "$regex.match",
+            to: "int"
+          }
+        }
+      }
+    });
+    filter.stake_num = {"$gte": Number(amount)}
+  }
+  
+  pipeline.push(
+    {
+      $match: filter
+    },
+    {
+      $lookup:{
+        from: 'users',
+        let: { username: '$username' },
+        pipeline: [
+          {
+            $match: {
+              $expr: {
+                $and: [
+                  { $eq: ['$username', '$$username'] },
+                  { $in: ['User','$roles'] },
+                  { $in: [data._id.toString(),'$parentId'] }
+                ],
+              },
+            },
+          },
+          {
+            $project:{
+              username:1
+            }
+          }
+        ],
+        as:'user'
+      }
+    },
+    { $unwind:"$user"},
+    {
+      $group:{
+        _id:"$_id",
+        pl:{$first:"$pl"},
+        odds:{$first:"$odds"},
+        username:{$first:"$username"},
+        exEventId:{$first:"$exEventId"},
+        exMarketId:{$first:"$exMarketId"},
+        stake:{$first:"$stake"},
+        selectionId:{$first:"$selectionId"},
+        type:{$first:"$type"},
+        size:{$first:"$size"},
+        eventName:{$first:"$eventName"},
+        selectionName:{$first:"$selectionName"},
+        marketType:{$first:"$marketType"},
+        mrktType:{$first:"$mrktType"},
+        sportId:{$first:"$sportId"},
+        sportName:{$first:"$sportName"},
+        IsSettle:{$first:"$IsSettle"},
+        IsVoid:{$first:"$IsVoid"},
+        IsUnsettle:{$first:"$IsUnsettle"},
+        createdAt:{$first:"$createdAt"},
+        updatedAt:{$first:"$updatedAt"},
+        matchedTime:{$first:"$matchedTime"}
+      }
+    },
+    {
+      "$facet": {
+        "results": [
+          {$sort: {_id: -1}},
+          { "$skip": skip },
+          { "$limit": parseInt(limit, 10) }
+        ],
+        "pagination": [
+          { "$count": "totalResults" }
+        ]
+      }
+    }
+  );
   let betData: any = [];
   switch (sportId) {
     case "1":
-      betData = await await SoccerBetPlace.paginate(filter, options);
+      betData = await SoccerBetPlace.aggregate(pipeline).then((response: any[])=>{
+        return response[0] ? response[0] : []
+      });
       break;
     case "2":
-      betData = await TennisBetPlace.paginate(filter, options);
+      betData = await TennisBetPlace.aggregate(pipeline).then((response: any[])=>{
+        return response[0] ? response[0] : []
+      });;
       break;
     case "4":
-      betData = await CricketBetPlace.paginate(filter, options);
+      betData = await CricketBetPlace.aggregate(pipeline).then((response: any[])=>{
+        return response[0] ? response[0] : []
+      });;
       break;
   }
-  let results: any = []
+  const respData: any = {results:[],totalResults:0,totalPages:0,page,limit};
+  if(betData?.pagination?.[0]?.totalResults){
+    respData.totalResults =betData?.pagination?.[0]?.totalResults;
+    respData.totalPages = Math.ceil(respData.totalResults/limit);
+  }
   if (betData.results.length > 0) {
     betData.results.map((item: any) => {
       const news: any = {};
       news.pl = item.pl > 0 ? parseFloat(item.pl.toString()) : 0,
-        news.odds = item.odds > 0 ? parseFloat(item.odds.toString()) : 0,
-        news.username = item.username
+      news.odds = item.odds > 0 ? parseFloat(item.odds.toString()) : 0,
+      news.username = item.username
       news.exEventId = item.exEventId
       news.exMarketId = item.exMarketId
       news.stake = item.stake
@@ -552,12 +651,10 @@ const matchBet = async (data: any, eventId: string,status:any,sportId:any,flag:a
       news.createdAt = item.createdAt
       news.updatedAt = item.updatedAt
       news.matchedTime = item.matchedTime
-      results.push(news)
+      respData.results.push(news)
     });
   }
-  // console.log("results",results);
-  betData.results = results;
-  return betData;
+  return respData;
 }
 
 const betPL = async (data: any, eventId: string,sportId:string): Promise<void> => {
