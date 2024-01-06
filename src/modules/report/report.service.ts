@@ -6,9 +6,11 @@ import { getFilterProfitLoss } from "../pl/pl.service";
 
 const fetchSportTotalPL = async (data: any, filter: any): Promise<void> => {
   try {
-
-    const userData = await userService.getAllUsersDownlineUser(data?._id);
-    const usernames = userData.map((item: any) => item?.username)
+    if (!data.roles.includes('Admin')) {
+      const userData = await userService.getAllUsersDownlineUser(data?._id);
+      const usernames = userData.map((item: any) => item?.username)
+      filter.username = { $in: usernames }
+    }
     const dateData = getFilterProfitLoss(filter);
     if (dateData.error === 1) {
       throw new ApiError(httpStatus.BAD_REQUEST, {
@@ -23,7 +25,6 @@ const fetchSportTotalPL = async (data: any, filter: any): Promise<void> => {
       delete filter.timeZone
     }
 
-    filter.username = { $in: usernames }
     const response = await Reporting.aggregate([
       {
         $match: filter
@@ -51,9 +52,12 @@ const fetchSportTotalPL = async (data: any, filter: any): Promise<void> => {
 
 const fetchCasinoTotalPL = async (data: any, filter: any): Promise<void> => {
   try {
-    const userData = await userService.getAllUsersDownlineUser(data?._id);
-    const userIds = userData.map((item: any) => item?._id.toString())
-    const dateData = getFilterProfitLoss(filter);
+    if (!data.roles.includes('Admin')) {
+      const userData = await userService.getAllUsersDownlineUser(data?._id);
+      const userIds = userData.map((item: any) => item?._id.toString());
+      filter.userId = { $in: userIds }
+    }
+      const dateData = getFilterProfitLoss(filter);
     if (dateData.error === 1) {
       throw new ApiError(httpStatus.BAD_REQUEST, {
         msg: "Please select only 30 days range only.",
@@ -66,7 +70,6 @@ const fetchCasinoTotalPL = async (data: any, filter: any): Promise<void> => {
       delete filter.from
       delete filter.timeZone
     }
-    filter.userId = { $in: userIds }
     filter.IsSettle = 1
     let resp = await AuraCSPlaceBet.aggregate([
       {
@@ -95,8 +98,11 @@ const fetchCasinoTotalPL = async (data: any, filter: any): Promise<void> => {
 
 const fetchIntCasinoTotalPL = async (data: any, filter: any): Promise<void> => {
   try {
-    const userData = await userService.getAllUsersDownlineUser(data?._id);
-    const usernames = userData.map((item: any) => item?.username)
+    if(!data.roles.includes('Admin')){
+      const userData = await userService.getAllUsersDownlineUser(data?._id);
+      const usernames = userData.map((item: any) => item?.username)
+      filter.username = { $in: usernames }
+    }
     const dateData = getFilterProfitLoss(filter);
     if (dateData.error === 1) {
       throw new ApiError(httpStatus.BAD_REQUEST, {
@@ -110,7 +116,6 @@ const fetchIntCasinoTotalPL = async (data: any, filter: any): Promise<void> => {
       delete filter.from
       delete filter.timeZone
     }
-    filter.username = { $in: usernames }
     filter.IsSettle = 1
     let resp = await St8Transaction.aggregate([
       {
@@ -140,9 +145,12 @@ const fetchIntCasinoTotalPL = async (data: any, filter: any): Promise<void> => {
 
 const fetchAviatorTotalPL = async (data: any, filter: any): Promise<void> => {
   try {
-    const userData = await userService.getAllUsersDownlineUser(data?._id);
-    const usernames = userData.map((item: any) => item?.username)
-    const dateData = getFilterProfitLoss(filter);
+    if (!data.roles.includes('Admin')) {
+      const userData = await userService.getAllUsersDownlineUser(data?._id);
+      const usernames = userData.map((item: any) => item?.username)
+      filter.user = { $in: usernames }
+    }
+      const dateData = getFilterProfitLoss(filter);
     if (dateData.error === 1) {
       throw new ApiError(httpStatus.BAD_REQUEST, {
         msg: "Please select only 30 days range only.",
@@ -155,7 +163,7 @@ const fetchAviatorTotalPL = async (data: any, filter: any): Promise<void> => {
       delete filter.from
       delete filter.timeZone
     }
-    filter.user = { $in: usernames }
+    
     filter.issettled = 1
     const resp = await Avplacebet.aggregate([
       {
