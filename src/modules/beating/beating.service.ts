@@ -441,25 +441,90 @@ const betPL = async (data: any, eventId: string,sportId:string): Promise<void> =
     exEventId: eventId,
     IsUnsettle:1,
   }
-  if(data.roles && !data.roles.includes('Admin')){
-    const users = await User.find({
-      roles: { $in: ['User'] },
-      parentId: { $in: [data._id] }
-    }).select('username');
-    const usernames = users.map(user => user.username);
-    filter.username = { $in: usernames };
-  }
-  
+  let pipeline = [
+    {
+      $match: filter
+    },
+    {
+      $lookup:{
+        from: 'users',
+        let: { username: '$username' },
+        pipeline: [
+          {
+            $match: {
+              $expr: {
+                $and: [
+                  { $eq: ['$username', '$$username'] },
+                  { $in: ['User','$roles'] },
+                  { $in: [data._id.toString(),'$parentId'] }
+                ],
+              },
+            },
+          },
+          {
+            $project:{
+              username:1
+            }
+          }
+        ],
+        as:'user'
+      }
+    },
+    { $unwind:"$user"},
+    {
+      $lookup:{
+        from: 'marketRates',
+        let: { exMarketId: '$exMarketId' },
+        pipeline: [
+          {
+            $match: {
+              $expr: {
+                $and: [
+                  { $eq: ['$exMarketId', '$$exMarketId'] },
+                ],
+              },
+            },
+          },
+          {
+            $project:{
+              runners:"$runners"
+            }
+          }
+        ],
+        as:'marketRates'
+      }
+    },
+    {
+      $unwind: {
+        path: "$marketRates",
+        preserveNullAndEmptyArrays: true
+      }
+    },
+    {
+      $group:{
+        _id:"$_id",
+        username:{$first:"$username"},
+        exEventId:{$first:"$exEventId"},
+        type:{$first:"$type"},
+        exMarketId:{$first:"$exMarketId"},
+        selectionId:{$first:"$selectionId"},
+        marketRates:{$first:"$marketRates.runners"},
+      }
+    },
+    {
+      $sort:{_id:-1}
+    }
+  ];
   let result: any = [];
   switch (sportId) {
     case "1":
-      result = await SoccerPL.find(filter);
+      result = await SoccerPL.aggregate(pipeline);
       break;
     case "2":
-      result = await TennisPL.find(filter);
+      result = await TennisPL.aggregate(pipeline);
       break;
     case "4":
-      result = await CricketPL.find(filter);
+      result = await CricketPL.aggregate(pipeline);
       break;
   }
   if (result.length > 0) {
@@ -472,15 +537,16 @@ const betPL = async (data: any, eventId: string,sportId:string): Promise<void> =
         if (!marketIdMap.has(exMarketId)) {
           let newSelection:any = [];
           for (let start = selectionIdKeyStart; start <= (selectionIdKeyStart+11); start++) {
-            selectionId[start] ? newSelection = {...newSelection,[start]:selectionId[start]} : '';
+            newSelection.push({"odds": start,"si": selectionId[start]});
           }
           marketIdMap.set(exMarketId, newSelection);
         } else {
           let existingSelection = marketIdMap.get(exMarketId);
-          for (let start = selectionIdKeyStart; start <= (selectionIdKeyStart+11); start++) {
-            selectionId[start] ? existingSelection = {...existingSelection,[start]:existingSelection[start]+selectionId[start]} : '';
-          }
-          marketIdMap.set(exMarketId, existingSelection);
+            for (let start = selectionIdKeyStart; start <= (selectionIdKeyStart+11); start++) {
+              const indexOfSelection = existingSelection.findIndex((item:any) => item.odds == start);
+              existingSelection[indexOfSelection] ? existingSelection[indexOfSelection].si += selectionId[start] : '';
+            }
+            marketIdMap.set(exMarketId, existingSelection);
         }
       }else{
         if (!marketIdMap.has(exMarketId)) {
