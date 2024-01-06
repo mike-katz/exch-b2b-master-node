@@ -211,13 +211,11 @@ const getSports = async (): Promise<void> => {
 
 const betList = async (data: any, filter: any, options: any): Promise<void> => {
   try {
+    const { limit = 10, page = 1,sortBy } = options;
+    const skip = (page - 1) * limit;
 
-    const users = await User.find({ roles: { $in: ['User'] }, parentId: { $in: [data._id] } }).select('username');
-    const usernames = users.map(user => user.username);
-    const userIds = users.map(user => user._id.toString());
     const sportName = filter.sportName
     const search = filter.search
-    filter.username = { $in: usernames };
     if (filter?.from && filter?.from != "" && filter?.to && filter?.to != "") {
       delete filter.createdAt
       const date1: any = new Date(filter?.from);
@@ -263,7 +261,7 @@ const betList = async (data: any, filter: any, options: any): Promise<void> => {
     }
 
     if (filter.search !== undefined && filter.search != "") {
-      const regexSearch = new RegExp(filter.search, 'i');
+      const regexSearch = { $regex: filter.search, $options: 'i' };
       filter.$or = [
         { eventName: regexSearch },
         { selectionName: regexSearch },
@@ -272,70 +270,199 @@ const betList = async (data: any, filter: any, options: any): Promise<void> => {
       ]
       delete filter.search
     }
+    let pipeline:any = [
+      {
+        $match: filter
+      },
+      {
+        $lookup:{
+          from: 'users',
+          let: { username: '$username' },
+          pipeline: [
+            {
+              $match: {
+                $expr: {
+                  $and: [
+                    { $eq: ['$username', '$$username'] },
+                    { $in: ['User','$roles'] },
+                    { $in: [data._id.toString(),'$parentId'] }
+                  ],
+                },
+              },
+            },
+            {
+              $project:{
+                username:1
+              }
+            }
+          ],
+          as:'user'
+        }
+      },
+      { $unwind:"$user"},
+      {
+        $group:{
+          _id:"$_id",
+          username:{$first:"$username"},
+          user:{$first:"$user"},
+          userId:{$first:"$userId"},
+          betInfo:{$first:"$betInfo"},
+          odds:{$first:"$odds"},
+          pl:{$first:"$pl"},
+          stake:{$first:"$stake"},
+          stack:{$first:"$stack"},
+          amount:{$first:"$amount"},
+          type:{$first:"$type"},
+          eventName:{$first:"$eventName"},
+          matchName:{$first:"$matchName"},
+          gameName:{$first:"$gameName"},
+          selectionName:{$first:"$selectionName"},
+          marketName:{$first:"$marketName"},
+          marketType:{$first:"$marketType"},
+          categoryName:{$first:"$categoryName"},
+          createdAt:{$first:"$createdAt"},
+          updatedAt:{$first:"$updatedAt"},
+          selectionId:{$first:"$selectionId"},
+          sportName:{$first:"$sportName"},
+          size:{$first:"$size"},
+          mrktType:{$first:"$mrktType"},
+          matchedTime:{$first:"$matchedTime"},
+        }
+      },
+      // {
+        
+      //   // $sort: {createdAt: -1},
+      // },
+      {
+        "$facet": {
+          "data": [
+            {$sort: {createdAt: -1}},
+            { "$skip": skip },
+            { "$limit": parseInt(limit, 10) }
+          ],
+          "pagination": [
+            { "$count": "total" }
+          ]
+        }
+      }
+    ];      
 
     let resData: any = [];
-    if (filter.sportName === 'Aviator') {
-      // delete filter.mrktType;
-      delete filter.$or;
-      delete filter.username;
-      filter.user = usernames;
+    switch (filter.sportName) {
+      case "Aviator":
+        delete filter.$or;
+        delete filter.username;
+        if (search !== undefined && search != "") {
+          const regexSearch = { $regex: search, $options: 'i' };
+          filter.$or = [
+            { user: regexSearch }
+          ]
+        }
+        pipeline[0]['$match'] = filter;
+        pipeline[1]['$lookup'] = {
+          from: 'users',
+          let: { username: '$user' },
+          pipeline: [
+            {
+              $match: {
+                $expr: {
+                  $and: [
+                    { $eq: ['$username', '$$username'] },
+                    { $in: ['User','$roles'] },
+                    { $in: [data._id.toString(),'$parentId'] }
+                  ],
+                },
+              },
+            },
+            {
+              $project:{
+                username:1
+              }
+            }
+          ],
+          as:'user'
+        };
+        resData = await Avplacebet.aggregate(pipeline);
+        break;
+      case "Casino":
+        // delete filter.mrktType;
+        delete filter.$or;
+        delete filter.username;
+        delete filter.sportName;
 
-      if (search !== undefined && search != "") {
-        const regexSearch = new RegExp(search, 'i');
-        filter.$or = [
-          { user: regexSearch }
-        ]
-      }
-
-      resData = await Avplacebet.paginate(filter, options);
-    } else if (filter.sportName === 'Casino') {
-      // delete filter.mrktType;
-      delete filter.$or;
-      delete filter.username;
-      delete filter.sportName;
-
-      if (search !== undefined && search != "") {
-        const regexSearch = new RegExp(search, 'i');
-        filter.$or = [
-          { matchName: regexSearch },
-          { marketName: regexSearch },
-          { userName: regexSearch }
-        ]
-      }
-      filter.userId = userIds;
-      const optObj = {
-      ...options,
-      path: AuraCSPlaceBet.POPULATED_FIELDS,
-      };
-      
-      resData = await AuraCSPlaceBet.paginate(filter, optObj);
-    } else if (filter.sportName === 'Int Casino') {
-      // delete filter.mrktType;
-      // delete filter.IsSettle;
-      // delete filter.IsUnsettle;
-      // delete filter.IsVoid;
-      delete filter.sportName;
-      delete filter.$or;
-      if (search !== undefined && search != "") {
-        const regexSearch = new RegExp(search, 'i');
-        filter.$or = [
-          { gameName: regexSearch },
-          { categoryName: regexSearch },
-          { userName: regexSearch }
-        ]
-      }
-      resData = await St8Transaction.paginate(filter, options);
-    } else {
-      resData = await CricketBetPlace.paginate(filter, options);
-      if (resData.results.length === 0) {
-        resData = await TennisBetPlace.paginate(filter, options);
-      }
-      if (resData.results.length === 0) {
-        resData = await SoccerBetPlace.paginate(filter, options);
-      }
+        if (search !== undefined && search != "") {
+          const regexSearch = { $regex: search, $options: 'i' };
+          filter.$or = [
+            { matchName: regexSearch },
+            { marketName: regexSearch },
+            { userName: regexSearch }
+          ]
+        }
+        const optObj = {
+          ...options,
+          path: AuraCSPlaceBet.POPULATED_FIELDS,
+        };
+        pipeline[0]['$match'] = filter;
+        pipeline[1]['$lookup'] = {
+          from: 'users',
+          let: { userId: '$userId' },
+          pipeline: [
+            {
+              $match: {
+                $expr: {
+                  $and: [
+                    { $eq: [{$toString:'$_id'}, '$$userId'] },
+                    { $in: ['User','$roles'] },
+                    { $in: [data._id.toString(),'$parentId'] }
+                  ],
+                },
+              },
+            },
+            {
+              $project:{
+                username:1
+              }
+            }
+          ],
+          as:'user'
+        };
+        resData = await AuraCSPlaceBet.aggregate(pipeline);
+        break;
+      case "Int Casino":
+        // delete filter.mrktType;
+        // delete filter.IsSettle;
+        // delete filter.IsUnsettle;
+        // delete filter.IsVoid;
+        delete filter.sportName;
+        delete filter.$or;
+        if (search !== undefined && search != "") {
+          const regexSearch = { $regex: search, $options: 'i' };
+          filter.$or = [
+            { gameName: regexSearch },
+            { categoryName: regexSearch },
+            { userName: regexSearch }
+          ]
+        }
+        pipeline[0]['$match'] = filter;
+        resData = await St8Transaction.aggregate(pipeline);
+        break;
+      case "Cricket":
+        resData = await CricketBetPlace.aggregate(pipeline);
+      break;
+      case "Tennis":
+        resData = await TennisBetPlace.aggregate(pipeline);
+      break;
+      case "Soccer":
+        resData = await SoccerBetPlace.aggregate(pipeline);
+      break;
     }
-
-    const respData: any = [];
+    resData.results = resData?.[0]?.data ? resData?.[0]?.data : []
+    let totalResults=0, totalPages = 0;
+    if(resData?.[0]?.pagination?.[0]?.total){
+      totalResults =resData?.[0]?.pagination?.[0]?.total;
+      totalPages = Math.ceil(totalResults/limit);
+    }
+    const respData: any = {results:[],totalResults,totalPages,page,limit};
     resData?.results.forEach((item: any) => {
       const itemData = {
         username: item?.username || item?.user || item?.userId?.username || "",
@@ -353,14 +480,11 @@ const betList = async (data: any, filter: any, options: any): Promise<void> => {
         sportName: item?.sportName || sportName || '',
         size: item?.size || '',
         mrktType: item?.mrktType || '',
-        
         matchedTime: item.matchedTime || item?.updatedAt || ''
       };
-      respData.push(itemData);
-    }),
-
-      resData.results = respData
-    return resData;
+      respData.results.push(itemData);
+    });
+    return respData;
   }
   catch (error: any) {
     console.log("error", error);
