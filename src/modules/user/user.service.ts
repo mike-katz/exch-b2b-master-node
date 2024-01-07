@@ -450,6 +450,7 @@ const myBalance = async (userData: any): Promise<any> => {
   const res: any = {
     balance: (Number(userData?.balance).toFixed(2) || 0),
     exposureLimit: userData?.exposureLimit,
+    creditRef: userData?.creditRef,
     totalUser,
     totalBalance: Number(balanceSum).toFixed(2),
     totalExposure: Number(exposureSum).toFixed(2)
