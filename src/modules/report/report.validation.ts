@@ -38,6 +38,7 @@ const fetchIntCasinoList = {
     to: Joi.string().optional(),
     timeZone: Joi.string().optional(),
     developerCode: Joi.string().optional(),
+    gameName: Joi.string().optional(),
     page: Joi.number().required(),
     limit: Joi.number().required(),
   }),

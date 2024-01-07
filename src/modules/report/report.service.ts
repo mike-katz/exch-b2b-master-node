@@ -1,4 +1,4 @@
-import { AuraCSPlaceBet, Avplacebet, St8Transaction, Reporting, User } from "@/models"
+import { AuraCSPlaceBet, Avplacebet, St8Transaction, Reporting, User, CricketBetPlace } from "@/models"
 import ApiError from "@/utils/ApiError";
 import httpStatus from "http-status";
 import * as userService from "@/modules/user/user.service";
@@ -427,9 +427,6 @@ const fetchIntCasinoList = async (data: any, filter: any, options: any): Promise
       delete filter.from
       delete filter.timeZone
     }
-    const userData = await userService.getAllUsersDownlineUser(data?._id);
-    const usernames = userData.map((item: any) => item?.username)
-    filter.username = { $in: usernames }
     filter.IsSettle = 1
 
     if (filter.developerCode) {
@@ -439,9 +436,48 @@ const fetchIntCasinoList = async (data: any, filter: any, options: any): Promise
     const pipeline: any[] = [
       {
         $match: filter
-      }
+      },
+      {
+        $lookup:{
+          from: 'users',
+          let: { username: '$username' },
+          pipeline: [
+            {
+              $match: {
+                $expr: {
+                  $and: [
+                    { $eq: ['$username', '$$username'] },
+                    { $in: [data._id.toString(),'$parentId'] }
+                  ],
+                },
+              },
+            },
+            {
+              $project:{
+                username:1
+              }
+            }
+          ],
+          as:'userData'
+        }
+      },
+      { $unwind:"$userData"},
     ];
-    if (filter.developer_code) {
+    
+    if (filter.gameName) {
+      pipeline.push({
+        $group: {
+          _id: "$username",
+          developer_code: { $first: "$developer_code" },
+          game_code: { $first: "$game_code" },
+          gameName: { $first: "$gameName" },
+          categoryName: { $first: "$categoryName" },
+          pl: { $sum: "$pl" },
+          stack: { $sum: "$amount" },
+        }
+      });
+    }
+    else if (filter.developer_code) {
       pipeline.push({
         $group: {
           _id: "$game_code",
@@ -468,19 +504,37 @@ const fetchIntCasinoList = async (data: any, filter: any, options: any): Promise
       });
     }
 
-    const totalResults = await St8Transaction.aggregate(pipeline);
+    // const totalResults = await St8Transaction.aggregate(pipeline);
     const { limit = 10, page = 1 } = options;
     const skip = (page - 1) * limit;
+    pipeline.push({
+      "$facet": {
+        "results": [
+          {$sort: {_id: -1}},
+          { "$skip": skip },
+          { "$limit": parseInt(limit, 10) }
+        ],
+        "pagination": [
+          { "$count": "totalResults" }
+        ]
+      }
+    })
     pipeline.push({ $skip: skip }, { $limit: parseInt(limit) }, { $sort: { _id: -1 } })
-    const results = await St8Transaction.aggregate(pipeline);
 
+    const results = await St8Transaction.aggregate(pipeline).then((response:any)=>{
+      return response[0] ? response[0] : [];
+    });
     const result: any = {
       page,
       limit,
-      totalPages: Math.ceil(totalResults.length / limit),
-      totalResults: totalResults.length,
-      results
+      totalPages: 0,
+      totalResults: 0,
+      results:results?.results
     };
+    if(results?.pagination?.[0]?.totalResults){
+      result.totalResults =results?.pagination?.[0]?.totalResults;
+      result.totalPages = Math.ceil(result.totalResults/limit);
+    }
     return result;
 
   } catch (error: any) {
