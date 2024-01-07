@@ -315,13 +315,14 @@ const fetchSportEventList = async (data: any, filter: any, options: any): Promis
 
 const fetchAviatorList = async (data: any, filter: any, options: any): Promise<void> => {
   try {
-
     const dateData = getFilterProfitLoss(filter);
     if (dateData.error === 1) {
       throw new ApiError(httpStatus.BAD_REQUEST, {
         msg: "Please select only 30 days range only.",
       });
     }
+    const { limit = 10, page = 1 } = options;
+    const skip = (page - 1) * limit;
     if (dateData.filteredData) {
       const filterData = dateData.filteredData;
       filter = { ...filter, ...filterData };
@@ -329,12 +330,78 @@ const fetchAviatorList = async (data: any, filter: any, options: any): Promise<v
       delete filter.from
       delete filter.timeZone
     }
-    const userData = await userService.getAllUsersDownlineUser(data?._id);
-    const usernames = userData.map((item: any) => item?.username)
-    filter.user = { $in: usernames }
     filter.issettled = 1
-    options.sortBy = "_id:desc"
-    const resp = await Avplacebet.paginate(filter, options);
+    let groupFeilds:any = {};
+    if(filter.user && filter.user != ""){
+      groupFeilds = {
+        _id:"$_id",
+        user: {$first:"$user"},
+        stack: {$first:"$stack"},
+        pl: {$first:"$pl"},
+        sportName: {$first:"$sportName"},
+      }
+    }else{
+      delete filter?.user
+      groupFeilds = {
+        _id:"$user",
+        user: {$first:"$user"},
+        stack: {$sum:"$stack"},
+        pl: {$sum:"$pl"},
+        sportName: {$first:"$sportName"},
+      }
+    }
+    
+    let resp:any = await Avplacebet.aggregate([
+      {$match:filter},
+      {
+        $lookup:{
+          from: 'users',
+          let: { username: '$user' },
+          pipeline: [
+            {
+              $match: {
+                $expr: {
+                  $and: [
+                    { $eq: ['$username', '$$username'] },
+                    { $in: [data._id.toString(),'$parentId'] }
+                  ],
+                },
+              },
+            },
+            {
+              $project:{
+                username:1
+              }
+            }
+          ],
+          as:'userData'
+        }
+      },
+      { $unwind:"$userData"},
+      {
+        $group:groupFeilds
+      },
+      {
+        "$facet": {
+          "results": [
+            {$sort: {_id: -1}},
+            { "$skip": skip },
+            { "$limit": parseInt(limit, 10) }
+          ],
+          "pagination": [
+            { "$count": "totalResults" }
+          ]
+        }
+      }
+    ]).then((response:any)=>{
+      return response[0] ? response[0] : [];
+    });
+    resp = {...resp,totalResults:0,totalPages:0,page,limit};
+    if(resp?.pagination?.[0]?.totalResults){
+      resp.totalResults =resp?.pagination?.[0]?.totalResults;
+      resp.totalPages = Math.ceil(resp.totalResults/limit);
+      delete resp.pagination;
+    }
     return resp;
 
   } catch (error: any) {

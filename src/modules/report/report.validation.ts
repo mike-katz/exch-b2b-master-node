@@ -26,6 +26,7 @@ const fetchAviatorList = {
     from: Joi.string().optional(),
     to: Joi.string().optional(),
     timeZone: Joi.string().optional(),
+    user: Joi.string().optional(),
     page: Joi.number().required(),
     limit: Joi.number().required(),
   }),

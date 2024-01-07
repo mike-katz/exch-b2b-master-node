@@ -67,7 +67,7 @@ const fetchSportEventList = catchAsync(
 const fetchAviatorList = catchAsync(
   async (req: any, res: Response) => {
     const options = pick(req?.query, ['sortBy', 'limit', 'page']);
-    const filter = pick(req?.query, ['from', 'to', 'timeZone']);
+    const filter = pick(req?.query, ['from', 'to', 'timeZone','user']);
 
     const data: any = await ReportService.fetchAviatorList(req.user, filter, options);
     res.status(httpStatus.OK).json({
