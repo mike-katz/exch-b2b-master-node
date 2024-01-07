@@ -70,6 +70,7 @@ const userMarketsProfitlossAura = {
     from: Joi.string().optional(),
     to: Joi.string().optional(),
     timeZone: Joi.string().optional(),
+    eventName: Joi.string().optional(),
     page: Joi.number().optional(),
     limit: Joi.number().optional(),
     matchName: Joi.required(),

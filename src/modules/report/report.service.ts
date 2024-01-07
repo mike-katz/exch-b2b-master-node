@@ -468,6 +468,8 @@ const fetchIntCasinoList = async (data: any, filter: any, options: any): Promise
       pipeline.push({
         $group: {
           _id: "$username",
+          userId:{$first: "$userData._id"},
+          username:{$first: "$userData.username"},
           developer_code: { $first: "$developer_code" },
           game_code: { $first: "$game_code" },
           gameName: { $first: "$gameName" },
@@ -518,9 +520,7 @@ const fetchIntCasinoList = async (data: any, filter: any, options: any): Promise
           { "$count": "totalResults" }
         ]
       }
-    })
-    pipeline.push({ $skip: skip }, { $limit: parseInt(limit) }, { $sort: { _id: -1 } })
-
+    });
     const results = await St8Transaction.aggregate(pipeline).then((response:any)=>{
       return response[0] ? response[0] : [];
     });
@@ -880,74 +880,99 @@ const userMarketsProfitlossAura = async (data: any, filter: any, options: any): 
       delete filter.from
       delete filter.timeZone
     }
-    const userData = await userService.getAllUsersDownlineUser(data?._id);
-    const userIds = userData.map((item: any) => item?._id.toString())
-    filter.userId = { $in: userIds }
     filter.IsSettle = 1;
     const { limit = 10, page = 1 } = options;
     const skip = (page - 1) * limit;
+    let groupData:any = {};
+    if(filter.eventName){
+      filter.marketName =filter.eventName; 
+      delete filter.eventName;
+      groupData = {
+        _id: "$userId",
+        username:{$first: '$user.username'},
+        sportName: { $first: 'Casino'},
+        eventName:{ $first: '$marketName' },
+        eventId: { $first: '$_id' },
+        matchName:{ $first: '$matchName' },
+        pl: {
+          $sum: '$winnerpl',
+        },
+        stack: {$sum: '$betInfo.reqStake'}
+      }
+    }else{
+      groupData = {
+        _id: {
+          marketName: '$marketName',
+        },
+        sportName: { $first: 'Casino'},
+        eventName:{ $first: '$marketName' },
+        matchName:{ $first: '$matchName' },
+        eventId: { $first: '$_id' },
+        pl: {
+          $sum: '$winnerpl',
+        },
+        stack: {$sum: '$betInfo.reqStake'}
+      }
+    }
     const result = await AuraCSPlaceBet.aggregate([
       {
         $match: filter,
       },
       {
-        $group: {
-          _id: {
-            marketName: '$marketName',
-          },
-          eventId: { $first: '$_id' },
-          pl: {
-            $sum: '$winnerpl',
-          },
-          stack: {$sum: '$betInfo.reqStake'}
-
-        },
+        $lookup:{
+          from: 'users',
+          let: { userId: '$userId' },
+          pipeline: [
+            {
+              $match: {
+                $expr: {
+                  $and: [
+                    { $eq: [{$toString:'$_id'}, '$$userId'] },
+                    { $in: [data._id.toString(),'$parentId'] }
+                  ],
+                },
+              },
+            },
+            {
+              $project:{
+                username:1
+              }
+            }
+          ],
+          as:'user'
+        }
+      },
+      { $unwind:"$user"},
+      {
+        $group: groupData
       },
       {
-        $sort: { "pl": -1 },
-      },
-      {
-        $skip: skip,
-      },
-      {
-        $limit: parseInt(limit, 10),
-      },
-    ]);
-
-    const totalResults = await AuraCSPlaceBet.aggregate([
-      {
-        $match: filter,
-      },
-      {
-        $group: {
-          _id: {
-            marketName: '$marketName',
-          },
-          eventId: { $first: '$_id' },
-          pl: {
-            $sum: '$winnerpl',
-          },
-        },
-      },
-    ]);
-    const retData: any = [];
-    result.map((data: any) => {
-      const mapdata = {
-        sportName: 'Casino',
-        eventName: data._id.marketName,
-        eventId: data.eventId,
-        pl: data.pl,
-        stack: data.stack,
-      };
-      retData.push(mapdata);
+        "$facet": {
+          "results": [
+            {$sort: {pl: -1}},
+            { "$skip": skip },
+            { "$limit": parseInt(limit, 10) }
+          ],
+          "pagination": [
+            { "$count": "totalResults" }
+          ]
+        }
+      }
+    ]).then((response:any)=>{
+      return response[0] ? response[0] : [];
     });
+
     const resData: any = {
       page,
       limit,
-      totalPages: Math.ceil(totalResults.length / limit),
-      totalResults: totalResults.length,
-      results: retData,
+      totalPages: 0,
+      totalResults: 0,
+      results:result?.results
     };
+    if(result?.pagination?.[0]?.totalResults){
+      resData.totalResults =result?.pagination?.[0]?.totalResults;
+      resData.totalPages = Math.ceil(resData.totalResults/limit);
+    }
     return resData;
   } catch (error: any) {
     throw new ApiError(httpStatus.BAD_REQUEST, {
