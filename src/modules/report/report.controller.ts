@@ -9,8 +9,9 @@ import pick from "@/utils/pick";
 
 const fetchSportTotalPL = catchAsync(
   async (req: any, res: Response) => {
+    const options = pick(req?.query, ["sortBy", "order"]);
     const filter = pick(req?.query, ['from', 'to', 'timeZone']);
-    const data: any = await ReportService.fetchSportTotalPL(req.user, filter);
+    const data: any = await ReportService.fetchSportTotalPL(req.user, filter,options);
     res.status(httpStatus.OK).json({
       message: "Sports total pl success",
       data,
@@ -20,8 +21,9 @@ const fetchSportTotalPL = catchAsync(
 
 const fetchAviatorTotalPL = catchAsync(
   async (req: any, res: Response) => {
+    const options = pick(req?.query, ["sortBy", "order"]);
     const filter = pick(req?.query, ['from', 'to', 'timeZone']);
-    const data: any = await ReportService.fetchAviatorTotalPL(req.user, filter);
+    const data: any = await ReportService.fetchAviatorTotalPL(req.user, filter,options);
     res.status(httpStatus.OK).json({
       message: "Aviator total pl success",
       data,
@@ -31,8 +33,9 @@ const fetchAviatorTotalPL = catchAsync(
 
 const fetchCasinoTotalPL = catchAsync(
   async (req: any, res: Response) => {
+    const options = pick(req?.query, ["sortBy", "order"]);
     const filter = pick(req?.query, ['from', 'to', 'timeZone']);
-    const data: any = await ReportService.fetchCasinoTotalPL(req.user, filter);
+    const data: any = await ReportService.fetchCasinoTotalPL(req.user, filter,options);
     res.status(httpStatus.OK).json({
       message: "Casino total pl success",
       data,
@@ -42,8 +45,9 @@ const fetchCasinoTotalPL = catchAsync(
 
 const fetchIntCasinoTotalPL = catchAsync(
   async (req: any, res: Response) => {
+    const options = pick(req?.query, ["sortBy", "order"]);
     const filter = pick(req?.query, ['from', 'to', 'timeZone']);
-    const data: any = await ReportService.fetchIntCasinoTotalPL(req.user, filter);
+    const data: any = await ReportService.fetchIntCasinoTotalPL(req.user, filter,options);
     res.status(httpStatus.OK).json({
       message: "Int casino total pl success",
       data,
@@ -53,7 +57,7 @@ const fetchIntCasinoTotalPL = catchAsync(
 
 const fetchSportEventList = catchAsync(
   async (req: any, res: Response) => {
-    const options = pick(req?.query, ['sortBy', 'limit', 'page']);
+    const options = pick(req?.query, ['sortBy',"order" ,'limit', 'page']);
     const filter = pick(req?.query, ['exEventId', 'exMarketId', 'timeZone', 'sportName', 'from', 'to']);
 
     const data: any = await ReportService.fetchSportEventList(req.user, filter, options);
@@ -66,7 +70,7 @@ const fetchSportEventList = catchAsync(
 
 const fetchAviatorList = catchAsync(
   async (req: any, res: Response) => {
-    const options = pick(req?.query, ['sortBy', 'limit', 'page']);
+    const options = pick(req?.query, ['sortBy',"order", 'limit', 'page']);
     const filter = pick(req?.query, ['from', 'to', 'timeZone','user']);
 
     const data: any = await ReportService.fetchAviatorList(req.user, filter, options);
@@ -79,7 +83,7 @@ const fetchAviatorList = catchAsync(
 
 const fetchIntCasinoList = catchAsync(
   async (req: any, res: Response) => {
-    const options = pick(req?.query, ['sortBy', 'limit', 'page']);
+    const options = pick(req?.query, ['sortBy',"order", 'limit', 'page']);
     const filter = pick(req?.query, ['from', 'to', 'timeZone', 'developerCode','gameName']);
     const data: any = await ReportService.fetchIntCasinoList(req.user, filter, options);
     res.status(httpStatus.OK).json({
@@ -102,7 +106,7 @@ const fetchuserPLList = catchAsync(
 );
 const userEventsProfitlossAura = catchAsync(
   async (req: any, res: Response) => {
-    const options = pick(req?.query, ['sortBy', 'limit', 'page']);
+    const options = pick(req?.query, ['sortBy','order', 'limit', 'page']);
     const filter = pick(req?.query, ['from', 'to', 'timeZone']);
     const data: any = await ReportService.userEventsProfitlossAura(req.user, filter, options);
     res.status(httpStatus.OK).json({

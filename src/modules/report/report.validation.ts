@@ -5,6 +5,8 @@ const fetchSportTotalPL = {
     timeZone: Joi.string().optional(),
     from: Joi.string().optional(),
     to: Joi.string().optional(),
+    sortBy: Joi.string().optional(),
+    order: Joi.string().optional(),
   }),
 };
 
@@ -18,6 +20,8 @@ const fetchSportEventList = {
     timeZone: Joi.string().optional(),
     page: Joi.number().required(),
     limit: Joi.number().required(),
+    sortBy: Joi.string().optional(),
+    order: Joi.string().optional(),
   }),
 };
 
@@ -29,6 +33,8 @@ const fetchAviatorList = {
     user: Joi.string().optional(),
     page: Joi.number().required(),
     limit: Joi.number().required(),
+    sortBy: Joi.string().optional(),
+    order: Joi.string().optional(),
   }),
 };
 
@@ -41,6 +47,8 @@ const fetchIntCasinoList = {
     gameName: Joi.string().optional(),
     page: Joi.number().required(),
     limit: Joi.number().required(),
+    sortBy: Joi.string().optional(),
+    order: Joi.string().optional(),
   }),
 };
 
@@ -62,6 +70,8 @@ const userEventsProfitlossAura = {
     timeZone: Joi.string().optional(),
     page: Joi.number().optional(),
     limit: Joi.number().optional(),
+    sortBy: Joi.string().optional(),
+    order: Joi.string().optional(),
   }),
 };
 

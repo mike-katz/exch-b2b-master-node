@@ -4,7 +4,7 @@ import httpStatus from "http-status";
 import * as userService from "@/modules/user/user.service";
 import { getFilterProfitLoss } from "../pl/pl.service";
 
-const fetchSportTotalPL = async (data: any, filter: any): Promise<void> => {
+const fetchSportTotalPL = async (data: any, filter: any,options:any): Promise<void> => {
   try {
     if (!data.roles.includes('Admin')) {
       const userData = await userService.getAllUsersDownlineUser(data?._id);
@@ -24,7 +24,7 @@ const fetchSportTotalPL = async (data: any, filter: any): Promise<void> => {
       delete filter.from
       delete filter.timeZone
     }
-
+    const { sortBy = "pl", order = "-1" } = options;
     const response = await Reporting.aggregate([
       {
         $match: filter
@@ -38,11 +38,12 @@ const fetchSportTotalPL = async (data: any, filter: any): Promise<void> => {
           commission: { $sum: "$commission" },
           stack: { $sum: "$stake" }
         }
+      },
+      {
+        $sort: { [sortBy]: parseInt(order) } 
       }
     ]);
-
     return response;
-
   } catch (error: any) {
     throw new ApiError(httpStatus.BAD_REQUEST, {
       msg: error?.errorData?.msg || "invalid user id.",
@@ -50,7 +51,7 @@ const fetchSportTotalPL = async (data: any, filter: any): Promise<void> => {
   }
 }
 
-const fetchCasinoTotalPL = async (data: any, filter: any): Promise<void> => {
+const fetchCasinoTotalPL = async (data: any, filter: any, options: any): Promise<void> => {
   try {
     if (!data.roles.includes('Admin')) {
       const userData = await userService.getAllUsersDownlineUser(data?._id);
@@ -70,6 +71,7 @@ const fetchCasinoTotalPL = async (data: any, filter: any): Promise<void> => {
       delete filter.from
       delete filter.timeZone
     }
+    const { sortBy = "pl", order = "-1" } = options;
     filter.IsSettle = 1
     let resp = await AuraCSPlaceBet.aggregate([
       {
@@ -82,6 +84,9 @@ const fetchCasinoTotalPL = async (data: any, filter: any): Promise<void> => {
           pl: { $sum: "$winnerpl" },
           stack: { $sum: "$betInfo.reqStake" },
         }
+      },
+      {
+        $sort: { [sortBy]: parseInt(order) } 
       }
     ]);
     let datas = resp[0];
@@ -96,7 +101,7 @@ const fetchCasinoTotalPL = async (data: any, filter: any): Promise<void> => {
   }
 }
 
-const fetchIntCasinoTotalPL = async (data: any, filter: any): Promise<void> => {
+const fetchIntCasinoTotalPL = async (data: any, filter: any,options:any): Promise<void> => {
   try {
     if(!data.roles.includes('Admin')){
       const userData = await userService.getAllUsersDownlineUser(data?._id);
@@ -117,6 +122,7 @@ const fetchIntCasinoTotalPL = async (data: any, filter: any): Promise<void> => {
       delete filter.timeZone
     }
     filter.IsSettle = 1
+    const { sortBy = "pl", order = "-1" } = options;
     let resp = await St8Transaction.aggregate([
       {
         $match: filter
@@ -129,6 +135,9 @@ const fetchIntCasinoTotalPL = async (data: any, filter: any): Promise<void> => {
           stack: { $sum: "$amount" },
         }
       },
+      {
+        $sort: { [sortBy]: parseInt(order) } 
+      }
     ]);
 
     let datas = resp[0];
@@ -143,7 +152,7 @@ const fetchIntCasinoTotalPL = async (data: any, filter: any): Promise<void> => {
   }
 }
 
-const fetchAviatorTotalPL = async (data: any, filter: any): Promise<void> => {
+const fetchAviatorTotalPL = async (data: any, filter: any, options: any): Promise<void> => {
   try {
     if (!data.roles.includes('Admin')) {
       const userData = await userService.getAllUsersDownlineUser(data?._id);
@@ -165,6 +174,7 @@ const fetchAviatorTotalPL = async (data: any, filter: any): Promise<void> => {
     }
     
     filter.issettled = 1
+    const { sortBy = "pl", order = "-1" } = options;
     const resp = await Avplacebet.aggregate([
       {
         $match: filter
@@ -179,6 +189,9 @@ const fetchAviatorTotalPL = async (data: any, filter: any): Promise<void> => {
           pl: { $sum: "$pl" },
           // commission: 0
         }
+      },
+      {
+        $sort: { [sortBy]: parseInt(order) } 
       }
     ]);
     return resp;
@@ -288,9 +301,9 @@ const fetchSportEventList = async (data: any, filter: any, options: any): Promis
     }
 
     const totalResults = await Reporting.aggregate(pipeline);
-    const { limit = 10, page = 1 } = options;
+    const { limit = 10, page = 1,sortBy="pl",order="-1" } = options;
     const skip = (page - 1) * limit;
-    pipeline.push({ $skip: skip }, { $limit: parseInt(limit) }, { $sort: { _id: -1 } })
+    pipeline.push({ $skip: skip }, { $limit: parseInt(limit) }, { $sort: { [sortBy]: parseInt(order) } })
 
     const results = await Reporting.aggregate(pipeline);
     // totalResults = await totalResults.toArray();
@@ -321,7 +334,7 @@ const fetchAviatorList = async (data: any, filter: any, options: any): Promise<v
         msg: "Please select only 30 days range only.",
       });
     }
-    const { limit = 10, page = 1 } = options;
+    const { limit = 10, page = 1,sortBy = "pl", order = "-1" } = options;
     const skip = (page - 1) * limit;
     if (dateData.filteredData) {
       const filterData = dateData.filteredData;
@@ -384,7 +397,7 @@ const fetchAviatorList = async (data: any, filter: any, options: any): Promise<v
       {
         "$facet": {
           "results": [
-            {$sort: {_id: -1}},
+            {$sort: {[sortBy]: parseInt(order)}},
             { "$skip": skip },
             { "$limit": parseInt(limit, 10) }
           ],
@@ -507,12 +520,14 @@ const fetchIntCasinoList = async (data: any, filter: any, options: any): Promise
     }
 
     // const totalResults = await St8Transaction.aggregate(pipeline);
-    const { limit = 10, page = 1 } = options;
+    const { limit = 10, page = 1,sortBy = "pl", order = "-1"  } = options;
     const skip = (page - 1) * limit;
     pipeline.push({
       "$facet": {
         "results": [
-          {$sort: {_id: -1}},
+          {
+            $sort: { [sortBy]: parseInt(order) } 
+          },
           { "$skip": skip },
           { "$limit": parseInt(limit, 10) }
         ],
@@ -794,7 +809,7 @@ const userEventsProfitlossAura = async (data: any, filter: any, options: any): P
     const userIds = userData.map((item: any) => item?._id.toString())
     filter.userId = { $in: userIds }
     filter.IsSettle = 1
-    const { limit = 10, page = 1 } = options;
+    const { limit = 10, page = 1,sortBy = "pl", order = "-1" } = options;
     const skip = (page - 1) * limit;
     const retData: any = [];
     const result = await AuraCSPlaceBet.aggregate([
@@ -814,7 +829,7 @@ const userEventsProfitlossAura = async (data: any, filter: any, options: any): P
         },
       },
       {
-        $sort: { "pl": -1 },
+        $sort: { [sortBy]: parseInt(order) } ,
       },
       {
         $skip: skip,
