@@ -354,7 +354,11 @@ const fetchAviatorList = async (data: any, filter: any, options: any): Promise<v
         sportName: {$first:"$sportName"},
       }
     }else{
-      delete filter?.user
+      if (!data.roles.includes('Admin')) {
+        const userData = await userService.getAllUsersDownlineUser(data._id);
+        const usernames = userData.map((item: any) => item?.username)
+        filter.user = { $in: usernames }
+      }
       groupFeilds = {
         _id:"$user",
         user: {$first:"$user"},
@@ -366,31 +370,6 @@ const fetchAviatorList = async (data: any, filter: any, options: any): Promise<v
     
     let resp:any = await Avplacebet.aggregate([
       {$match:filter},
-      {
-        $lookup:{
-          from: 'users',
-          let: { username: '$user' },
-          pipeline: [
-            {
-              $match: {
-                $expr: {
-                  $and: [
-                    { $eq: ['$username', '$$username'] },
-                    { $in: [data._id.toString(),'$parentId'] }
-                  ],
-                },
-              },
-            },
-            {
-              $project:{
-                username:1
-              }
-            }
-          ],
-          as:'userData'
-        }
-      },
-      { $unwind:"$userData"},
       {
         $group:groupFeilds
       },
